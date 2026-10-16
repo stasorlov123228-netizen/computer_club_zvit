@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Мій акаунт - Lviv Arena</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(ellipse at top, #183326 0%, #0b0e13 55%);
+            background-attachment: fixed;
+            color: #ffffff;
+        }
+
+        /* ШАПКА */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 5%;
+            background: rgba(8, 11, 9, 0.96);
+            border-bottom: 1px solid rgba(101, 255, 154, 0.22);
+            backdrop-filter: blur(14px);
+        }
+
+        .logo {
+            color: #65ff9a;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .header-link {
+            padding: 12px 16px;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            border: 1px solid rgba(101, 255, 154, 0.5);
+            border-radius: 5px;
+            transition: color 0.25s, background 0.25s;
+        }
+
+        .header-link:hover {
+            color: #080b09;
+            background: #65ff9a;
+        }
+
+        /* ВМІСТ */
+
+        main {
+            width: 90%;
+            max-width: 850px;
+            margin: 55px auto 70px;
+        }
+
+        .page-tag {
+            color: #65ff9a;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(28px, 6vw, 40px);
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            color: #65ff9a;
+        }
+
+        .subtitle {
+            color: #aeb8c7;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            padding: 30px;
+            margin-bottom: 25px;
+            background: #141a23;
+            border: 1px solid #293341;
+            border-radius: 14px;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .card:hover {
+            border-color: rgba(101, 255, 154, 0.5);
+            box-shadow: 0 0 25px rgba(101, 255, 154, 0.08);
+        }
+
+        .card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        /* ПРОФІЛЬ */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            border-color: rgba(101, 255, 154, 0.4);
+            box-shadow: 0 0 25px rgba(101, 255, 154, 0.1);
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #0f2417;
+            border: 2px solid #65ff9a;
+            box-shadow: 0 0 18px rgba(101, 255, 154, 0.35);
+            color: #65ff9a;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .profile h2 {
+            margin: 0 0 10px;
+            font-size: 22px;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            color: #65ff9a;
+            font-size: 13px;
+            background: rgba(101, 255, 154, 0.08);
+            border: 1px solid rgba(101, 255, 154, 0.3);
+            border-radius: 20px;
+        }
+
+        .status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #65ff9a;
+            box-shadow: 0 0 8px #65ff9a;
+        }
+
+        /* ІНФОРМАЦІЯ */
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 17px 0;
+            border-bottom: 1px solid #252d3a;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            color: #778395;
+        }
+
+        .info-value {
+            overflow-wrap: anywhere;
+            text-align: right;
+        }
+
+        .phone-form {
+            max-width: 460px;
+        }
+
+        .phone-form label {
+            display: block;
+            margin: 14px 0 7px;
+            color: #aeb8c7;
+        }
+
+        .phone-form input,
+        .phone-form select {
+            width: 100%;
+            padding: 12px;
+            color: #ffffff;
+            background: #0b0e13;
+            border: 1px solid #394658;
+            border-radius: 7px;
+        }
+
+        .phone-form button {
+            margin-top: 18px;
+        }
+
+        .phone-form .errorlist {
+            color: #ff8585;
+        }
+
+        /* КНОПКИ */
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .actions form {
+            display: contents;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 14px 24px;
+            border: 1px solid #65ff9a;
+            border-radius: 6px;
+            background: #65ff9a;
+            color: #0b0e13;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.2s, border-color 0.2s;
+        }
+
+        .button:hover {
+            background: #42df7c;
+            border-color: #42df7c;
+            transform: translateY(-2px);
+        }
+
+        .button.outline {
+            background: transparent;
+            color: #65ff9a;
+        }
+
+        .button.outline:hover {
+            background: #65ff9a;
+            color: #0b0e13;
+        }
+
+        .button.logout {
+            background: transparent;
+            border-color: #3a4352;
+            color: #c3cbd8;
+            margin-left: auto;
+        }
+
+        .button.logout:hover {
+            background: #ff5c6c;
+            border-color: #ff5c6c;
+            color: #ffffff;
+        }
+
+        /* АДАПТАЦІЯ */
+
+        @media (max-width: 550px) {
+            header {
+                padding: 16px 5%;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .header-link {
+                padding: 10px 12px;
+                font-size: 10px;
+            }
+
+            main {
+                margin-top: 35px;
+            }
+
+            .card {
+                padding: 22px 20px;
+            }
+
+            .profile {
+                gap: 16px;
+            }
+
+            .avatar {
+                width: 64px;
+                height: 64px;
+                font-size: 26px;
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .button,
+            .button.logout {
+                width: 100%;
+                text-align: center;
+                margin-left: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'home' %}" class="header-link">НА ГОЛОВНУ</a>
+    </header>
+
+    <main>
+        <div class="page-tag">YOUR GAME. YOUR ARENA.</div>
+        <h1>МІЙ <span>АКАУНТ</span></h1>
+        <p class="subtitle">Керування твоїм профілем у Lviv Arena</p>
+
+        <section class="card profile">
+            <div class="avatar">
+                {{ request.user.username|first|upper }}
+            </div>
+
+            <div>
+                <h2>{{ request.user.username }}</h2>
+                <div class="status">Акаунт активний</div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Інформація про профіль</h2>
+
+            <div class="info-row">
+                <span class="info-label">Ім'я користувача</span>
+                <span class="info-value">{{ request.user.username }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Електронна пошта</span>
+                <span class="info-value">
+                    {% if request.user.email %}
+                        {{ request.user.email }}
+                    {% else %}
+                        Не вказана
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Номер телефону</span>
+                <span class="info-value">
+                    {% if request.user.profile.phone %}
+                        {{ request.user.profile.phone }}
+                    {% else %}
+                        Не вказаний
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Дата реєстрації</span>
+                <span class="info-value">
+                    {{ request.user.date_joined|date:"d.m.Y" }}
+                </span>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Номер телефону для бронювання</h2>
+            <form method="POST" class="phone-form">
+                {% csrf_token %}
+                {{ phone_form.phone_country.label_tag }}
+                {{ phone_form.phone_country }}
+                {{ phone_form.phone_country.errors }}
+                {{ phone_form.phone_local.label_tag }}
+                {{ phone_form.phone_local }}
+                {{ phone_form.phone_local.errors }}
+                <button class="button" type="submit" name="update_phone">
+                    ЗБЕРЕГТИ НОМЕР
+                </button>
+            </form>
+        </section>
+
+        <div class="actions">
+            <a class="button" href="{% url 'my_bookings' %}">
+                МОЇ БРОНЮВАННЯ
+            </a>
+
+            <a class="button outline" href="{% url 'booking' %}">
+                ЗАБРОНЮВАТИ ПК
+            </a>
+
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="button logout" type="submit">
+                    ВИЙТИ З АКАУНТУ
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

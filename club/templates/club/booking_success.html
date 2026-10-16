@@ -1,0 +1,178 @@
+    <!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бронювання успішне — Lviv Arena</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px 15px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b0e13;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px 25px;
+            background: #141a23;
+            border: 1px solid #293341;
+            border-radius: 14px;
+        }
+
+        .success-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #173b28;
+            color: #65ff9a;
+            font-size: 35px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            color: #65ff9a;
+            text-align: center;
+            font-size: 25px;
+        }
+
+        .subtitle {
+            margin-bottom: 25px;
+            color: #aeb8c7;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .details {
+            padding: 16px;
+            background: #0b0e13;
+            border: 1px solid #293341;
+            border-radius: 9px;
+        }
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 11px 0;
+            border-bottom: 1px solid #293341;
+            font-size: 14px;
+        }
+
+        .detail:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #aeb8c7;
+        }
+
+        .value {
+            text-align: right;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .button {
+            display: block;
+            margin-top: 20px;
+            padding: 13px;
+            border-radius: 7px;
+            background: #65ff9a;
+            color: #0b0e13;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background: #42df7c;
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            .detail {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="success-icon">✓</div>
+
+        <h1>Бронювання успішне!</h1>
+
+        <div class="subtitle">
+            Дякуємо, що обрали Lviv Arena.<br>
+            Ваше бронювання збережено.
+        </div>
+
+        {% if booking %}
+            <div class="details">
+
+                <div class="detail">
+                    <span class="label">Номер бронювання</span>
+                    <span class="value">#{{ booking.id }}</span>
+                </div>
+
+                <div class="detail">
+                    <span class="label">Ім'я клієнта</span>
+                    <span class="value">{{ booking.customer_name }}</span>
+                </div>
+
+                <div class="detail">
+                    <span class="label">Телефон</span>
+                    <span class="value">{{ booking.phone }}</span>
+                </div>
+
+                <div class="detail">
+                    <span class="label">Комп'ютер</span>
+                    <span class="value">{{ booking.computer.name }}</span>
+                </div>
+
+                <div class="detail">
+                    <span class="label">Тариф</span>
+                    <span class="value">{{ booking.tariff.name }}</span>
+                </div>
+
+                <div class="detail">
+                    <span class="label">Початок</span>
+                    <span class="value">{{ booking.start_time|date:"d.m.Y H:i" }}</span>
+                </div>
+
+                <div class="detail">
+                    <span class="label">Завершення</span>
+                    <span class="value">{{ booking.end_time|date:"d.m.Y H:i" }}</span>
+                </div>
+
+            </div>
+        {% endif %}
+
+        <a class="button" href="/">ПОВЕРНУТИСЯ НА ГОЛОВНУ</a>
+
+    </div>
+</body>
+</html>

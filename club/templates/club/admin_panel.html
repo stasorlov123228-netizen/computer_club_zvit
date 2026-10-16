@@ -1,0 +1,130 @@
+{% extends 'club/admin_base.html' %}
+
+{% block title %}Admin panel{% endblock %}
+
+{% block extra_css %}<style>
+    .admin-hero {
+        min-height: 60vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .admin-content {
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .tag {
+        color: #65ff9a;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        margin-bottom: 18px;
+    }
+
+    .label {
+        display: inline-block;
+        margin-bottom: 22px;
+        padding: 5px 14px;
+        color: #65ff9a;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.3);
+        border-radius: 20px;
+    }
+
+    h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(32px, 7vw, 64px);
+        font-weight: 800;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+    h1 span {
+        display: block;
+        color: #65ff9a;
+    }
+
+    .title-line {
+        width: 90px;
+        height: 3px;
+        margin: 24px auto;
+        background: #65ff9a;
+        border-radius: 3px;
+        box-shadow: 0 0 14px rgba(101, 255, 154, 0.7);
+    }
+
+    .description {
+        max-width: 620px;
+        margin: 0 auto;
+        color: #b6c0ce;
+        font-size: 17px;
+        line-height: 1.8;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 34px;
+        padding: 12px 22px;
+        color: #65ff9a;
+        font-size: 14px;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.4);
+        border-radius: 30px;
+        box-shadow: 0 0 20px rgba(101, 255, 154, 0.1);
+    }
+
+    .status::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #65ff9a;
+        box-shadow: 0 0 8px #65ff9a;
+    }
+
+    @media (max-width: 600px) {
+        .tag {
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
+        .description {
+            font-size: 16px;
+        }
+
+        .status {
+            font-size: 13px;
+            padding: 11px 18px;
+        }
+    }
+</style>{% endblock %}
+
+{% block content %}
+    <section class="admin-hero">
+        <div class="admin-content">
+            <div class="tag">YOUR GAME. YOUR ARENA.</div>
+            <p class="label">Панель керування</p>
+
+            <h1>Arena Lviv <span>Admin panel</span></h1>
+            <div class="title-line"></div>
+
+            <p class="description">
+                Вітаємо в адміністративній панелі Lviv Arena.
+                Оберіть розділ у меню зверху, щоб керувати
+                комп’ютерним клубом.
+            </p>
+
+            <div class="status">Ви увійшли як адміністратор</div>
+        </div>
+    </section>
+{% endblock %}
