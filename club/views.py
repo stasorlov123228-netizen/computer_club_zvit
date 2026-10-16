@@ -495,6 +495,43 @@ def admin_tariffs(request):
     })
 
 
+from decimal import Decimal, InvalidOperation
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect
+from .models import Tariff
+
+
+@login_required
+def admin_update_tariff_price(request, tariff_id):
+    if request.user.username != 'admin' or not request.user.is_staff:
+        return HttpResponseForbidden('Доступ заборонено.')
+
+    if request.method != 'POST':
+        return redirect('admin_tariffs')
+
+    tariff = get_object_or_404(Tariff, pk=tariff_id)
+    raw_price = request.POST.get('price', '').strip().replace(',', '.')
+
+    try:
+        new_price = Decimal(raw_price)
+        if (
+            not new_price.is_finite()
+            or new_price < 0
+            or new_price > Decimal('999999.99')
+        ):
+            raise InvalidOperation
+        if new_price.as_tuple().exponent < -2:
+            raise InvalidOperation
+    except (InvalidOperation, ValueError):
+        return redirect('admin_tariffs')
+
+    tariff.price_per_hour = new_price
+    tariff.save(update_fields=['price_per_hour'])
+
+    return redirect('admin_tariffs')
+
+
 PC_SPECS = {
     'default': {
         'title': 'DEFAULT',
@@ -672,3 +709,28 @@ def admin_computers(request):
         'computers': computers,
         'specs': PC_SPECS,
     })
+
+
+
+@login_required
+@require_POST
+def admin_booking_action(request, booking_id):
+    if request.user.username != 'admin' or not request.user.is_staff:
+        return HttpResponseForbidden('Доступ заборонено.')
+
+    booking = get_object_or_404(Booking, id=booking_id)
+    action = request.POST.get('action')
+
+    if action == 'toggle_payment':
+        if booking.payment_status == 'paid':
+            booking.payment_status = 'unpaid'
+        else:
+            booking.payment_status = 'paid'
+
+        booking.save(update_fields=['payment_status'])
+
+    elif action == 'delete':
+        booking.delete()
+        update_computer_statuses()
+
+    return redirect('admin_bookings')

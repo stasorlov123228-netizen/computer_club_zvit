@@ -3,6 +3,58 @@
 {% block title %}Бронювання{% endblock %}
 
 {% block extra_css %}<style>
+
+    
+    .booking-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 175px;
+    }
+
+    .booking-actions form {
+        margin: 0;
+    }
+
+    .action-btn {
+        width: 100%;
+        padding: 9px 12px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .paid-btn {
+        color: #65ff9a;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.4);
+    }
+
+    .paid-btn:hover {
+        background: rgba(101, 255, 154, 0.18);
+    }
+
+    .unpaid-btn {
+        color: #ffc857;
+        background: rgba(255, 200, 87, 0.08);
+        border: 1px solid rgba(255, 200, 87, 0.4);
+    }
+
+    .unpaid-btn:hover {
+        background: rgba(255, 200, 87, 0.18);
+    }
+
+    .delete-btn {
+        color: #ff7777;
+        background: rgba(255, 80, 80, 0.08);
+        border: 1px solid rgba(255, 80, 80, 0.4);
+    }
+
+    .delete-btn:hover {
+        background: rgba(255, 80, 80, 0.2);
+    }
     .admin-page {
         width: 94%;
         max-width: 1250px;
@@ -139,6 +191,55 @@
         text-align: center;
         color: #778395;
     }
+
+    .booking-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .booking-actions form {
+        margin: 0;
+    }
+
+    .action-btn {
+        padding: 8px 10px;
+        color: #e6ebf2;
+        background: transparent;
+        border: 1px solid #394555;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .action-btn.paid-btn {
+        color: #65ff9a;
+        border-color: rgba(101, 255, 154, 0.45);
+    }
+
+    .action-btn.paid-btn:hover {
+        background: rgba(101, 255, 154, 0.1);
+    }
+
+    .action-btn.unpaid-btn {
+        color: #ffc857;
+        border-color: rgba(255, 200, 87, 0.45);
+    }
+
+    .action-btn.unpaid-btn:hover {
+        background: rgba(255, 200, 87, 0.1);
+    }
+
+    .action-btn.delete-btn {
+        color: #ff8585;
+        border-color: rgba(255, 92, 108, 0.45);
+    }
+
+    .action-btn.delete-btn:hover {
+        background: rgba(255, 92, 108, 0.1);
+    }
 </style>{% endblock %}
 
 {% block content %}
@@ -165,6 +266,7 @@
                         <th>Завершення</th>
                         <th>Оплата</th>
                         <th>Статус</th>
+                        <th>Дії</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -196,10 +298,43 @@
                                     <span class="badge unpaid">Не сплачено</span>
                                 {% endif %}
                             </td>
+                        
+        <td>
+            <div class="booking-actions">
+
+                <form method="post"
+                    action="{% url 'admin_booking_action' b.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="toggle_payment">
+
+                    <button type="submit"
+                            class="action-btn {% if b.payment_status == 'paid' %}unpaid-btn{% else %}paid-btn{% endif %}">
+                        {% if b.payment_status == 'paid' %}
+                            Позначити неоплаченим
+                        {% else %}
+                            Позначити сплаченим
+                        {% endif %}
+                    </button>
+                </form>
+
+                <form method="post"
+                    action="{% url 'admin_booking_action' b.id %}"
+                    onsubmit="return confirm('Ви справді хочете видалити це бронювання?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+
+                    <button type="submit" class="action-btn delete-btn">
+                        Видалити
+                    </button>
+                </form>
+
+            </div>
+        </td>
                         </tr>
+
                     {% empty %}
                         <tr>
-                            <td colspan="9" class="empty">Бронювань поки немає.</td>
+                            <td colspan="10" class="empty">Бронювань поки немає.</td>
                         </tr>
                     {% endfor %}
                 </tbody>

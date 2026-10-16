@@ -92,6 +92,56 @@
         font-weight: normal;
     }
 
+    .price-form {
+        display: grid;
+        gap: 10px;
+        margin-top: 24px;
+        text-align: left;
+    }
+
+    .price-form label {
+        color: #aeb8c7;
+        font-size: 13px;
+    }
+
+    .price-form input {
+        width: 100%;
+        min-width: 0;
+        padding: 11px 12px;
+        color: #ffffff;
+        background: #0b0e13;
+        border: 1px solid #394555;
+        border-radius: 6px;
+        font: inherit;
+    }
+
+    .price-form input:focus-visible {
+        outline: 2px solid #65ff9a;
+        outline-offset: 2px;
+    }
+
+    .price-btn {
+        min-height: 42px;
+        padding: 10px 14px;
+        color: #080b09;
+        background: #65ff9a;
+        border: 1px solid #65ff9a;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .price-btn:hover {
+        background: #42df7c;
+        transform: translateY(-1px);
+    }
+
+    .price-btn:focus-visible {
+        outline: 2px solid #ffffff;
+        outline-offset: 3px;
+    }
+
     .empty {
         padding: 50px 20px;
         text-align: center;
@@ -102,26 +152,51 @@
     }
 </style>{% endblock %}
 
-{% block content %}
-    <div class="admin-page">
+        {% block content %}
+            <div class="admin-page">
 
-        <div class="page-title">
-            <div class="page-tag">ADMIN PANEL</div>
-            <h1><span>Тарифи</span></h1>
-            <div class="title-line"></div>
+                <div class="page-title">
+                    <div class="page-tag">ADMIN PANEL</div>
+                    <h1><span>Тарифи</span></h1>
+                    <div class="title-line"></div>
+                </div>
+
+                {% if tariffs %}
+                    <div class="grid">
+                        {% for t in tariffs %}
+                            <div class="tariff-card">
+                                <div class="tariff-id">ТАРИФ №{{ t.id }}</div>
+                                <h2>{{ t.name }}</h2>
+
+                                
+        <div class="tariff-price">
+            {{ t.price_per_hour }} ₴
+            <span>/ година</span>
         </div>
 
-        {% if tariffs %}
-            <div class="grid">
-                {% for t in tariffs %}
-                    <div class="tariff-card">
-                        <div class="tariff-id">ТАРИФ №{{ t.id }}</div>
-                        <h2>{{ t.name }}</h2>
+        <form method="post"
+            action="{% url 'admin_update_tariff_price' t.id %}"
+            class="price-form">
+            {% csrf_token %}
 
-                        {# Якщо поле ціни називається інакше, замініть t.price #}
-                        {% if t.price %}
-                            <div class="tariff-price">{{ t.price }} ₴ <span>/ година</span></div>
-                        {% endif %}
+            <label for="price-{{ t.id }}">Нова ціна за годину:</label>
+
+            <input
+                type="number"
+                id="price-{{ t.id }}"
+                name="price"
+                value="{{ t.price_per_hour }}"
+                min="0"
+                max="999999.99"
+                step="0.01"
+                required
+            >
+
+            <button type="submit" class="price-btn">
+                Змінити ціну
+            </button>
+        </form>
+
                     </div>
                 {% endfor %}
             </div>

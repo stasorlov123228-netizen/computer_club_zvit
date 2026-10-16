@@ -1,7 +1,6 @@
 
 from django.urls import path
 from . import views
-from .views import admin_panel
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -20,11 +19,16 @@ urlpatterns = [
     path('feedback/', views.feedback_view, name='feedback'),
     path('partnership/', views.partnership_view, name='partnership'),
 
-    path('payment/liqpay/callback/', views.liqpay_callback, name='liqpay_callback'),
-    
-    path('payment/<int:booking_id>/', views.payment_result,name='payment_result'),
-
-    path('admin-panel/', admin_panel, name='admin_panel'),
+    path(
+        'payment/liqpay/callback/',
+        views.liqpay_callback,
+        name='liqpay_callback'
+    ),
+    path(
+        'payment/<int:booking_id>/',
+        views.payment_result,
+        name='payment_result'
+    ),
 
     path('admin-panel/', views.admin_panel, name='admin_panel'),
     path('admin-panel/bookings/', views.admin_bookings, name='admin_bookings'),
@@ -32,4 +36,18 @@ urlpatterns = [
     path('admin-panel/tariffs/', views.admin_tariffs, name='admin_tariffs'),
     path('admin-panel/computers/', views.admin_computers, name='admin_computers'),
 
+    path(
+    'admin-panel/bookings/<int:booking_id>/action/',
+    views.admin_booking_action,
+    name='admin_booking_action'
+),
+
+
+path(
+    'admin-panel/tariffs/<int:tariff_id>/price/',
+    views.admin_update_tariff_price,
+    name='admin_update_tariff_price'
+),
+
 ]
+
