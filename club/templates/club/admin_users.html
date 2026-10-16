@@ -1,0 +1,228 @@
+{% extends 'club/admin_base.html' %}
+
+{% block title %}Користувачі{% endblock %}
+
+{% block extra_css %}<style>
+    .admin-page {
+        width: 94%;
+        max-width: 1100px;
+        margin: 45px auto 70px;
+    }
+
+    .page-title {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .page-tag {
+        color: #65ff9a;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        margin-bottom: 14px;
+    }
+
+    h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(26px, 5vw, 38px);
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    h1 span {
+        color: #65ff9a;
+    }
+
+    .title-line {
+        width: 90px;
+        height: 3px;
+        margin: 20px auto 0;
+        background: #65ff9a;
+        border-radius: 3px;
+        box-shadow: 0 0 14px rgba(101, 255, 154, 0.7);
+    }
+
+    .counter {
+        display: inline-block;
+        margin-bottom: 18px;
+        padding: 6px 16px;
+        color: #65ff9a;
+        font-size: 13px;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.3);
+        border-radius: 20px;
+    }
+
+    .table-card {
+        overflow-x: auto;
+        background: #141a23;
+        border: 1px solid rgba(101, 255, 154, 0.4);
+        border-radius: 14px;
+        box-shadow: 0 0 25px rgba(101, 255, 154, 0.08);
+    }
+
+    table {
+        width: 100%;
+        min-width: 720px;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th {
+        padding: 16px 14px;
+        text-align: left;
+        color: #778395;
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: rgba(8, 11, 9, 0.6);
+        border-bottom: 1px solid #293341;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 15px 14px;
+        color: #e6ebf2;
+        border-bottom: 1px solid #252d3a;
+        vertical-align: middle;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: rgba(101, 255, 154, 0.04);
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #0f2417;
+        border: 1px solid #65ff9a;
+        color: #65ff9a;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .muted {
+        color: #778395;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .badge.admin {
+        color: #65ff9a;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.35);
+    }
+
+    .badge.client {
+        color: #aeb8c7;
+        border: 1px solid #394555;
+    }
+
+    .badge.off {
+        color: #ff8585;
+        background: rgba(255, 92, 108, 0.08);
+        border: 1px solid rgba(255, 92, 108, 0.3);
+    }
+
+    .empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #778395;
+    }
+</style>{% endblock %}
+
+{% block content %}
+    <div class="admin-page">
+
+        <div class="page-title">
+            <div class="page-tag">ADMIN PANEL</div>
+            <h1><span>Користувачі</span></h1>
+            <div class="title-line"></div>
+        </div>
+
+        <div class="counter">Всього: {{ users|length }}</div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Користувач</th>
+                        <th>Пошта</th>
+                        <th>Реєстрація</th>
+                        <th>Останній вхід</th>
+                        <th>Роль</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar">{{ u.username|first|upper }}</div>
+                                    <strong>{{ u.username }}</strong>
+                                </div>
+                            </td>
+                            <td>
+                                {% if u.email %}{{ u.email }}{% else %}<span class="muted">не вказана</span>{% endif %}
+                            </td>
+                            <td>{{ u.date_joined|date:"d.m.Y" }}</td>
+                            <td>
+                                {% if u.last_login %}
+                                    {{ u.last_login|date:"d.m.Y H:i" }}
+                                {% else %}
+                                    <span class="muted">ще не входив</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_superuser %}
+                                    <span class="badge admin">Суперадмін</span>
+                                {% elif u.is_staff %}
+                                    <span class="badge admin">Адміністратор</span>
+                                {% else %}
+                                    <span class="badge client">Клієнт</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                    <span class="badge admin">Активний</span>
+                                {% else %}
+                                    <span class="badge off">Вимкнений</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="empty">Користувачів поки немає.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

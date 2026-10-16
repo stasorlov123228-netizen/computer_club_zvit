@@ -1,0 +1,714 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Lviv Arena</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(ellipse at top, #183326 0%, #0b0e13 55%);
+            background-attachment: fixed;
+            color: #ffffff;
+        }
+
+        /* ШАПКА */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 5%;
+            background: rgba(8, 11, 9, 0.96);
+            border-bottom: 1px solid rgba(101, 255, 154, 0.22);
+            backdrop-filter: blur(14px);
+        }
+
+        .logo {
+            color: #65ff9a;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .back-home {
+            padding: 12px 16px;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            white-space: nowrap;
+            border: 1px solid rgba(101, 255, 154, 0.5);
+            border-radius: 5px;
+            transition: color 0.25s, background 0.25s;
+        }
+
+        .back-home:hover {
+            color: #080b09;
+            background: #65ff9a;
+        }
+
+        /* ВМІСТ */
+
+        .container {
+            width: 90%;
+            max-width: 950px;
+            margin: 50px auto 70px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .page-tag {
+            color: #65ff9a;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(26px, 6vw, 42px);
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .title-line {
+            width: 90px;
+            height: 3px;
+            margin: 20px auto 0;
+            background: #65ff9a;
+            border-radius: 3px;
+            box-shadow: 0 0 14px rgba(101, 255, 154, 0.7);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #65ff9a;
+            font-size: 19px;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        /* КАРТКИ */
+
+        .card {
+            background: #141a23;
+            border: 1px solid #293341;
+            border-radius: 14px;
+            padding: 30px;
+            margin-bottom: 22px;
+            transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+        }
+
+        .card:hover {
+            border-color: rgba(101, 255, 154, 0.5);
+            box-shadow: 0 0 25px rgba(101, 255, 154, 0.08);
+        }
+
+        .card p {
+            color: #aeb8c7;
+            line-height: 1.8;
+        }
+
+        /* КНОПКИ */
+
+        .button {
+            display: inline-block;
+            padding: 14px 24px;
+            background: #65ff9a;
+            color: #0b0e13;
+            border: 1px solid #65ff9a;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+        }
+
+        .button:hover {
+            background: #42df7c;
+            border-color: #42df7c;
+            transform: translateY(-2px);
+        }
+
+        .button.outline {
+            background: transparent;
+            color: #65ff9a;
+        }
+
+        .button.outline:hover {
+            background: #65ff9a;
+            color: #0b0e13;
+        }
+
+        /* ТУРНІРИ */
+
+        .tournaments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tournament-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 28px;
+            padding: 24px;
+            background: #141a23;
+            border: 1px solid #293341;
+            border-radius: 14px;
+            transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+        }
+
+        .tournament-card:hover {
+            border-color: #65ff9a;
+            transform: translateY(-4px);
+            box-shadow: 0 0 25px rgba(101, 255, 154, 0.12);
+        }
+
+        .tournament-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tournament-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            margin-bottom: 14px;
+            color: #65ff9a;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: rgba(101, 255, 154, 0.08);
+            border: 1px solid rgba(101, 255, 154, 0.3);
+            border-radius: 20px;
+        }
+
+        .tournament-info h2 {
+            font-size: 22px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .tournament-info h3 {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+
+        .tournament-info p {
+            color: #aeb8c7;
+            line-height: 1.7;
+            margin: 6px 0;
+            font-size: 15px;
+        }
+
+        .tournament-info p strong {
+            color: #65ff9a;
+        }
+
+        .tournament-image {
+            display: block;
+            width: 240px;
+            height: 155px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border-radius: 10px;
+            border: 1px solid rgba(101, 255, 154, 0.4);
+            box-shadow: 0 0 18px rgba(101, 255, 154, 0.1);
+        }
+
+        /* НОВИНИ */
+
+        .news-card {
+            border-left: 3px solid #65ff9a;
+        }
+
+        .news-card h2 {
+            color: #ffffff;
+        }
+
+        .news-date {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 4px 12px;
+            color: #778395;
+            font-size: 13px;
+            border: 1px solid #293341;
+            border-radius: 20px;
+        }
+
+        .empty-text {
+            text-align: center;
+            color: #778395;
+            padding: 20px 0;
+        }
+
+        /* КЛУБИ */
+
+        .club-card {
+            text-align: center;
+            padding: 45px 30px;
+            border-color: rgba(101, 255, 154, 0.4);
+            box-shadow: 0 0 25px rgba(101, 255, 154, 0.08);
+        }
+
+        .club-icon {
+            font-size: 44px;
+            margin-bottom: 14px;
+        }
+
+        .club-card h2 {
+            font-size: 24px;
+        }
+
+        /* КОНТАКТИ І КАРТА */
+
+        .feedback-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            align-items: start;
+        }
+
+        .contact-row {
+            padding: 14px 0;
+            border-bottom: 1px solid #252d3a;
+        }
+
+        .contact-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .contact-label {
+            display: block;
+            color: #778395;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .contact-value {
+            color: #ffffff;
+            overflow-wrap: anywhere;
+        }
+
+        .contact-value a {
+            color: #65ff9a;
+            text-decoration: none;
+        }
+
+        .contact-value a:hover {
+            text-decoration: underline;
+        }
+
+        .telegram {
+            margin-top: 18px;
+        }
+
+        .map-frame {
+            overflow: hidden;
+            border: 1px solid rgba(101, 255, 154, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(101, 255, 154, 0.08);
+        }
+
+        .map-frame iframe {
+            display: block;
+            width: 100%;
+            height: 260px;
+            border: 0;
+        }
+
+        .map-button {
+            margin-top: 16px;
+        }
+
+        /* ПАРТНЕРСТВО */
+
+        .partner-card {
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .partner-card form label {
+            display: block;
+            margin-top: 22px;
+            color: #aeb8c7;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0 20px;
+            border: 1px solid #394555;
+            border-radius: 8px;
+            background: #0b0e13;
+            color: #ffffff;
+            font-size: 16px;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        input::placeholder {
+            color: #5d6879;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #65ff9a;
+            box-shadow: 0 0 0 3px rgba(101, 255, 154, 0.12);
+        }
+
+        .partner-card .button {
+            width: 100%;
+            padding: 16px;
+        }
+
+        .success {
+            padding: 16px 18px;
+            margin-top: 20px;
+            color: #65ff9a !important;
+            background: rgba(101, 255, 154, 0.08);
+            border: 1px solid rgba(101, 255, 154, 0.3);
+            border-radius: 8px;
+        }
+
+        .error {
+            padding: 14px 18px;
+            margin-top: 6px;
+            color: #ff8585 !important;
+            background: rgba(255, 92, 108, 0.08);
+            border: 1px solid rgba(255, 92, 108, 0.3);
+            border-radius: 8px;
+        }
+
+        /* ПІДВАЛ */
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #778395;
+            border-top: 1px solid #252b35;
+            font-size: 13px;
+        }
+
+        /* АДАПТАЦІЯ */
+
+        @media (max-width: 700px) {
+            .page-header {
+                padding: 16px 5%;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .back-home {
+                padding: 10px 12px;
+                font-size: 10px;
+            }
+
+            .container {
+                margin-top: 35px;
+            }
+
+            .page-title {
+                margin-bottom: 30px;
+            }
+
+            .page-tag {
+                font-size: 11px;
+                letter-spacing: 2px;
+            }
+
+            .card {
+                padding: 22px 18px;
+            }
+
+            .feedback-layout {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+
+            .tournament-card {
+                gap: 14px;
+                padding: 16px;
+            }
+
+            .tournament-image {
+                width: 120px;
+                height: 100px;
+            }
+
+            .tournament-badge {
+                font-size: 10px;
+                margin-bottom: 10px;
+            }
+
+            .tournament-info h2 {
+                font-size: 17px;
+            }
+
+            .tournament-info h3 {
+                font-size: 15px;
+                margin-bottom: 10px;
+            }
+
+            .tournament-info p {
+                font-size: 12px;
+                line-height: 1.5;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .tournament-image {
+                width: 90px;
+                height: 80px;
+            }
+
+            .tournament-card {
+                gap: 10px;
+                padding: 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="page-header">
+        <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'home' %}" class="back-home"> НА ГОЛОВНУ</a>
+    </header>
+
+    <main class="container">
+
+        <div class="page-title">
+            <div class="page-tag">YOUR GAME. YOUR ARENA.</div>
+            <h1>{{ title }}</h1>
+            <div class="title-line"></div>
+        </div>
+
+        {% if page_type == 'tournaments' %}
+
+            <div class="tournaments-list">
+
+                <div class="tournament-card">
+                    <div class="tournament-info">
+                        <span class="tournament-badge">СКОРО</span>
+                        <h2>🎮 CS2</h2>
+                        <h3>Lviv Arena Cup</h3>
+                        <p><strong>Формат:</strong> 5 на 5</p>
+                        <p>Дати та реєстрація будуть оголошені додатково.</p>
+                    </div>
+                    <img class="tournament-image"
+                         src="{% static 'club/images/cs2.jpg' %}"
+                         alt="Counter-Strike 2">
+                </div>
+
+                <div class="tournament-card">
+                    <div class="tournament-info">
+                        <span class="tournament-badge">СКОРО</span>
+                        <h2>🎮 Dota 2</h2>
+                        <h3>Arena Battle</h3>
+                        <p><strong>Формат:</strong> 5 на 5</p>
+                        <p>Дати та реєстрація будуть оголошені додатково.</p>
+                    </div>
+                    <img class="tournament-image"
+                         src="{% static 'club/images/dota2.jpg' %}"
+                         alt="Dota 2">
+                </div>
+
+                <div class="tournament-card">
+                    <div class="tournament-info">
+                        <span class="tournament-badge">СКОРО</span>
+                        <h2>🎮 VALORANT</h2>
+                        <h3>Valorant Challenge</h3>
+                        <p><strong>Формат:</strong> 5 на 5</p>
+                        <p>Дати та реєстрація будуть оголошені додатково.</p>
+                    </div>
+                    <img class="tournament-image"
+                         src="{% static 'club/images/valorant.jpg' %}"
+                         alt="VALORANT">
+                </div>
+
+                <div class="tournament-card">
+                    <div class="tournament-info">
+                        <span class="tournament-badge">СКОРО</span>
+                        <h2>🎮 World of Tanks</h2>
+                        <h3>Tank Masters</h3>
+                        <p><strong>Формат:</strong> Командний турнір</p>
+                        <p>Дати та реєстрація будуть оголошені додатково.</p>
+                    </div>
+                    <img class="tournament-image"
+                         src="{% static 'club/images/wot.jpg' %}"
+                         alt="World of Tanks">
+                </div>
+
+            </div>
+
+        {% elif page_type == 'news' %}
+
+            {% for item in news %}
+                <div class="card news-card">
+                    <h2>{{ item.title }}</h2>
+                    <p>{{ item.text }}</p>
+                    <span class="news-date">{{ item.date }}</span>
+                </div>
+            {% empty %}
+                <div class="card">
+                    <p class="empty-text">Новин поки немає. Заглядай згодом!</p>
+                </div>
+            {% endfor %}
+
+        {% elif page_type == 'clubs' %}
+
+            <div class="card club-card">
+                <div class="club-icon"></div>
+                <h2>Lviv Arena</h2>
+                <p>На жаль, наразі наш клуб працює тільки у Львові.</p>
+            </div>
+
+        {% elif page_type == 'feedback' %}
+
+            <div class="card">
+                <div class="feedback-layout">
+
+                    <div>
+                        <h2>Наші контакти</h2>
+
+                        <div class="contact-row">
+                            <span class="contact-label">Місто</span>
+                            <span class="contact-value">Львів</span>
+                        </div>
+
+                        <div class="contact-row">
+                            <span class="contact-label">Адреса</span>
+                            <span class="contact-value">вул. Личаківська, 120</span>
+                        </div>
+
+                        <div class="contact-row">
+                            <span class="contact-label">Телефон</span>
+                            <span class="contact-value">+380 77 777 77 77</span>
+                        </div>
+
+                        <div class="contact-row">
+                            <span class="contact-label">Email</span>
+                            <span class="contact-value">
+                                <a href="mailto:lvivarena120@gmal.com">lvivarena120@gmal.com</a>
+                            </span>
+                        </div>
+
+                        <a class="button telegram"
+                           href="https://telegram.com"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            Написати в Telegram
+                        </a>
+                    </div>
+
+                    <div>
+                        <h2> Як нас знайти?</h2>
+
+                        <div class="map-frame">
+                            <iframe
+                                src="https://maps.google.com/maps?q=%D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F%20%D0%9B%D0%B8%D1%87%D0%B0%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0%20120%2C%20%D0%9B%D1%8C%D0%B2%D1%96%D0%B2&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                                title="Карта Lviv Arena"
+                                loading="lazy"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+
+                        <a class="button outline map-button"
+                           href="https://www.google.com/maps/search/?api=1&query=%D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F%20%D0%9B%D0%B8%D1%87%D0%B0%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0%20120%2C%20%D0%9B%D1%8C%D0%B2%D1%96%D0%B2"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            Відкрити Google Maps 
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        {% elif page_type == 'partnership' %}
+
+            <div class="card partner-card">
+                <h2>Хочете стати нашим партнером?</h2>
+                <p>Залиште номер телефону - ми зв'яжемося з вами.</p>
+
+                {% if sent %}
+                    <p class="success">
+                        Дякуємо! Ваш номер прийнято.
+                    </p>
+                {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <label for="phone">Номер телефону</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="+380..."
+                            required>
+
+                        <button class="button" type="submit">
+                            Чекаю на дзвінок
+                        </button>
+                    </form>
+
+                    {% if error %}
+                        <p class="error">{{ error }}</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        {% endif %}
+
+    </main>
+
+    <footer>
+        © 2026 Lviv Arena. Комп'ютерний клуб у Львові.
+    </footer>
+
+</body>
+</html>

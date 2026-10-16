@@ -1,0 +1,210 @@
+{% extends 'club/admin_base.html' %}
+
+{% block title %}Бронювання{% endblock %}
+
+{% block extra_css %}<style>
+    .admin-page {
+        width: 94%;
+        max-width: 1250px;
+        margin: 45px auto 70px;
+    }
+
+    .page-title {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .page-tag {
+        color: #65ff9a;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        margin-bottom: 14px;
+    }
+
+    h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(26px, 5vw, 38px);
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    h1 span {
+        color: #65ff9a;
+    }
+
+    .title-line {
+        width: 90px;
+        height: 3px;
+        margin: 20px auto 0;
+        background: #65ff9a;
+        border-radius: 3px;
+        box-shadow: 0 0 14px rgba(101, 255, 154, 0.7);
+    }
+
+    .counter {
+        display: inline-block;
+        margin-bottom: 18px;
+        padding: 6px 16px;
+        color: #65ff9a;
+        font-size: 13px;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.3);
+        border-radius: 20px;
+    }
+
+    .table-card {
+        overflow-x: auto;
+        background: #141a23;
+        border: 1px solid rgba(101, 255, 154, 0.4);
+        border-radius: 14px;
+        box-shadow: 0 0 25px rgba(101, 255, 154, 0.08);
+    }
+
+    table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th {
+        padding: 16px 14px;
+        text-align: left;
+        color: #778395;
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: rgba(8, 11, 9, 0.6);
+        border-bottom: 1px solid #293341;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 15px 14px;
+        color: #e6ebf2;
+        border-bottom: 1px solid #252d3a;
+        vertical-align: middle;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: rgba(101, 255, 154, 0.04);
+    }
+
+    .id-cell {
+        color: #65ff9a;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+    }
+
+    .muted {
+        color: #778395;
+        font-size: 12px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .badge.paid {
+        color: #65ff9a;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.35);
+    }
+
+    .badge.unpaid {
+        color: #ffc857;
+        background: rgba(255, 200, 87, 0.08);
+        border: 1px solid rgba(255, 200, 87, 0.35);
+    }
+
+    .badge.method {
+        color: #aeb8c7;
+        background: transparent;
+        border: 1px solid #394555;
+    }
+
+    .empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #778395;
+    }
+</style>{% endblock %}
+
+{% block content %}
+    <div class="admin-page">
+
+        <div class="page-title">
+            <div class="page-tag">ADMIN PANEL</div>
+            <h1>Усі <span>бронювання</span></h1>
+            <div class="title-line"></div>
+        </div>
+
+        <div class="counter">Всього: {{ bookings|length }}</div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Клієнт</th>
+                        <th>Телефон</th>
+                        <th>ПК</th>
+                        <th>Тариф</th>
+                        <th>Початок</th>
+                        <th>Завершення</th>
+                        <th>Оплата</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td class="id-cell">{{ b.id }}</td>
+                            <td>
+                                {{ b.customer_name }}
+                                {% if b.user %}
+                                    <div class="muted">@{{ b.user.username }}</div>
+                                {% else %}
+                                    <div class="muted">гість</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ b.phone }}</td>
+                            <td>{{ b.computer.name }}</td>
+                            <td>{{ b.tariff.name }}</td>
+                            <td>{{ b.start_time|date:"d.m.Y H:i" }}</td>
+                            <td>{{ b.end_time|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <span class="badge method">
+                                    {% if b.payment_method == 'card' %}Картка{% else %}На місці{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if b.payment_status == 'paid' %}
+                                    <span class="badge paid">Сплачено</span>
+                                {% else %}
+                                    <span class="badge unpaid">Не сплачено</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="empty">Бронювань поки немає.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}

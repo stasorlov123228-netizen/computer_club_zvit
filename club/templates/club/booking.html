@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бронювання — Lviv Arena</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(ellipse at top, #183326 0%, #0b0e13 55%);
+            background-attachment: fixed;
+            color: #fff;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 14px 5%;
+            background: rgba(8, 11, 9, 0.96);
+            border-bottom: 1px solid rgba(101, 255, 154, 0.22);
+            backdrop-filter: blur(14px);
+        }
+
+        .logo {
+            color: #65ff9a;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .header-link {
+            padding: 12px 16px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-decoration: none;
+            white-space: nowrap;
+            border: 1px solid rgba(101, 255, 154, .5);
+            border-radius: 5px;
+            transition: color .25s, background .25s;
+        }
+
+        .header-link:hover {
+            color: #080b09;
+            background: #65ff9a;
+        }
+
+        .container {
+            flex: 1;
+            width: 90%;
+            max-width: 720px;
+            margin: 25px auto 30px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 span {
+            color: #65ff9a;
+        }
+
+        .title-line {
+            width: 90px;
+            height: 3px;
+            margin: 14px auto 12px;
+            background: #65ff9a;
+            border-radius: 3px;
+            box-shadow: 0 0 14px rgba(101, 255, 154, .7);
+        }
+
+        .subtitle {
+            color: #aeb8c7;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .subtitle strong {
+            color: #65ff9a;
+        }
+
+        .form-card {
+            padding: 24px 28px;
+            background: #141a23;
+            border: 1px solid rgba(101, 255, 154, .4);
+            border-radius: 14px;
+            box-shadow: 0 0 25px rgba(101, 255, 154, .08);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #778395;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            display: block;
+            width: 100%;
+            padding: 11px 13px;
+            background: #0b0e13;
+            color: #fff;
+            border: 1px solid #394555;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+        input::placeholder {
+            color: #5d6879;
+        }
+
+        input:focus, select:focus {
+            border-color: #65ff9a;
+            box-shadow: 0 0 0 3px rgba(101, 255, 154, .12);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        input[type="date"], input[type="time"] {
+            color-scheme: dark;
+            cursor: pointer;
+        }
+
+        /* Поле телефону з вибором коду країни всередині */
+
+        .phone-box {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            background: #0b0e13;
+            border: 1px solid #394555;
+            border-radius: 8px;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+        .phone-box:focus-within,
+        .phone-box.open {
+            border-color: #65ff9a;
+            box-shadow: 0 0 0 3px rgba(101, 255, 154, .12);
+        }
+
+        .phone-box.invalid {
+            border-color: #ff8585;
+        }
+
+        .cc-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px 0 12px;
+            background: transparent;
+            border: none;
+            border-right: 1px solid #394555;
+            border-radius: 8px 0 0 8px;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .cc-button:hover {
+            background: rgba(101, 255, 154, .06);
+        }
+
+        .cc-button img,
+        .cc-item img {
+            width: 22px;
+            height: 15px;
+            object-fit: cover;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .cc-arrow {
+            color: #65ff9a;
+            font-size: 10px;
+            transition: transform .2s;
+        }
+
+        .phone-box.open .cc-arrow {
+            transform: rotate(180deg);
+        }
+
+        .phone-box input.phone-input {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .cc-list {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 8px;
+            background: #141a23;
+            border: 1px solid rgba(101, 255, 154, .5);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .55), 0 0 20px rgba(101, 255, 154, .1);
+        }
+
+        .cc-list[hidden] {
+            display: none;
+        }
+
+        .cc-search {
+            margin-bottom: 8px;
+            padding: 9px 12px;
+            font-size: 13px;
+        }
+
+        .cc-items {
+            max-height: 230px;
+            overflow-y: auto;
+            list-style: none;
+        }
+
+        .cc-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 9px 10px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: #e6ebf2;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .cc-item:hover,
+        .cc-item:focus {
+            background: rgba(101, 255, 154, .1);
+            outline: none;
+        }
+
+        .cc-item.selected {
+            color: #65ff9a;
+        }
+
+        .cc-item .cc-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cc-item .cc-dial {
+            color: #778395;
+        }
+
+        .cc-empty {
+            padding: 12px;
+            color: #778395;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .phone-help,
+        .phone-error {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        .phone-help {
+            color: #778395;
+        }
+
+        .phone-error {
+            color: #ff8585;
+        }
+
+        .phone-error:empty {
+            display: none;
+        }
+
+        .submit-button {
+            width: 100%;
+            margin-top: 6px;
+            padding: 14px;
+            background: #65ff9a;
+            color: #0b0e13;
+            border: 1px solid #65ff9a;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: background .2s, transform .2s, box-shadow .2s;
+        }
+
+        .submit-button:hover {
+            background: #42df7c;
+            border-color: #42df7c;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(101, 255, 154, .3);
+        }
+
+        .back {
+            display: block;
+            margin-top: 16px;
+            color: #65ff9a;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back:hover {
+            text-decoration: underline;
+        }
+
+        .errors {
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            color: #ff8585;
+            background: rgba(255, 92, 108, .08);
+            border: 1px solid rgba(255, 92, 108, .3);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .errors p {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
+        /* Вікно вибору оплати */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(4, 7, 5, .82);
+            backdrop-filter: blur(6px);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn .25s ease;
+        }
+
+        .modal {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            margin: auto;
+            padding: 34px 30px 28px;
+            text-align: center;
+            background: #141a23;
+            border: 1px solid rgba(101, 255, 154, .5);
+            border-radius: 16px;
+            box-shadow: 0 0 40px rgba(101, 255, 154, .18);
+            animation: popIn .3s ease;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            background: transparent;
+            border: 1px solid #394555;
+            border-radius: 50%;
+            color: #aeb8c7;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #65ff9a;
+            border-color: #65ff9a;
+        }
+
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .modal h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .modal h2 span {
+            color: #65ff9a;
+        }
+
+        .modal-sub {
+            color: #aeb8c7;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .pay-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .pay-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px 12px;
+            background: #0b0e13;
+            color: #fff;
+            border: 1px solid #394555;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: border-color .25s, background .25s, transform .25s, box-shadow .25s;
+        }
+
+        .pay-button .pay-icon {
+            font-size: 30px;
+        }
+
+        .pay-button small {
+            color: #778395;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: normal;
+            letter-spacing: 0;
+        }
+
+        .pay-button:hover {
+            border-color: #65ff9a;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(101, 255, 154, .15);
+        }
+
+        .pay-button.primary {
+            background: #65ff9a;
+            color: #0b0e13;
+            border-color: #65ff9a;
+        }
+
+        .pay-button.primary small {
+            color: #1f4a30;
+        }
+
+        .pay-button.primary:hover {
+            background: #42df7c;
+            border-color: #42df7c;
+        }
+
+        .pay-button:disabled {
+            opacity: .6;
+            cursor: wait;
+            transform: none;
+        }
+
+        .pay-note {
+            margin-top: 24px;
+            padding: 16px 18px;
+            text-align: left;
+            background: rgba(101, 255, 154, .05);
+            border: 1px solid rgba(101, 255, 154, .22);
+            border-radius: 10px;
+            color: #aeb8c7;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .pay-note p + p {
+            margin-top: 10px;
+        }
+
+        .pay-note strong {
+            color: #fff;
+        }
+
+        .pay-note a.phone {
+            color: #65ff9a;
+            font-weight: bold;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .telegram-button {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 11px 20px;
+            color: #65ff9a;
+            border: 1px solid #65ff9a;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background .2s, color .2s;
+        }
+
+        .telegram-button:hover {
+            background: #65ff9a;
+            color: #0b0e13;
+        }
+
+        .modal-cancel {
+            display: block;
+            width: 100%;
+            margin-top: 18px;
+            background: none;
+            border: none;
+            color: #778395;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .modal-cancel:hover {
+            color: #65ff9a;
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(20px) scale(.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px;
+            color: #778395;
+            border-top: 1px solid #252b35;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .page-header {
+                padding: 14px 5%;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .header-link {
+                padding: 10px 12px;
+                font-size: 10px;
+            }
+
+            .form-card {
+                padding: 20px 18px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .modal {
+                padding: 30px 18px 22px;
+            }
+
+            .modal h2 {
+                font-size: 18px;
+            }
+
+            .pay-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="page-header">
+    <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
+    <a href="{% url 'account' %}" class="header-link">В АКАУНТ</a>
+</header>
+
+<main class="container">
+
+    <div class="page-title">
+        <h1>Бронювання <span>ПК</span></h1>
+        <div class="title-line"></div>
+        <p class="subtitle">
+            <strong>Lviv Arena</strong><br>
+            Львів, вул. Личаківська, 120
+        </p>
+    </div>
+
+    <div class="form-card">
+        <form method="POST" id="booking-form" novalidate>
+            {% csrf_token %}
+
+            <input type="hidden" name="payment_method" id="payment-method" value="">
+            <input type="hidden" name="phone_country" id="phone-country" value="{{ request.POST.phone_country|default:'+380' }}">
+            <input type="hidden" name="phone_iso" id="phone-iso" value="{{ request.POST.phone_iso|default:'ua' }}">
+
+            {% if errors %}
+                <div class="errors">
+                    {% for error in errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-row">
+                <div class="field">
+                    <label for="name">Ім'я</label>
+                    <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        placeholder="Ваше ім'я"
+                        required
+                        value="{{ request.POST.name|default:'' }}"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="phone-national">Номер телефону</label>
+
+                    <div class="phone-box" id="phone-box">
+                        <button type="button" class="cc-button" id="cc-button"
+                                aria-haspopup="listbox" aria-expanded="false"
+                                aria-label="Обрати код країни">
+                            <img id="cc-flag" src="https://flagcdn.com/w40/ua.png" alt="">
+                            <span id="cc-code">+380</span>
+                            <span class="cc-arrow">▼</span>
+                        </button>
+
+                        <input
+                            class="phone-input"
+                            id="phone-national"
+                            name="phone_local"
+                            type="tel"
+                            inputmode="numeric"
+                            autocomplete="tel-national"
+                            placeholder="671234567"
+                            value="{{ request.POST.phone_local|default:'' }}"
+                            required
+                        >
+
+                        <div class="cc-list" id="cc-list" hidden>
+                            <input class="cc-search" id="cc-search" type="text"
+                                   placeholder="Пошук країни або коду..." autocomplete="off">
+                            <ul class="cc-items" id="cc-items" role="listbox"></ul>
+                        </div>
+                    </div>
+
+                    <small class="phone-help" id="phone-help"></small>
+                    <small class="phone-error" id="phone-error" role="alert"></small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label for="tariff">Тариф</label>
+                    <select id="tariff" name="tariff" required>
+                        <option value="" disabled {% if not request.POST.tariff %}selected{% endif %}>Оберіть тариф</option>
+                        <option value="default" {% if request.POST.tariff == 'default' %}selected{% endif %}>DEFAULT — 50 ₴ / год</option>
+                        <option value="pro" {% if request.POST.tariff == 'pro' %}selected{% endif %}>PRO — 80 ₴ / год</option>
+                        <option value="vip" {% if request.POST.tariff == 'vip' %}selected{% endif %}>VIP — 120 ₴ / год</option>
+                        <option value="stream" {% if request.POST.tariff == 'stream' %}selected{% endif %}>STREAM — 150 ₴ / год</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="duration">Тривалість</label>
+                    <select id="duration" name="duration" required>
+                        <option value="" disabled {% if not request.POST.duration %}selected{% endif %}>Оберіть тривалість</option>
+                        <option value="1" {% if request.POST.duration == '1' %}selected{% endif %}>1 година</option>
+                        <option value="2" {% if request.POST.duration == '2' %}selected{% endif %}>2 години</option>
+                        <option value="3" {% if request.POST.duration == '3' %}selected{% endif %}>3 години</option>
+                        <option value="5" {% if request.POST.duration == '5' %}selected{% endif %}>5 годин</option>
+                        <option value="8" {% if request.POST.duration == '8' %}selected{% endif %}>8 годин</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label for="date">Дата</label>
+                    <input
+                        id="date"
+                        name="date"
+                        type="date"
+                        required
+                        min="{% now 'Y-m-d' %}"
+                        value="{{ request.POST.date|default:'' }}"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="time">Час початку</label>
+                    <input
+                        id="time"
+                        name="time"
+                        type="time"
+                        required
+                        value="{{ request.POST.time|default:'' }}"
+                    >
+                </div>
+            </div>
+
+            <button class="submit-button" type="submit">
+                ЗАБРОНЮВАТИ
+            </button>
+        </form>
+    </div>
+
+    <a class="back" href="{% url 'home' %}">Повернутися на головну</a>
+
+</main>
+
+<footer>
+    © 2026 Lviv Arena. Комп'ютерний клуб у Львові.
+</footer>
+
+<div class="modal-overlay" id="payment-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+
+        <button type="button" class="modal-close" id="modal-close" aria-label="Закрити">✕</button>
+
+        <div class="modal-icon">💳</div>
+        <h2 id="payment-title">СПОСІБ <span>ОПЛАТИ</span></h2>
+        <p class="modal-sub">Оберіть, як ви хочете оплатити бронювання</p>
+
+        <div class="pay-options">
+            <button type="button" class="pay-button primary" data-method="card">
+                <span class="pay-icon">💳</span>
+                ОПЛАТИТИ КАРТКОЮ
+                <small>Демонстраційна оплата</small>
+            </button>
+
+            <button type="button" class="pay-button" data-method="cash">
+                <span class="pay-icon">🏪</span>
+                ОПЛАТИТИ НА МІСЦІ
+                <small>В клубі при візиті</small>
+            </button>
+        </div>
+
+        <div class="pay-note">
+            <p>
+                <strong>Оплата на місці:</strong> оплатіть бронювання
+                адміністратору клубу під час візиту.
+            </p>
+
+            <p>
+                Якщо запізнюєтесь, повідомте адміністратора:
+                <a class="phone" href="tel:+380XXXXXXXXX">+380-XX-XX-XX</a>.
+            </p>
+
+            <a class="telegram-button"
+               href="https://t.me/"
+               target="_blank"
+               rel="noopener noreferrer">
+                Написати в Telegram →
+            </a>
+        </div>
+
+        <button type="button" class="modal-cancel" id="modal-cancel">
+            ← Повернутися до редагування
+        </button>
+    </div>
+</div>
+
+<script>
+    // ---------- Країни: [iso, назва, код, мін. цифр, макс. цифр] ----------
+    const COUNTRIES = [
+        ['ua', 'Україна', '+380', 9, 9],
+        ['us', 'США / Канада', '+1', 10, 10],
+        ['gb', 'Велика Британія', '+44', 10, 10],
+        ['pl', 'Польща', '+48', 9, 9],
+        ['de', 'Німеччина', '+49', 10, 11],
+        ['fr', 'Франція', '+33', 9, 9],
+        ['it', 'Італія', '+39', 9, 10],
+        ['es', 'Іспанія', '+34', 9, 9],
+        ['cz', 'Чехія', '+420', 9, 9],
+        ['sk', 'Словаччина', '+421', 9, 9],
+        ['ro', 'Румунія', '+40', 9, 9],
+        ['md', 'Молдова', '+373', 8, 8],
+        ['at', 'Австрія', '+43', 10, 11],
+        ['ch', 'Швейцарія', '+41', 9, 9],
+        ['nl', 'Нідерланди', '+31', 9, 9],
+        ['be', 'Бельгія', '+32', 8, 9],
+        ['pt', 'Португалія', '+351', 9, 9],
+        ['gr', 'Греція', '+30', 10, 10],
+        ['bg', 'Болгарія', '+359', 8, 9],
+        ['hr', 'Хорватія', '+385', 8, 9],
+        ['si', 'Словенія', '+386', 8, 8],
+        ['hu', 'Угорщина', '+36', 9, 9],
+        ['lt', 'Литва', '+370', 8, 8],
+        ['lv', 'Латвія', '+371', 8, 8],
+        ['ee', 'Естонія', '+372', 7, 8],
+        ['fi', 'Фінляндія', '+358', 9, 10],
+        ['se', 'Швеція', '+46', 9, 9],
+        ['no', 'Норвегія', '+47', 8, 8],
+        ['dk', 'Данія', '+45', 8, 8],
+        ['is', 'Ісландія', '+354', 7, 7],
+        ['ie', 'Ірландія', '+353', 9, 9],
+        ['tr', 'Туреччина', '+90', 10, 10],
+        ['ge', 'Грузія', '+995', 9, 9],
+        ['am', 'Вірменія', '+374', 8, 8],
+        ['az', 'Азербайджан', '+994', 9, 9],
+        ['kz', 'Казахстан / Росія', '+7', 10, 10],
+        ['jp', 'Японія', '+81', 10, 10],
+        ['kr', 'Південна Корея', '+82', 9, 10],
+        ['cn', 'Китай', '+86', 11, 11],
+        ['in', 'Індія', '+91', 10, 10],
+        ['pk', 'Пакистан', '+92', 10, 10],
+        ['bd', 'Бангладеш', '+880', 10, 10],
+        ['th', 'Таїланд', '+66', 9, 9],
+        ['vn', 'В’єтнам', '+84', 9, 10],
+        ['my', 'Малайзія', '+60', 9, 10],
+        ['sg', 'Сінгапур', '+65', 8, 8],
+        ['id', 'Індонезія', '+62', 9, 11],
+        ['ph', 'Філіппіни', '+63', 10, 10],
+        ['il', 'Ізраїль', '+972', 9, 9],
+        ['ae', 'ОАЕ', '+971', 9, 9],
+        ['sa', 'Саудівська Аравія', '+966', 9, 9],
+        ['eg', 'Єгипет', '+20', 10, 10],
+        ['za', 'ПАР', '+27', 9, 9],
+        ['ng', 'Нігерія', '+234', 10, 10],
+        ['ke', 'Кенія', '+254', 9, 9],
+        ['ma', 'Марокко', '+212', 9, 9],
+        ['br', 'Бразилія', '+55', 10, 11],
+        ['ar', 'Аргентина', '+54', 10, 10],
+        ['cl', 'Чилі', '+56', 9, 9],
+        ['co', 'Колумбія', '+57', 10, 10],
+        ['mx', 'Мексика', '+52', 10, 10],
+        ['au', 'Австралія', '+61', 9, 9],
+        ['nz', 'Нова Зеландія', '+64', 8, 9]
+    ];
+
+    // ---------- Елементи ----------
+    const phoneBox = document.getElementById('phone-box');
+    const ccButton = document.getElementById('cc-button');
+    const ccFlag = document.getElementById('cc-flag');
+    const ccCode = document.getElementById('cc-code');
+    const ccList = document.getElementById('cc-list');
+    const ccSearch = document.getElementById('cc-search');
+    const ccItems = document.getElementById('cc-items');
+    const phoneInput = document.getElementById('phone-national');
+    const phoneHelp = document.getElementById('phone-help');
+    const phoneError = document.getElementById('phone-error');
+    const phoneCountryInput = document.getElementById('phone-country');
+    const phoneIsoInput = document.getElementById('phone-iso');
+
+    let current = COUNTRIES[0];
+
+    function findByIso(iso) {
+        return COUNTRIES.find(function (c) { return c[0] === iso; }) || COUNTRIES[0];
+    }
+
+    function rangeText(country) {
+        return country[3] === country[4]
+            ? String(country[3])
+            : country[3] + '–' + country[4];
+    }
+
+    function selectCountry(country) {
+        current = country;
+
+        ccFlag.src = 'https://flagcdn.com/w40/' + country[0] + '.png';
+        ccCode.textContent = country[2];
+        phoneCountryInput.value = country[2];
+        phoneIsoInput.value = country[0];
+
+        phoneInput.maxLength = country[4];
+        phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, country[4]);
+
+        phoneHelp.textContent = 'Введіть ' + rangeText(country) +
+            ' цифр після ' + country[2] + '.';
+
+        clearPhoneError();
+    }
+
+    // ---------- Список країн ----------
+    function renderList(filter) {
+        const query = (filter || '').trim().toLowerCase();
+        ccItems.innerHTML = '';
+
+        const matches = COUNTRIES.filter(function (c) {
+            return c[1].toLowerCase().includes(query) || c[2].includes(query);
+        });
+
+        if (!matches.length) {
+            const empty = document.createElement('li');
+            empty.className = 'cc-empty';
+            empty.textContent = 'Нічого не знайдено';
+            ccItems.appendChild(empty);
+            return;
+        }
+
+        matches.forEach(function (country) {
+            const li = document.createElement('li');
+            const btn = document.createElement('button');
+
+            btn.type = 'button';
+            btn.className = 'cc-item' + (country[0] === current[0] ? ' selected' : '');
+            btn.setAttribute('role', 'option');
+
+            const img = document.createElement('img');
+            img.src = 'https://flagcdn.com/w40/' + country[0] + '.png';
+            img.alt = '';
+            img.loading = 'lazy';
+
+            const name = document.createElement('span');
+            name.className = 'cc-name';
+            name.textContent = country[1];
+
+            const dial = document.createElement('span');
+            dial.className = 'cc-dial';
+            dial.textContent = country[2];
+
+            btn.append(img, name, dial);
+
+            btn.addEventListener('click', function () {
+                selectCountry(country);
+                closeList();
+                phoneInput.focus();
+            });
+
+            li.appendChild(btn);
+            ccItems.appendChild(li);
+        });
+    }
+
+    function openList() {
+        renderList('');
+        ccSearch.value = '';
+        ccList.hidden = false;
+        phoneBox.classList.add('open');
+        ccButton.setAttribute('aria-expanded', 'true');
+        ccSearch.focus();
+
+        const selected = ccItems.querySelector('.selected');
+        if (selected) {
+            selected.scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    function closeList() {
+        ccList.hidden = true;
+        phoneBox.classList.remove('open');
+        ccButton.setAttribute('aria-expanded', 'false');
+    }
+
+    ccButton.addEventListener('click', function () {
+        if (ccList.hidden) {
+            openList();
+        } else {
+            closeList();
+        }
+    });
+
+    ccSearch.addEventListener('input', function () {
+        renderList(ccSearch.value);
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!phoneBox.contains(event.target)) {
+            closeList();
+        }
+    });
+
+    // ---------- Поле номера ----------
+    function showPhoneError(text) {
+        phoneError.textContent = text;
+        phoneBox.classList.add('invalid');
+    }
+
+    function clearPhoneError() {
+        phoneError.textContent = '';
+        phoneBox.classList.remove('invalid');
+    }
+
+    phoneInput.addEventListener('input', function () {
+        phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, current[4]);
+        clearPhoneError();
+    });
+
+    function phoneIsValid() {
+        const length = phoneInput.value.replace(/\D/g, '').length;
+
+        if (length < current[3]) {
+            showPhoneError(
+                'Номер для ' + current[2] + ' має містити ' +
+                rangeText(current) + ' цифр.'
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    // Початкове значення (після помилки з сервера зберігається вибрана країна)
+    selectCountry(findByIso("{{ request.POST.phone_iso|default:'ua'|escapejs }}"));
+
+    // ---------- Вибір способу оплати ----------
+    const form = document.getElementById('booking-form');
+    const modal = document.getElementById('payment-modal');
+    const paymentInput = document.getElementById('payment-method');
+    const payButtons = modal.querySelectorAll('.pay-button');
+
+    let submitting = false;
+
+    function openModal() {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+    }
+
+    // Спочатку перевіряємо поля й довжину телефону, потім показуємо вибір оплати
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            form.reportValidity();
+            return;
+        }
+
+        if (!phoneIsValid()) {
+            event.preventDefault();
+            phoneInput.focus();
+            return;
+        }
+
+        if (!paymentInput.value) {
+            event.preventDefault();
+            openModal();
+        }
+    });
+
+    payButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (submitting) {
+                return;
+            }
+
+            paymentInput.value = button.dataset.method;
+            submitting = true;
+
+            payButtons.forEach(function (item) {
+                item.disabled = true;
+            });
+
+            form.requestSubmit();
+        });
+    });
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        if (!ccList.hidden) {
+            closeList();
+            ccButton.focus();
+        } else if (modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+</script>
+
+</body>
+</html>

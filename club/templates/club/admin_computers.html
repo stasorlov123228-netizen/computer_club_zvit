@@ -1,0 +1,616 @@
+{% extends 'club/admin_base.html' %}
+
+{% block title %}Комп'ютери{% endblock %}
+
+{% block extra_css %}<style>
+    .admin-page {
+        width: 94%;
+        max-width: 1100px;
+        margin: 45px auto 70px;
+    }
+
+    .page-title {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .page-tag {
+        color: #65ff9a;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        margin-bottom: 14px;
+    }
+
+    h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(26px, 5vw, 38px);
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    h1 span {
+        color: #65ff9a;
+    }
+
+    .title-line {
+        width: 90px;
+        height: 3px;
+        margin: 20px auto 0;
+        background: #65ff9a;
+        border-radius: 3px;
+        box-shadow: 0 0 14px rgba(101, 255, 154, 0.7);
+    }
+
+    .top-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .counter {
+        padding: 6px 16px;
+        color: #65ff9a;
+        font-size: 13px;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.3);
+        border-radius: 20px;
+    }
+
+    .hint {
+        color: #778395;
+        font-size: 13px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    /* Картка ПК (кнопка) */
+
+    .pc-card {
+        width: 100%;
+        padding: 22px 16px 20px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        background: #141a23;
+        border: 1px solid #293341;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .pc-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0 22px rgba(101, 255, 154, 0.12);
+    }
+
+    .pc-card:focus-visible {
+        outline: 2px solid #65ff9a;
+        outline-offset: 2px;
+    }
+
+    .pc-card.available { border-color: rgba(101, 255, 154, 0.4); }
+    .pc-card.occupied { border-color: rgba(255, 92, 108, 0.4); }
+    .pc-card.maintenance { border-color: rgba(255, 200, 87, 0.4); }
+
+    .pc-icon {
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+
+    .pc-name {
+        margin-bottom: 8px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 14px;
+        letter-spacing: 1px;
+        overflow-wrap: anywhere;
+    }
+
+    .pc-kind {
+        margin-bottom: 12px;
+        color: #778395;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 20px;
+        color: #aeb8c7;
+        border: 1px solid #394555;
+    }
+
+    .badge.available {
+        color: #65ff9a;
+        background: rgba(101, 255, 154, 0.08);
+        border-color: rgba(101, 255, 154, 0.35);
+    }
+
+    .badge.occupied {
+        color: #ff8585;
+        background: rgba(255, 92, 108, 0.08);
+        border-color: rgba(255, 92, 108, 0.35);
+    }
+
+    .badge.maintenance {
+        color: #ffc857;
+        background: rgba(255, 200, 87, 0.08);
+        border-color: rgba(255, 200, 87, 0.35);
+    }
+
+    .empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #778395;
+        background: #141a23;
+        border: 1px solid #293341;
+        border-radius: 14px;
+    }
+
+    /* Вікно ПК */
+
+    body.modal-open { overflow: hidden; }
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 30px 16px;
+        background: rgba(4, 7, 5, 0.82);
+        backdrop-filter: blur(6px);
+        overflow-y: auto;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        animation: fadeIn 0.25s ease;
+    }
+
+    .modal {
+        position: relative;
+        width: 100%;
+        max-width: 640px;
+        margin: auto;
+        padding: 32px 30px 28px;
+        background: #141a23;
+        border: 1px solid rgba(101, 255, 154, 0.5);
+        border-radius: 16px;
+        box-shadow: 0 0 40px rgba(101, 255, 154, 0.18);
+        animation: popIn 0.3s ease;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 36px;
+        height: 36px;
+        background: transparent;
+        border: 1px solid #394555;
+        border-radius: 50%;
+        color: #aeb8c7;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.2s, border-color 0.2s;
+    }
+
+    .modal-close:hover {
+        color: #65ff9a;
+        border-color: #65ff9a;
+    }
+
+    .modal-head {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-right: 40px;
+        margin-bottom: 8px;
+    }
+
+    .modal-icon {
+        width: 58px;
+        height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 28px;
+        background: #0f2417;
+        border: 2px solid #65ff9a;
+        border-radius: 14px;
+        box-shadow: 0 0 18px rgba(101, 255, 154, 0.3);
+    }
+
+    .modal-name {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 20px;
+        letter-spacing: 1px;
+        overflow-wrap: anywhere;
+    }
+
+    .modal-tier {
+        margin-top: 6px;
+        color: #65ff9a;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .modal-status {
+        margin: 14px 0 22px;
+    }
+
+    .section-title {
+        margin: 24px 0 10px;
+        color: #778395;
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .spec-list {
+        background: #0b0e13;
+        border: 1px solid #293341;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #252d3a;
+        font-size: 14px;
+    }
+
+    .spec-row:last-child { border-bottom: none; }
+
+    .spec-label {
+        flex-shrink: 0;
+        color: #778395;
+    }
+
+    .spec-value {
+        text-align: right;
+        color: #e6ebf2;
+        overflow-wrap: anywhere;
+    }
+
+    .spec-list.extra {
+        border-color: rgba(101, 255, 154, 0.35);
+        box-shadow: 0 0 18px rgba(101, 255, 154, 0.07);
+    }
+
+    .no-specs {
+        padding: 16px;
+        color: #778395;
+        font-size: 14px;
+    }
+
+    /* Вибір статусу */
+
+    .status-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .status-option {
+        position: relative;
+        display: block;
+        cursor: pointer;
+    }
+
+    .status-option input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .status-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        height: 100%;
+        padding: 14px 8px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: bold;
+        color: #fff;
+        background: #0b0e13;
+        border: 1px solid #394555;
+        border-radius: 10px;
+        transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+
+    .status-card .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .status-option:hover .status-card { transform: translateY(-2px); }
+
+    .status-option input:focus-visible + .status-card {
+        outline: 2px solid #65ff9a;
+        outline-offset: 2px;
+    }
+
+    .status-option.s-available .dot { background: #65ff9a; box-shadow: 0 0 8px #65ff9a; }
+    .status-option.s-occupied .dot { background: #ff5c6c; box-shadow: 0 0 8px #ff5c6c; }
+    .status-option.s-maintenance .dot { background: #ffc857; box-shadow: 0 0 8px #ffc857; }
+
+    .status-option.s-available input:checked + .status-card {
+        border-color: #65ff9a; background: rgba(101, 255, 154, 0.1);
+    }
+
+    .status-option.s-occupied input:checked + .status-card {
+        border-color: #ff5c6c; background: rgba(255, 92, 108, 0.1);
+    }
+
+    .status-option.s-maintenance input:checked + .status-card {
+        border-color: #ffc857; background: rgba(255, 200, 87, 0.1);
+    }
+
+    .save-button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 14px;
+        background: #65ff9a;
+        color: #0b0e13;
+        border: 1px solid #65ff9a;
+        border-radius: 6px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .save-button:hover {
+        background: #42df7c;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(101, 255, 154, 0.3);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes popIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 600px) {
+        .modal { padding: 26px 18px 22px; }
+        .modal-name { font-size: 16px; }
+        .spec-row { flex-direction: column; gap: 4px; }
+        .spec-value { text-align: left; }
+        .status-options { grid-template-columns: 1fr; }
+    }
+</style>{% endblock %}
+
+{% block content %}
+    <div class="admin-page">
+
+        <div class="page-title">
+            <div class="page-tag">ADMIN PANEL</div>
+            <h1>Комп'ютери <span>клубу</span></h1>
+            <div class="title-line"></div>
+        </div>
+
+        <div class="top-row">
+            <div class="counter">Всього: {{ computers|length }}</div>
+            <div class="hint">Натисніть на комп'ютер, щоб побачити характеристики та змінити статус</div>
+        </div>
+
+        {% if computers %}
+            <div class="grid">
+                {% for pc in computers %}
+                    <button type="button"
+                            class="pc-card {{ pc.status }}"
+                            data-id="{{ pc.id }}"
+                            data-name="{{ pc.name }}"
+                            data-status="{{ pc.status }}"
+                            data-kind="{{ pc.kind }}">
+                        <div class="pc-icon">🖥️</div>
+                        <div class="pc-name">{{ pc.name }}</div>
+                        <div class="pc-kind">{{ pc.kind|default:"—" }}</div>
+
+                        {% if pc.status == 'available' %}
+                            <span class="badge available">Вільний</span>
+                        {% elif pc.status == 'occupied' %}
+                            <span class="badge occupied">Зайнятий</span>
+                        {% elif pc.status == 'maintenance' %}
+                            <span class="badge maintenance">На обслуговуванні</span>
+                        {% else %}
+                            <span class="badge">{{ pc.status }}</span>
+                        {% endif %}
+                    </button>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">Комп'ютерів поки немає.</div>
+        {% endif %}
+
+    </div>
+
+    <!-- ВІКНО КОМП'ЮТЕРА -->
+
+    <div class="modal-overlay" id="pc-modal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pc-title">
+
+            <button type="button" class="modal-close" id="pc-close" aria-label="Закрити">✕</button>
+
+            <div class="modal-head">
+                <div class="modal-icon">🖥️</div>
+                <div>
+                    <div class="modal-name" id="pc-title"></div>
+                    <div class="modal-tier" id="pc-tier"></div>
+                </div>
+            </div>
+
+            <div class="modal-status"><span class="badge" id="pc-badge"></span></div>
+
+            <div class="section-title">Характеристики</div>
+            <div class="spec-list" id="pc-parts"></div>
+
+            <div id="pc-extra-wrap" hidden>
+                <div class="section-title">Спеціальне обладнання</div>
+                <div class="spec-list extra" id="pc-extra"></div>
+            </div>
+
+            <div class="section-title">Статус комп'ютера</div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="computer_id" id="pc-id" value="">
+
+                <div class="status-options">
+                    <label class="status-option s-available">
+                        <input type="radio" name="status" value="available" required>
+                        <span class="status-card"><span class="dot"></span>Вільний</span>
+                    </label>
+
+                    <label class="status-option s-occupied">
+                        <input type="radio" name="status" value="occupied">
+                        <span class="status-card"><span class="dot"></span>Зайнятий</span>
+                    </label>
+
+                    <label class="status-option s-maintenance">
+                        <input type="radio" name="status" value="maintenance">
+                        <span class="status-card"><span class="dot"></span>На обслуговуванні</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="save-button">ЗБЕРЕГТИ СТАТУС</button>
+            </form>
+        </div>
+    </div>
+
+    {{ specs|json_script:"pc-specs" }}
+
+    <script>
+        const specs = JSON.parse(document.getElementById('pc-specs').textContent);
+        const modal = document.getElementById('pc-modal');
+
+        const STATUS_TEXT = {
+            available: 'Вільний',
+            occupied: 'Зайнятий',
+            maintenance: 'На обслуговуванні'
+        };
+
+        function fillRows(container, rows) {
+            container.innerHTML = '';
+
+            rows.forEach(function (row) {
+                const line = document.createElement('div');
+                line.className = 'spec-row';
+
+                const label = document.createElement('span');
+                label.className = 'spec-label';
+                label.textContent = row[0];
+
+                const value = document.createElement('span');
+                value.className = 'spec-value';
+                value.textContent = row[1];
+
+                line.append(label, value);
+                container.appendChild(line);
+            });
+        }
+
+        function openPc(card) {
+            const data = card.dataset;
+            const spec = specs[data.kind];
+
+            document.getElementById('pc-title').textContent = data.name;
+            document.getElementById('pc-id').value = data.id;
+
+            const badge = document.getElementById('pc-badge');
+            badge.className = 'badge ' + data.status;
+            badge.textContent = STATUS_TEXT[data.status] || data.status;
+
+            const parts = document.getElementById('pc-parts');
+            const extraWrap = document.getElementById('pc-extra-wrap');
+
+            if (spec) {
+                document.getElementById('pc-tier').textContent =
+                    'Тариф ' + spec.title + ' · ' + spec.tier;
+                fillRows(parts, spec.parts);
+
+                if (spec.extra.length) {
+                    fillRows(document.getElementById('pc-extra'), spec.extra);
+                    extraWrap.hidden = false;
+                } else {
+                    extraWrap.hidden = true;
+                }
+            } else {
+                document.getElementById('pc-tier').textContent = '';
+                parts.innerHTML =
+                    '<div class="no-specs">Для цього комп\'ютера характеристики не задані.</div>';
+                extraWrap.hidden = true;
+            }
+
+            modal.querySelectorAll('input[name="status"]').forEach(function (radio) {
+                radio.checked = radio.value === data.status;
+            });
+
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
+        }
+
+        function closePc() {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+        }
+
+        document.querySelectorAll('.pc-card').forEach(function (card) {
+            card.addEventListener('click', function () {
+                openPc(card);
+            });
+        });
+
+        document.getElementById('pc-close').addEventListener('click', closePc);
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closePc();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('active')) {
+                closePc();
+            }
+        });
+
+    </script>
+{% endblock %}

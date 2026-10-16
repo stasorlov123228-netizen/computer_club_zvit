@@ -1,0 +1,133 @@
+{% extends 'club/admin_base.html' %}
+
+{% block title %}Тарифи{% endblock %}
+
+{% block extra_css %}<style>
+    .admin-page {
+        width: 94%;
+        max-width: 1100px;
+        margin: 45px auto 70px;
+    }
+
+    .page-title {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .page-tag {
+        color: #65ff9a;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        margin-bottom: 14px;
+    }
+
+    h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(26px, 5vw, 38px);
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    h1 span {
+        color: #65ff9a;
+    }
+
+    .title-line {
+        width: 90px;
+        height: 3px;
+        margin: 20px auto 0;
+        background: #65ff9a;
+        border-radius: 3px;
+        box-shadow: 0 0 14px rgba(101, 255, 154, 0.7);
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 22px;
+    }
+
+    .tariff-card {
+        padding: 30px 22px;
+        text-align: center;
+        background: #141a23;
+        border: 1px solid #293341;
+        border-radius: 14px;
+        transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .tariff-card:hover {
+        border-color: #65ff9a;
+        transform: translateY(-5px);
+        box-shadow: 0 0 25px rgba(101, 255, 154, 0.12);
+    }
+
+    .tariff-id {
+        color: #778395;
+        font-size: 12px;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+
+    .tariff-card h2 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 24px;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+    }
+
+    .tariff-price {
+        color: #65ff9a;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 34px;
+        font-weight: 800;
+    }
+
+    .tariff-price span {
+        color: #aeb8c7;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+    }
+
+    .empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #778395;
+        background: #141a23;
+        border: 1px solid #293341;
+        border-radius: 14px;
+    }
+</style>{% endblock %}
+
+{% block content %}
+    <div class="admin-page">
+
+        <div class="page-title">
+            <div class="page-tag">ADMIN PANEL</div>
+            <h1><span>Тарифи</span></h1>
+            <div class="title-line"></div>
+        </div>
+
+        {% if tariffs %}
+            <div class="grid">
+                {% for t in tariffs %}
+                    <div class="tariff-card">
+                        <div class="tariff-id">ТАРИФ №{{ t.id }}</div>
+                        <h2>{{ t.name }}</h2>
+
+                        {# Якщо поле ціни називається інакше, замініть t.price #}
+                        {% if t.price %}
+                            <div class="tariff-price">{{ t.price }} ₴ <span>/ година</span></div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">Тарифів поки немає. Додайте їх в Django-адмінці.</div>
+        {% endif %}
+
+    </div>
+{% endblock %}
