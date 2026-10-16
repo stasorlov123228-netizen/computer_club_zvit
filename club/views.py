@@ -1,7 +1,11 @@
 
 from datetime import datetime, timedelta
+<<<<<<< HEAD
 import re
 from django.contrib.auth.decorators import login_required, user_passes_test
+=======
+from django.contrib.auth.decorators import login_required
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 from django import forms
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -9,6 +13,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+<<<<<<< HEAD
 from django.db import transaction
 from django.db.models import (
     Case,
@@ -28,6 +33,12 @@ from .phone_numbers import (
     split_phone_number,
     validate_phone_number,
 )
+=======
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+from .models import Computer, Tariff, Booking, Payment
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 
@@ -72,6 +83,7 @@ def home(request):
 
 @login_required
 def account_view(request):
+<<<<<<< HEAD
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST' and 'update_phone' in request.POST:
@@ -90,6 +102,10 @@ def account_view(request):
     return render(request, 'club/account.html', {
         'phone_form': phone_form,
     })
+=======
+    return render(request, 'club/account.html')
+
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 
@@ -98,6 +114,7 @@ def account_view(request):
 def my_bookings(request):
     update_computer_statuses()
 
+<<<<<<< HEAD
     return render_my_bookings(request)
 
 
@@ -296,6 +313,21 @@ def booking(request):
 
     if request.method != 'POST':
         return render(request, 'club/booking.html', context)
+=======
+    bookings = Booking.objects.filter(
+        user=request.user
+    ).select_related(
+        'computer', 'tariff'
+    ).order_by('-created_at')
+
+    return render(request, 'club/my_bookings.html', {
+        'bookings': bookings,
+    })
+
+def booking(request):
+    if request.method != 'POST':
+        return render(request, 'club/booking.html', {'errors': []})
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     errors = []
     name = request.POST.get('name', '').strip()
@@ -304,6 +336,7 @@ def booking(request):
     date_value = request.POST.get('date', '').strip()
     time_value = request.POST.get('time', '').strip()
     payment_method = request.POST.get('payment_method', '').strip()
+<<<<<<< HEAD
 
     if request.user.is_authenticated:
         if not phone:
@@ -374,11 +407,143 @@ def booking(request):
                 start,
                 end,
             )
+=======
+    phone_country = request.POST.get('phone_country', '+380').strip()
+    phone_local = request.POST.get('phone_local', '').strip()
+
+    # Код країни: (мінімум цифр, максимум цифр) у номері без коду країни
+    phone_rules = {
+        '+380': (9, 9),   '+1': (10, 10),   '+44': (10, 10),
+        '+48': (9, 9),    '+49': (10, 11),  '+33': (9, 9),
+        '+39': (9, 10),   '+34': (9, 9),    '+420': (9, 9),
+        '+421': (9, 9),   '+40': (9, 9),    '+373': (8, 8),
+        '+43': (10, 11),  '+41': (9, 9),    '+31': (9, 9),
+        '+32': (8, 9),    '+351': (9, 9),   '+30': (10, 10),
+        '+359': (8, 9),   '+385': (8, 9),   '+386': (8, 8),
+        '+36': (9, 9),    '+370': (8, 8),   '+371': (8, 8),
+        '+372': (7, 8),   '+358': (9, 10),  '+46': (9, 9),
+        '+47': (8, 8),    '+45': (8, 8),    '+354': (7, 7),
+        '+353': (9, 9),   '+90': (10, 10),  '+995': (9, 9),
+        '+374': (8, 8),   '+994': (9, 9),   '+7': (10, 10),
+        '+81': (10, 10),  '+82': (9, 10),   '+86': (11, 11),
+        '+91': (10, 10),  '+92': (10, 10),  '+880': (10, 10),
+        '+66': (9, 9),    '+84': (9, 10),   '+60': (9, 10),
+        '+65': (8, 8),    '+62': (9, 11),   '+63': (10, 10),
+        '+972': (9, 9),   '+971': (9, 9),   '+966': (9, 9),
+        '+20': (10, 10),  '+27': (9, 9),    '+234': (10, 10),
+        '+254': (9, 9),   '+212': (9, 9),   '+55': (10, 11),
+        '+54': (10, 10),  '+56': (9, 9),    '+57': (10, 10),
+        '+52': (10, 10),  '+61': (9, 9),    '+64': (8, 9),
+    }
+
+    country_digits = ''.join(filter(str.isdigit, phone_country))
+    local_digits = ''.join(filter(str.isdigit, phone_local))
+    phone = f'+{country_digits}{local_digits}'
+
+    if phone_country not in phone_rules:
+        errors.append('Оберіть країну зі списку.')
+    elif not phone_local:
+        errors.append('Введіть номер телефону.')
+    elif not phone_local.isdigit():
+        errors.append('Номер телефону повинен містити лише цифри.')
+    else:
+        min_len, max_len = phone_rules[phone_country]
+
+        if not (min_len <= len(phone_local) <= max_len):
+            if min_len == max_len:
+                expected = f'{min_len}'
+            else:
+                expected = f'{min_len}–{max_len}'
+
+            errors.append(
+                f'Для {phone_country} номер має містити '
+                f'{expected} цифр після коду країни.'
+            )
+
+        if not name:
+            errors.append("Введіть ім’я.")
+
+        tariff_names = {
+            'default': 'DEFAULT',
+            'pro': 'PRO',
+            'vip': 'VIP',
+            'stream': 'STREAM',
+        }
+
+        computer_suffixes = {
+            'default': 'defolt',
+            'pro': 'pro',
+            'vip': 'vip',
+            'stream': 'stream',
+        }
+
+        if tariff_code not in tariff_names:
+            errors.append('Оберіть правильний тариф.')
+
+        if duration_value not in ('1', '2', '3', '5', '8'):
+            errors.append('Оберіть тривалість бронювання.')
+
+        if payment_method not in ('card', 'cash'):
+            errors.append('Оберіть спосіб оплати.')
+
+        start = None
+        end = None
+
+        try:
+            duration = int(duration_value)
+
+            if duration_value not in ('1', '2', '3', '5', '8'):
+                raise ValueError
+
+            start = datetime.strptime(
+                f'{date_value} {time_value}',
+                '%Y-%m-%d %H:%M'
+            )
+
+            start = timezone.make_aware(
+                start,
+                timezone.get_current_timezone()
+            )
+
+            end = start + timedelta(hours=duration)
+
+        except (ValueError, TypeError):
+            if 'Оберіть тривалість бронювання.' not in errors:
+                errors.append('Перевірте дату та час.')
+
+        if start and start <= timezone.now():
+            errors.append('Оберіть час у майбутньому.')
+
+        tariff = None
+        computer = None
+
+        if not errors:
+            tariff = Tariff.objects.filter(
+                name__iexact=tariff_names[tariff_code]
+            ).first()
+
+            if not tariff:
+                errors.append(
+                    'Цей тариф ще не доданий в адмінпанелі.'
+                )
+
+        if not errors:
+            computer = Computer.objects.filter(
+                status='available',
+                name__iendswith=computer_suffixes[tariff_code]
+            ).exclude(
+                booking__start_time__lt=end,
+                booking__end_time__gt=start,
+                booking__status='cancelled',
+            ).order_by('id').first()
+
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             if not computer:
                 errors.append(
                     'Немає вільного комп’ютера для цього тарифу '
                     'на вибраний час.'
                 )
+<<<<<<< HEAD
             else:
                 booking_record = Booking.objects.create(
                     user=(
@@ -416,6 +581,41 @@ def booking(request):
         'phone_local': request.POST.get('phone_local', phone_local),
     })
     return render(request, 'club/booking.html', context)
+=======
+
+        if not errors:
+            booking_record = Booking.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                customer_name=name,
+                phone=phone,
+                tariff=tariff,
+                computer=computer,
+                start_time=start,
+                end_time=end,
+                payment_method=payment_method,
+                payment_status='unpaid',
+            )
+
+            # Якщо карткою — переходимо до форми оплати
+            if payment_method == 'card':
+                return redirect(
+                    'payment_result',
+                    booking_id=booking_record.id
+                )
+
+            # Якщо готівкою — показуємо успішне бронювання
+            return render(
+                request,
+                'club/booking_success.html',
+                {'booking': booking_record}
+            )
+
+    return render(
+        request,
+        'club/booking.html',
+        {'errors': errors}
+    )
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     
 
@@ -423,6 +623,11 @@ def booking(request):
 
 def login_view(request):
     if request.user.is_authenticated:
+<<<<<<< HEAD
+=======
+        if request.user.username == 'admin':
+            return redirect('admin_panel')
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return redirect('home')
 
     form = AuthenticationForm(
@@ -433,11 +638,19 @@ def login_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         login(request, user)
+<<<<<<< HEAD
+=======
+
+        if user.username == 'admin':
+            return redirect('admin_panel')
+
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return redirect('home')
 
     return render(request, 'club/login.html', {'form': form})
 
 
+<<<<<<< HEAD
 def clean_phone_fields(form):
     country_code = form.cleaned_data.get('phone_country')
     local_number = form.cleaned_data.get('phone_local', '').strip()
@@ -745,6 +958,9 @@ class CustomUserCreationForm(forms.ModelForm):
             'autocomplete': 'tel-national',
         }),
     )
+=======
+class CustomUserCreationForm(forms.ModelForm):
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     password = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput,
@@ -761,11 +977,14 @@ class CustomUserCreationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['username'].help_text = ''
 
+<<<<<<< HEAD
     def clean(self):
         cleaned_data = super().clean()
         clean_phone_fields(self)
         return cleaned_data
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     def clean_password(self):
         password = self.cleaned_data.get('password')
         user = User(
@@ -785,16 +1004,22 @@ class CustomUserCreationForm(forms.ModelForm):
 
         if commit:
             user.save()
+<<<<<<< HEAD
             UserProfile.objects.update_or_create(
                 user=user,
                 defaults={'phone': self.cleaned_data['phone']},
             )
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
         return user
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -806,10 +1031,14 @@ def register_view(request):
         login(request, user)
         return redirect('home')
 
+<<<<<<< HEAD
     return render(request, 'club/register.html', {
         'form': form,
         'phone_countries': [list(country) for country in PHONE_COUNTRIES],
     })
+=======
+    return render(request, 'club/register.html', {'form': form})
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 @require_POST
@@ -888,6 +1117,7 @@ def feedback_view(request):
 def partnership_view(request):
     sent = False
     error = ''
+<<<<<<< HEAD
     phone_country = '+380'
     phone_local = ''
 
@@ -899,15 +1129,28 @@ def partnership_view(request):
             sent = True
         except ValidationError as validation_error:
             error = ' '.join(validation_error.messages)
+=======
+
+    if request.method == 'POST':
+        phone = request.POST.get('phone', '').strip()
+
+        if phone:
+            sent = True
+        else:
+            error = 'Будь ласка, введіть номер телефону.'
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     return render(request, 'club/section_page.html', {
         'page_type': 'partnership',
         'title': 'Партнерство',
         'sent': sent,
         'error': error,
+<<<<<<< HEAD
         'phone_country': phone_country,
         'phone_local': phone_local,
         'phone_countries': [list(country) for country in PHONE_COUNTRIES],
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     })
 
 
@@ -915,6 +1158,7 @@ def partnership_view(request):
 def payment_result(request, booking_id):
     update_computer_statuses()
 
+<<<<<<< HEAD
     bookings = Booking.objects.filter(id=booking_id)
     if request.user.is_authenticated:
         bookings = bookings.filter(
@@ -981,6 +1225,30 @@ def payment_result(request, booking_id):
         'booking': booking_record,
         'payment_form': PaymentCardForm(),
     })
+=======
+    booking_record = get_object_or_404(
+        Booking,
+        id=booking_id
+    )
+
+    if request.method == 'POST':
+        booking_record.payment_status = 'paid'
+        booking_record.save(update_fields=['payment_status'])
+
+        update_computer_statuses()
+
+        return render(
+            request,
+            'club/booking_success.html',
+            {'booking': booking_record}
+        )
+
+    return render(
+        request,
+        'club/payment_result.html',
+        {'booking': booking_record}
+    )
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 
@@ -989,12 +1257,17 @@ def liqpay_callback(request):
 
 @login_required
 def admin_panel(request):
+<<<<<<< HEAD
     if not is_admin_or_staff(request.user):
+=======
+    if request.user.username != 'admin' or not request.user.is_staff:
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return redirect('home')
 
     return render(request, 'club/admin_panel.html')
 
 
+<<<<<<< HEAD
 def is_admin_or_staff(user):
     return user.is_authenticated and (
         user.username == 'admin' or user.is_staff
@@ -1157,6 +1430,28 @@ def admin_users(request):
 
 
 @user_passes_test(is_admin_or_staff)
+=======
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+@staff_member_required
+def admin_bookings(request):
+    bookings = Booking.objects.select_related(
+        'computer', 'tariff', 'user'
+    ).order_by('-created_at')
+
+    return render(request, 'club/admin_bookings.html', {'bookings': bookings})
+
+
+@staff_member_required
+def admin_users(request):
+    return render(request, 'club/admin_users.html', {
+        'users': User.objects.order_by('-date_joined'),
+    })
+
+
+@staff_member_required
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 def admin_tariffs(request):
     return render(request, 'club/admin_tariffs.html', {
         'tariffs': Tariff.objects.all(),
@@ -1172,7 +1467,11 @@ from .models import Tariff
 
 @login_required
 def admin_update_tariff_price(request, tariff_id):
+<<<<<<< HEAD
     if not is_admin_or_staff(request.user):
+=======
+    if request.user.username != 'admin' or not request.user.is_staff:
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return HttpResponseForbidden('Доступ заборонено.')
 
     if request.method != 'POST':
@@ -1349,7 +1648,11 @@ def get_pc_kind(name):
 
     return ''
 
+<<<<<<< HEAD
 @user_passes_test(is_admin_or_staff)
+=======
+@staff_member_required
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 def admin_computers(request):
     if request.method == 'POST':
         computer = get_object_or_404(
@@ -1380,9 +1683,18 @@ def admin_computers(request):
 
 
 
+<<<<<<< HEAD
 @user_passes_test(is_admin_or_staff)
 @require_POST
 def admin_booking_action(request, booking_id):
+=======
+@login_required
+@require_POST
+def admin_booking_action(request, booking_id):
+    if request.user.username != 'admin' or not request.user.is_staff:
+        return HttpResponseForbidden('Доступ заборонено.')
+
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     booking = get_object_or_404(Booking, id=booking_id)
     action = request.POST.get('action')
 

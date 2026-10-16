@@ -675,11 +675,14 @@
             <a href="{% url 'partnership' %}">ПАРТНЕРСТВО</a>
 
             {% if user.is_authenticated %}
+<<<<<<< HEAD
                 {% if user.username == 'admin' or user.is_staff %}
                     <a href="{% url 'admin_panel' %}" class="account-link">
                         АДМІН-ПАНЕЛЬ
                     </a>
                 {% endif %}
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                 <a href="{% url 'account' %}" class="account-link">АКАУНТ</a>
             {% else %}
                 <a href="{% url 'login' %}" class="account-link">УВІЙТИ</a>

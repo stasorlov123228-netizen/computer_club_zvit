@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from datetime import timedelta
 
 from django.contrib.auth.models import User
@@ -1050,3 +1051,8 @@ class BookingCardPaymentTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('card_number', form.errors)
+=======
+from django.test import TestCase
+
+# Create your tests here.
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1

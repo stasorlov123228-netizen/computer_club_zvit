@@ -28,9 +28,12 @@
         /* ШАПКА */
 
         header {
+<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -201,6 +204,7 @@
             text-align: right;
         }
 
+<<<<<<< HEAD
         .phone-form {
             max-width: 460px;
         }
@@ -229,6 +233,8 @@
             color: #ff8585;
         }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         /* КНОПКИ */
 
         .actions {
@@ -393,6 +399,7 @@
             </div>
 
             <div class="info-row">
+<<<<<<< HEAD
                 <span class="info-label">Номер телефону</span>
                 <span class="info-value">
                     {% if request.user.profile.phone %}
@@ -404,6 +411,8 @@
             </div>
 
             <div class="info-row">
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                 <span class="info-label">Дата реєстрації</span>
                 <span class="info-value">
                     {{ request.user.date_joined|date:"d.m.Y" }}
@@ -411,6 +420,7 @@
             </div>
         </section>
 
+<<<<<<< HEAD
         <section class="card">
             <h2>Номер телефону для бронювання</h2>
             <form method="POST" class="phone-form">
@@ -427,6 +437,8 @@
             </form>
         </section>
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         <div class="actions">
             <a class="button" href="{% url 'my_bookings' %}">
                 МОЇ БРОНЮВАННЯ

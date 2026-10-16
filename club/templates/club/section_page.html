@@ -25,6 +25,7 @@
             color: #ffffff;
         }
 
+<<<<<<< HEAD
         /* ШАПКА */
 
         .main-header {
@@ -46,11 +47,61 @@
 
         .logo {
             flex-shrink: 0;
+=======
+        
+        /* ШАПКА */
+
+        .page-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px 4%;
+            background: rgba(8, 11, 9, 0.96);
+            border-bottom: 1px solid rgba(101, 255, 154, 0.25);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .page-header > a {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 11px 15px;
+            color: #c3ccda;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-decoration: none;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            border-radius: 7px;
+            transition: color 0.2s ease,
+                        background 0.2s ease,
+                        border-color 0.2s ease,
+                        transform 0.2s ease;
+        }
+
+        .page-header > a:hover {
+            color: #65ff9a;
+            background: rgba(101, 255, 154, 0.07);
+            border-color: rgba(101, 255, 154, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .page-header .logo {
+            order: -1;
+            margin-right: 12px;
+            padding: 10px 4px;
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             color: #65ff9a;
             font-family: 'Orbitron', sans-serif;
             font-size: 23px;
             font-weight: 800;
             letter-spacing: 2px;
+<<<<<<< HEAD
             text-decoration: none;
             white-space: nowrap;
         }
@@ -260,6 +311,65 @@
 
             main {
                 padding-top: 76px;
+=======
+            border: none;
+        }
+
+        .page-header .logo:hover {
+            color: #ffffff;
+            background: transparent;
+            border-color: transparent;
+            text-shadow: 0 0 15px rgba(101, 255, 154, 0.5);
+            transform: none;
+        }
+
+        .page-header .back-home {
+            color: #08110b;
+            background: #65ff9a;
+            border: 1px solid #65ff9a;
+        }
+
+        .page-header .back-home:hover {
+            color: #08110b;
+            background: #42df7c;
+            border-color: #42df7c;
+            box-shadow: 0 0 18px rgba(101, 255, 154, 0.2);
+        }
+
+        .page-header a:focus-visible {
+            outline: 2px solid #65ff9a;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 850px) {
+            .page-header {
+                gap: 8px;
+                padding: 16px 4%;
+            }
+
+            .page-header .logo {
+                width: 100%;
+                margin: 0 0 5px;
+                justify-content: center;
+                font-size: 22px;
+            }
+
+            .page-header > a {
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                gap: 7px;
+            }
+
+            .page-header > a {
+                padding: 9px 10px;
+                font-size: 10px;
+                letter-spacing: 0.3px;
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             }
         }
 
@@ -564,8 +674,12 @@
             font-size: 14px;
         }
 
+<<<<<<< HEAD
         .partner-card input,
         .partner-card select {
+=======
+        input {
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             width: 100%;
             padding: 15px;
             margin: 10px 0 20px;
@@ -577,23 +691,34 @@
             transition: border-color 0.25s, box-shadow 0.25s;
         }
 
+<<<<<<< HEAD
         .partner-card input::placeholder {
             color: #5d6879;
         }
 
         .partner-card input:focus,
         .partner-card select:focus {
+=======
+        input::placeholder {
+            color: #5d6879;
+        }
+
+        input:focus {
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             outline: none;
             border-color: #65ff9a;
             box-shadow: 0 0 0 3px rgba(101, 255, 154, 0.12);
         }
 
+<<<<<<< HEAD
         .partner-phone-row {
             display: grid;
             grid-template-columns: minmax(180px, 0.9fr) 1.4fr;
             gap: 12px;
         }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         .partner-card .button {
             width: 100%;
             padding: 16px;
@@ -608,6 +733,7 @@
             border-radius: 8px;
         }
 
+<<<<<<< HEAD
         .callback-success {
             padding: 28px 22px;
             text-align: center;
@@ -649,6 +775,8 @@
             margin: 0 0 18px;
         }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         .error {
             padding: 14px 18px;
             margin-top: 6px;
@@ -671,9 +799,23 @@
         /* АДАПТАЦІЯ */
 
         @media (max-width: 700px) {
+<<<<<<< HEAD
             .partner-phone-row {
                 grid-template-columns: 1fr;
                 gap: 0;
+=======
+            .page-header {
+                padding: 16px 5%;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .back-home {
+                padding: 10px 12px;
+                font-size: 10px;
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             }
 
             .container {
@@ -752,6 +894,7 @@
 
 <body>
 
+<<<<<<< HEAD
     <header class="main-header">
         <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
 
@@ -792,6 +935,24 @@
                 ПОВЕРНУТИСЯ НА ГОЛОВНУ
             </a>
         </nav>
+=======
+    <header class="page-header">
+
+        <a href="{% url 'news' %}">НОВИНИ</a>
+            <a href="{% url 'clubs' %}">КЛУБИ</a>
+
+            <a href="https://www.instagram.com/"
+            target="_blank"
+            rel="noopener noreferrer">БЛОГ</a>
+
+            <a href="{% url 'feedback' %}">ЗВОРОТНИЙ ЗВ'ЯЗОК</a>
+            <a href="{% url 'partnership' %}">ПАРТНЕРСТВО</a>
+        <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'tournaments' %}">ТУРНІРИ</a>
+        <a href="{% url 'home' %}" class="back-home"> НА ГОЛОВНУ</a>
+
+            
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     </header>
 
     <main class="container">
@@ -950,16 +1111,23 @@
                 <p>Залиште номер телефону - ми зв'яжемося з вами.</p>
 
                 {% if sent %}
+<<<<<<< HEAD
                     <div class="success callback-success" role="status" aria-live="polite">
                         <span class="callback-success-icon" aria-hidden="true">✓</span>
                         <h3>Дякуємо!</h3>
                         <p>Ми вам скоро подзвонимо.</p>
                     </div>
+=======
+                    <p class="success">
+                        Дякуємо! Ваш номер прийнято.
+                    </p>
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                 {% else %}
                     <form method="post">
                         {% csrf_token %}
 
                         <label for="phone">Номер телефону</label>
+<<<<<<< HEAD
                         <div class="partner-phone-row">
                             <select id="phone-country" name="phone_country" required>
                                 {% for iso, country_name, dial_code, min_length, max_length in phone_countries %}
@@ -982,6 +1150,14 @@
                                 value="{{ phone_local }}"
                                 required>
                         </div>
+=======
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="+380..."
+                            required>
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
                         <button class="button" type="submit">
                             Чекаю на дзвінок
@@ -989,7 +1165,11 @@
                     </form>
 
                     {% if error %}
+<<<<<<< HEAD
                         <p class="error partner-error" role="alert">{{ error }}</p>
+=======
+                        <p class="error">{{ error }}</p>
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                     {% endif %}
                 {% endif %}
             </div>
@@ -1002,6 +1182,7 @@
         © 2026 Lviv Arena. Комп'ютерний клуб у Львові.
     </footer>
 
+<<<<<<< HEAD
     <script>
         const burger = document.getElementById('burger');
         const nav = document.getElementById('main-nav');
@@ -1057,5 +1238,7 @@
         }
     </script>
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 </body>
 </html>

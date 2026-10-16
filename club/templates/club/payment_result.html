@@ -132,13 +132,17 @@
         <div class="logo">LVIV ARENA</div>
 
         <h1>Оплата карткою</h1>
+<<<<<<< HEAD
         <p class="subtitle">
             Бронювання №{{ booking.id }} — {{ booking.start_time|date:"d.m.Y H:i" }}
         </p>
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
         <form id="payment-form" method="post" novalidate>
             {% csrf_token %}
+<<<<<<< HEAD
             {{ payment_form.card_number.label_tag }}
             {{ payment_form.card_number }}
 
@@ -164,6 +168,57 @@
                     {% endfor %}
                 </div>
             {% endif %}
+=======
+            <label for="card-number">Номер картки</label>
+            <input
+                id="card-number"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="0000 0000 0000 0000"
+                maxlength="19"
+                required
+            >
+
+            <label for="card-name">Ім’я платника</label>
+            <input
+                id="card-name"
+                type="text"
+                autocomplete="off"
+                placeholder="ІМ’Я ПРІЗВИЩЕ"
+                maxlength="100"
+                required
+            >
+
+            <div class="row">
+                <div>
+                    <label for="expiry">Термін дії</label>
+                    <input
+                        id="expiry"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        placeholder="ММ/РР"
+                        maxlength="5"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="cvc">CVC</label>
+                    <input
+                        id="cvc"
+                        type="password"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        placeholder="•••"
+                        maxlength="3"
+                        required
+                    >
+                </div>
+            </div>
+
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             <div id="error" class="error" role="alert" hidden></div>
 
             <button type="submit">Оплатити</button>

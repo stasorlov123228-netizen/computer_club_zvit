@@ -240,6 +240,7 @@
     .action-btn.delete-btn:hover {
         background: rgba(255, 92, 108, 0.1);
     }
+<<<<<<< HEAD
 
     .edit-booking {
         min-width: 230px;
@@ -296,6 +297,8 @@
     .save-edit-btn:hover {
         background: rgba(101, 255, 154, 0.18);
     }
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 </style>{% endblock %}
 
 {% block content %}
@@ -326,7 +329,11 @@
                     </tr>
                 </thead>
                 <tbody>
+<<<<<<< HEAD
                     {% for b, edit_form in booking_rows %}
+=======
+                    {% for b in bookings %}
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                         <tr>
                             <td class="id-cell">{{ b.id }}</td>
                             <td>
@@ -384,6 +391,7 @@
                     </button>
                 </form>
 
+<<<<<<< HEAD
                 <details class="edit-booking"
                          {% if editing_booking_id == b.id %}open{% endif %}>
                     <summary>Редагувати бронювання</summary>
@@ -437,6 +445,8 @@
                     </form>
                 </details>
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             </div>
         </td>
                         </tr>

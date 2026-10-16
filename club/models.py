@@ -28,6 +28,7 @@ class Tariff(models.Model):
         return self.name
 
 
+<<<<<<< HEAD
 class UserProfile(models.Model):
     user = models.OneToOneField(
         User,
@@ -40,6 +41,8 @@ class UserProfile(models.Model):
         return self.user.username
 
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 class Booking(models.Model):

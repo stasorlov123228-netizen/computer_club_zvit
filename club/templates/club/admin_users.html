@@ -172,7 +172,10 @@
                     <tr>
                         <th>Користувач</th>
                         <th>Пошта</th>
+<<<<<<< HEAD
                         <th>Номер телефону</th>
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                         <th>Реєстрація</th>
                         <th>Останній вхід</th>
                         <th>Роль</th>
@@ -191,6 +194,7 @@
                             <td>
                                 {% if u.email %}{{ u.email }}{% else %}<span class="muted">не вказана</span>{% endif %}
                             </td>
+<<<<<<< HEAD
                             <td>
                                 {% if u.profile.phone %}
                                     {{ u.profile.phone }}
@@ -198,6 +202,8 @@
                                     <span class="muted">не вказаний</span>
                                 {% endif %}
                             </td>
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                             <td>{{ u.date_joined|date:"d.m.Y" }}</td>
                             <td>
                                 {% if u.last_login %}
@@ -209,7 +215,11 @@
                             <td>
                                 {% if u.is_superuser %}
                                     <span class="badge admin">Суперадмін</span>
+<<<<<<< HEAD
                                 {% elif u.is_staff or u.username == 'admin' %}
+=======
+                                {% elif u.is_staff %}
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                                     <span class="badge admin">Адміністратор</span>
                                 {% else %}
                                     <span class="badge client">Клієнт</span>
@@ -225,7 +235,11 @@
                         </tr>
                     {% empty %}
                         <tr>
+<<<<<<< HEAD
                             <td colspan="7" class="empty">Користувачів поки немає.</td>
+=======
+                            <td colspan="6" class="empty">Користувачів поки немає.</td>
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                         </tr>
                     {% endfor %}
                 </tbody>

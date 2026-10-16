@@ -31,9 +31,12 @@
         }
 
         .page-header {
+<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -678,8 +681,13 @@
             {% csrf_token %}
 
             <input type="hidden" name="payment_method" id="payment-method" value="">
+<<<<<<< HEAD
             <input type="hidden" name="phone_country" id="phone-country" value="{{ request.POST.phone_country|default:phone_country|default:'+380' }}">
             <input type="hidden" name="phone_iso" id="phone-iso" value="{{ request.POST.phone_iso|default:phone_iso|default:'ua' }}">
+=======
+            <input type="hidden" name="phone_country" id="phone-country" value="{{ request.POST.phone_country|default:'+380' }}">
+            <input type="hidden" name="phone_iso" id="phone-iso" value="{{ request.POST.phone_iso|default:'ua' }}">
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
             {% if errors %}
                 <div class="errors">
@@ -702,7 +710,11 @@
                     >
                 </div>
 
+<<<<<<< HEAD
                 <div class="field" {% if request.user.is_authenticated %}style="display:none"{% endif %}>
+=======
+                <div class="field">
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                     <label for="phone-national">Номер телефону</label>
 
                     <div class="phone-box" id="phone-box">
@@ -722,8 +734,13 @@
                             inputmode="numeric"
                             autocomplete="tel-national"
                             placeholder="671234567"
+<<<<<<< HEAD
                             value="{{ request.POST.phone_local|default:phone_local|default:'' }}"
                             {% if phone_required %}required{% endif %}
+=======
+                            value="{{ request.POST.phone_local|default:'' }}"
+                            required
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                         >
 
                         <div class="cc-list" id="cc-list" hidden>
@@ -733,6 +750,7 @@
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     {% if missing_profile_phone %}
                         <div class="errors">
                             Додайте номер телефону в
@@ -741,6 +759,8 @@
                         </div>
                     {% endif %}
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                     <small class="phone-help" id="phone-help"></small>
                     <small class="phone-error" id="phone-error" role="alert"></small>
                 </div>
@@ -858,11 +878,81 @@
     </div>
 </div>
 
+<<<<<<< HEAD
 {{ phone_countries|json_script:"phone-countries-data" }}
 <script>
     const COUNTRIES = JSON.parse(
         document.getElementById('phone-countries-data').textContent
     );
+=======
+<script>
+    // ---------- Країни: [iso, назва, код, мін. цифр, макс. цифр] ----------
+    const COUNTRIES = [
+        ['ua', 'Україна', '+380', 9, 9],
+        ['us', 'США / Канада', '+1', 10, 10],
+        ['gb', 'Велика Британія', '+44', 10, 10],
+        ['pl', 'Польща', '+48', 9, 9],
+        ['de', 'Німеччина', '+49', 10, 11],
+        ['fr', 'Франція', '+33', 9, 9],
+        ['it', 'Італія', '+39', 9, 10],
+        ['es', 'Іспанія', '+34', 9, 9],
+        ['cz', 'Чехія', '+420', 9, 9],
+        ['sk', 'Словаччина', '+421', 9, 9],
+        ['ro', 'Румунія', '+40', 9, 9],
+        ['md', 'Молдова', '+373', 8, 8],
+        ['at', 'Австрія', '+43', 10, 11],
+        ['ch', 'Швейцарія', '+41', 9, 9],
+        ['nl', 'Нідерланди', '+31', 9, 9],
+        ['be', 'Бельгія', '+32', 8, 9],
+        ['pt', 'Португалія', '+351', 9, 9],
+        ['gr', 'Греція', '+30', 10, 10],
+        ['bg', 'Болгарія', '+359', 8, 9],
+        ['hr', 'Хорватія', '+385', 8, 9],
+        ['si', 'Словенія', '+386', 8, 8],
+        ['hu', 'Угорщина', '+36', 9, 9],
+        ['lt', 'Литва', '+370', 8, 8],
+        ['lv', 'Латвія', '+371', 8, 8],
+        ['ee', 'Естонія', '+372', 7, 8],
+        ['fi', 'Фінляндія', '+358', 9, 10],
+        ['se', 'Швеція', '+46', 9, 9],
+        ['no', 'Норвегія', '+47', 8, 8],
+        ['dk', 'Данія', '+45', 8, 8],
+        ['is', 'Ісландія', '+354', 7, 7],
+        ['ie', 'Ірландія', '+353', 9, 9],
+        ['tr', 'Туреччина', '+90', 10, 10],
+        ['ge', 'Грузія', '+995', 9, 9],
+        ['am', 'Вірменія', '+374', 8, 8],
+        ['az', 'Азербайджан', '+994', 9, 9],
+        ['kz', 'Казахстан / Росія', '+7', 10, 10],
+        ['jp', 'Японія', '+81', 10, 10],
+        ['kr', 'Південна Корея', '+82', 9, 10],
+        ['cn', 'Китай', '+86', 11, 11],
+        ['in', 'Індія', '+91', 10, 10],
+        ['pk', 'Пакистан', '+92', 10, 10],
+        ['bd', 'Бангладеш', '+880', 10, 10],
+        ['th', 'Таїланд', '+66', 9, 9],
+        ['vn', 'В’єтнам', '+84', 9, 10],
+        ['my', 'Малайзія', '+60', 9, 10],
+        ['sg', 'Сінгапур', '+65', 8, 8],
+        ['id', 'Індонезія', '+62', 9, 11],
+        ['ph', 'Філіппіни', '+63', 10, 10],
+        ['il', 'Ізраїль', '+972', 9, 9],
+        ['ae', 'ОАЕ', '+971', 9, 9],
+        ['sa', 'Саудівська Аравія', '+966', 9, 9],
+        ['eg', 'Єгипет', '+20', 10, 10],
+        ['za', 'ПАР', '+27', 9, 9],
+        ['ng', 'Нігерія', '+234', 10, 10],
+        ['ke', 'Кенія', '+254', 9, 9],
+        ['ma', 'Марокко', '+212', 9, 9],
+        ['br', 'Бразилія', '+55', 10, 11],
+        ['ar', 'Аргентина', '+54', 10, 10],
+        ['cl', 'Чилі', '+56', 9, 9],
+        ['co', 'Колумбія', '+57', 10, 10],
+        ['mx', 'Мексика', '+52', 10, 10],
+        ['au', 'Австралія', '+61', 9, 9],
+        ['nz', 'Нова Зеландія', '+64', 8, 9]
+    ];
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     // ---------- Елементи ----------
     const phoneBox = document.getElementById('phone-box');
@@ -1013,10 +1103,13 @@
     });
 
     function phoneIsValid() {
+<<<<<<< HEAD
         if (!{{ phone_required|yesno:"true,false" }}) {
             return true;
         }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         const length = phoneInput.value.replace(/\D/g, '').length;
 
         if (length < current[3]) {

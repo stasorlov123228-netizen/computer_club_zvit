@@ -42,7 +42,11 @@
             margin: 15px 0 8px;
         }
 
+<<<<<<< HEAD
         input, select {
+=======
+        input {
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             width: 100%;
             padding: 12px;
             color: white;
@@ -51,8 +55,11 @@
             border-radius: 7px;
         }
 
+<<<<<<< HEAD
         select { cursor: pointer; }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         button {
             width: 100%;
             margin-top: 25px;
@@ -114,6 +121,7 @@
 
         <form method="POST">
             {% csrf_token %}
+<<<<<<< HEAD
             <p>
                 {{ form.username.label_tag }}
                 {{ form.username }}
@@ -136,6 +144,9 @@
                 {{ form.password.errors }}
             </p>
             {{ form.non_field_errors }}
+=======
+            {{ form.as_p }}
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
             <button type="submit">ЗАРЕЄСТРУВАТИСЯ</button>
         </form>
@@ -148,6 +159,7 @@
         <a class="back-home" href="/"> На головну</a>
 
     </div>
+<<<<<<< HEAD
 
     {{ phone_countries|json_script:"phone-countries-data" }}
     <script>
@@ -192,5 +204,7 @@
         updatePhoneLength();
     </script>
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 </body>
 </html>

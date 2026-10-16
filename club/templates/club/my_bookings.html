@@ -25,9 +25,12 @@
         }
 
         .page-header {
+<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -171,6 +174,7 @@
             font-weight: bold;
         }
 
+<<<<<<< HEAD
         .edit-section {
             margin-top: 24px;
             padding-top: 18px;
@@ -229,6 +233,8 @@
             cursor: pointer;
         }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         .empty {
             text-align: center;
             padding: 50px 25px;
@@ -334,6 +340,7 @@
                 gap: 16px;
             }
 
+<<<<<<< HEAD
             .edit-form {
                 grid-template-columns: 1fr;
             }
@@ -342,6 +349,8 @@
                 width: 100%;
             }
 
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             .actions {
                 flex-direction: column;
             }
@@ -378,7 +387,11 @@
             <div class="title-line"></div>
         </div>
 
+<<<<<<< HEAD
         {% for booking, edit_form in booking_rows %}
+=======
+        {% for booking in bookings %}
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             <section class="booking">
                 <h2>Бронювання <span>№{{ booking.id }}</span></h2>
 
@@ -423,6 +436,7 @@
                         <span class="booking-value accent">{{ booking.get_payment_status_display }}</span>
                     </div>
                 </div>
+<<<<<<< HEAD
 
                 {% if edit_form %}
                     <details class="edit-section"
@@ -467,6 +481,8 @@
                         </form>
                     </details>
                 {% endif %}
+=======
+>>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             </section>
         {% empty %}
             <div class="empty">
