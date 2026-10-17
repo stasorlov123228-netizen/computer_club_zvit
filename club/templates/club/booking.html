@@ -1,9 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бронювання — Lviv Arena</title>
+    <title>Бронювання - Lviv Arena</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,12 +32,9 @@
         }
 
         .page-header {
-<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -137,6 +135,19 @@
             margin-bottom: 14px;
         }
 
+        .profile-name-field {
+            grid-column: 1 / -1;
+        }
+
+        .profile-name {
+            padding: 11px 13px;
+            border: 1px solid rgba(192, 132, 252, .24);
+            border-radius: 8px;
+            background: rgba(8, 8, 16, .84);
+            color: #f5f3ff;
+            font-size: 14px;
+        }
+
         label {
             display: block;
             margin-bottom: 6px;
@@ -179,7 +190,7 @@
             cursor: pointer;
         }
 
-        /* Поле телефону з вибором коду країни всередині */
+
 
         .phone-box {
             position: relative;
@@ -393,7 +404,7 @@
             line-height: 1.5;
         }
 
-        /* Вікно вибору оплати */
+
 
         .modal-overlay {
             position: fixed;
@@ -656,6 +667,8 @@
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
 </head>
 
 <body>
@@ -681,13 +694,8 @@
             {% csrf_token %}
 
             <input type="hidden" name="payment_method" id="payment-method" value="">
-<<<<<<< HEAD
             <input type="hidden" name="phone_country" id="phone-country" value="{{ request.POST.phone_country|default:phone_country|default:'+380' }}">
             <input type="hidden" name="phone_iso" id="phone-iso" value="{{ request.POST.phone_iso|default:phone_iso|default:'ua' }}">
-=======
-            <input type="hidden" name="phone_country" id="phone-country" value="{{ request.POST.phone_country|default:'+380' }}">
-            <input type="hidden" name="phone_iso" id="phone-iso" value="{{ request.POST.phone_iso|default:'ua' }}">
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
             {% if errors %}
                 <div class="errors">
@@ -698,23 +706,26 @@
             {% endif %}
 
             <div class="form-row">
-                <div class="field">
-                    <label for="name">Ім'я</label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        placeholder="Ваше ім'я"
-                        required
-                        value="{{ request.POST.name|default:'' }}"
-                    >
-                </div>
+                {% if request.user.is_authenticated %}
+                    <div class="field profile-name-field">
+                        <label>Ім'я</label>
+                        <div class="profile-name">{{ request.user.username }}</div>
+                    </div>
+                {% else %}
+                    <div class="field">
+                        <label for="name">Ім'я</label>
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            placeholder="Ваше ім'я"
+                            required
+                            value="{{ request.POST.name|default:'' }}"
+                        >
+                    </div>
+                {% endif %}
 
-<<<<<<< HEAD
                 <div class="field" {% if request.user.is_authenticated %}style="display:none"{% endif %}>
-=======
-                <div class="field">
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                     <label for="phone-national">Номер телефону</label>
 
                     <div class="phone-box" id="phone-box">
@@ -734,13 +745,8 @@
                             inputmode="numeric"
                             autocomplete="tel-national"
                             placeholder="671234567"
-<<<<<<< HEAD
                             value="{{ request.POST.phone_local|default:phone_local|default:'' }}"
                             {% if phone_required %}required{% endif %}
-=======
-                            value="{{ request.POST.phone_local|default:'' }}"
-                            required
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                         >
 
                         <div class="cc-list" id="cc-list" hidden>
@@ -750,17 +756,14 @@
                         </div>
                     </div>
 
-<<<<<<< HEAD
                     {% if missing_profile_phone %}
                         <div class="errors">
                             Додайте номер телефону в
-                            <a href="{% url 'account' %}" style="color: #65ff9a">профілі</a>
+                            <a href="{% url 'account' %}" style="color: var(--arena-lilac)">профілі</a>
                             перед бронюванням.
                         </div>
                     {% endif %}
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                     <small class="phone-help" id="phone-help"></small>
                     <small class="phone-error" id="phone-error" role="alert"></small>
                 </div>
@@ -771,10 +774,10 @@
                     <label for="tariff">Тариф</label>
                     <select id="tariff" name="tariff" required>
                         <option value="" disabled {% if not request.POST.tariff %}selected{% endif %}>Оберіть тариф</option>
-                        <option value="default" {% if request.POST.tariff == 'default' %}selected{% endif %}>DEFAULT — 50 ₴ / год</option>
-                        <option value="pro" {% if request.POST.tariff == 'pro' %}selected{% endif %}>PRO — 80 ₴ / год</option>
-                        <option value="vip" {% if request.POST.tariff == 'vip' %}selected{% endif %}>VIP — 120 ₴ / год</option>
-                        <option value="stream" {% if request.POST.tariff == 'stream' %}selected{% endif %}>STREAM — 150 ₴ / год</option>
+                        <option value="default" {% if request.POST.tariff == 'default' %}selected{% endif %}>DEFAULT - 50 ₴ / год</option>
+                        <option value="pro" {% if request.POST.tariff == 'pro' %}selected{% endif %}>PRO - 80 ₴ / год</option>
+                        <option value="vip" {% if request.POST.tariff == 'vip' %}selected{% endif %}>VIP - 120 ₴ / год</option>
+                        <option value="stream" {% if request.POST.tariff == 'stream' %}selected{% endif %}>STREAM - 150 ₴ / год</option>
                     </select>
                 </div>
 
@@ -843,7 +846,7 @@
             <button type="button" class="pay-button primary" data-method="card">
                 <span class="pay-icon">💳</span>
                 ОПЛАТИТИ КАРТКОЮ
-                <small>Демонстраційна оплата</small>
+                <small>Демо-режим: кошти не списуються</small>
             </button>
 
             <button type="button" class="pay-button" data-method="cash">
@@ -878,95 +881,25 @@
     </div>
 </div>
 
-<<<<<<< HEAD
 {{ phone_countries|json_script:"phone-countries-data" }}
 <script>
     const COUNTRIES = JSON.parse(
-        document.getElementById('phone-countries-data').textContent
+        document.querySelector('#phone-countries-data').textContent
     );
-=======
-<script>
-    // ---------- Країни: [iso, назва, код, мін. цифр, макс. цифр] ----------
-    const COUNTRIES = [
-        ['ua', 'Україна', '+380', 9, 9],
-        ['us', 'США / Канада', '+1', 10, 10],
-        ['gb', 'Велика Британія', '+44', 10, 10],
-        ['pl', 'Польща', '+48', 9, 9],
-        ['de', 'Німеччина', '+49', 10, 11],
-        ['fr', 'Франція', '+33', 9, 9],
-        ['it', 'Італія', '+39', 9, 10],
-        ['es', 'Іспанія', '+34', 9, 9],
-        ['cz', 'Чехія', '+420', 9, 9],
-        ['sk', 'Словаччина', '+421', 9, 9],
-        ['ro', 'Румунія', '+40', 9, 9],
-        ['md', 'Молдова', '+373', 8, 8],
-        ['at', 'Австрія', '+43', 10, 11],
-        ['ch', 'Швейцарія', '+41', 9, 9],
-        ['nl', 'Нідерланди', '+31', 9, 9],
-        ['be', 'Бельгія', '+32', 8, 9],
-        ['pt', 'Португалія', '+351', 9, 9],
-        ['gr', 'Греція', '+30', 10, 10],
-        ['bg', 'Болгарія', '+359', 8, 9],
-        ['hr', 'Хорватія', '+385', 8, 9],
-        ['si', 'Словенія', '+386', 8, 8],
-        ['hu', 'Угорщина', '+36', 9, 9],
-        ['lt', 'Литва', '+370', 8, 8],
-        ['lv', 'Латвія', '+371', 8, 8],
-        ['ee', 'Естонія', '+372', 7, 8],
-        ['fi', 'Фінляндія', '+358', 9, 10],
-        ['se', 'Швеція', '+46', 9, 9],
-        ['no', 'Норвегія', '+47', 8, 8],
-        ['dk', 'Данія', '+45', 8, 8],
-        ['is', 'Ісландія', '+354', 7, 7],
-        ['ie', 'Ірландія', '+353', 9, 9],
-        ['tr', 'Туреччина', '+90', 10, 10],
-        ['ge', 'Грузія', '+995', 9, 9],
-        ['am', 'Вірменія', '+374', 8, 8],
-        ['az', 'Азербайджан', '+994', 9, 9],
-        ['kz', 'Казахстан / Росія', '+7', 10, 10],
-        ['jp', 'Японія', '+81', 10, 10],
-        ['kr', 'Південна Корея', '+82', 9, 10],
-        ['cn', 'Китай', '+86', 11, 11],
-        ['in', 'Індія', '+91', 10, 10],
-        ['pk', 'Пакистан', '+92', 10, 10],
-        ['bd', 'Бангладеш', '+880', 10, 10],
-        ['th', 'Таїланд', '+66', 9, 9],
-        ['vn', 'В’єтнам', '+84', 9, 10],
-        ['my', 'Малайзія', '+60', 9, 10],
-        ['sg', 'Сінгапур', '+65', 8, 8],
-        ['id', 'Індонезія', '+62', 9, 11],
-        ['ph', 'Філіппіни', '+63', 10, 10],
-        ['il', 'Ізраїль', '+972', 9, 9],
-        ['ae', 'ОАЕ', '+971', 9, 9],
-        ['sa', 'Саудівська Аравія', '+966', 9, 9],
-        ['eg', 'Єгипет', '+20', 10, 10],
-        ['za', 'ПАР', '+27', 9, 9],
-        ['ng', 'Нігерія', '+234', 10, 10],
-        ['ke', 'Кенія', '+254', 9, 9],
-        ['ma', 'Марокко', '+212', 9, 9],
-        ['br', 'Бразилія', '+55', 10, 11],
-        ['ar', 'Аргентина', '+54', 10, 10],
-        ['cl', 'Чилі', '+56', 9, 9],
-        ['co', 'Колумбія', '+57', 10, 10],
-        ['mx', 'Мексика', '+52', 10, 10],
-        ['au', 'Австралія', '+61', 9, 9],
-        ['nz', 'Нова Зеландія', '+64', 8, 9]
-    ];
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
-    // ---------- Елементи ----------
-    const phoneBox = document.getElementById('phone-box');
-    const ccButton = document.getElementById('cc-button');
-    const ccFlag = document.getElementById('cc-flag');
-    const ccCode = document.getElementById('cc-code');
-    const ccList = document.getElementById('cc-list');
-    const ccSearch = document.getElementById('cc-search');
-    const ccItems = document.getElementById('cc-items');
-    const phoneInput = document.getElementById('phone-national');
-    const phoneHelp = document.getElementById('phone-help');
-    const phoneError = document.getElementById('phone-error');
-    const phoneCountryInput = document.getElementById('phone-country');
-    const phoneIsoInput = document.getElementById('phone-iso');
+
+    const phoneBox = document.querySelector('#phone-box');
+    const ccButton = document.querySelector('#cc-button');
+    const ccFlag = document.querySelector('#cc-flag');
+    const ccCode = document.querySelector('#cc-code');
+    const ccList = document.querySelector('#cc-list');
+    const ccSearch = document.querySelector('#cc-search');
+    const ccItems = document.querySelector('#cc-items');
+    const phoneInput = document.querySelector('#phone-national');
+    const phoneHelp = document.querySelector('#phone-help');
+    const phoneError = document.querySelector('#phone-error');
+    const phoneCountryInput = document.querySelector('#phone-country');
+    const phoneIsoInput = document.querySelector('#phone-iso');
 
     let current = COUNTRIES[0];
 
@@ -997,7 +930,7 @@
         clearPhoneError();
     }
 
-    // ---------- Список країн ----------
+
     function renderList(filter) {
         const query = (filter || '').trim().toLowerCase();
         ccItems.innerHTML = '';
@@ -1086,7 +1019,7 @@
         }
     });
 
-    // ---------- Поле номера ----------
+
     function showPhoneError(text) {
         phoneError.textContent = text;
         phoneBox.classList.add('invalid');
@@ -1103,33 +1036,32 @@
     });
 
     function phoneIsValid() {
-<<<<<<< HEAD
-        if (!{{ phone_required|yesno:"true,false" }}) {
-            return true;
-        }
+    const phoneRequired = "{{ phone_required|yesno:'true,false' }}" === "true";
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
-        const length = phoneInput.value.replace(/\D/g, '').length;
-
-        if (length < current[3]) {
-            showPhoneError(
-                'Номер для ' + current[2] + ' має містити ' +
-                rangeText(current) + ' цифр.'
-            );
-            return false;
-        }
-
+    if (!phoneRequired) {
         return true;
     }
 
-    // Початкове значення (після помилки з сервера зберігається вибрана країна)
+    const length = phoneInput.value.replace(/\D/g, '').length;
+
+    if (length < current[3]) {
+        showPhoneError(
+            'Номер для ' + current[2] + ' має містити ' +
+            rangeText(current) + ' цифр.'
+        );
+        return false;
+    }
+
+    return true;
+}
+
+
     selectCountry(findByIso("{{ request.POST.phone_iso|default:'ua'|escapejs }}"));
 
-    // ---------- Вибір способу оплати ----------
-    const form = document.getElementById('booking-form');
-    const modal = document.getElementById('payment-modal');
-    const paymentInput = document.getElementById('payment-method');
+
+    const form = document.querySelector('#booking-form');
+    const modal = document.querySelector('#payment-modal');
+    const paymentInput = document.querySelector('#payment-method');
     const payButtons = modal.querySelectorAll('.pay-button');
 
     let submitting = false;
@@ -1146,7 +1078,7 @@
         document.body.classList.remove('modal-open');
     }
 
-    // Спочатку перевіряємо поля й довжину телефону, потім показуємо вибір оплати
+
     form.addEventListener('submit', function (event) {
         if (!form.checkValidity()) {
             event.preventDefault();
@@ -1183,8 +1115,8 @@
         });
     });
 
-    document.getElementById('modal-close').addEventListener('click', closeModal);
-    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    document.querySelector('#modal-close').addEventListener('click', closeModal);
+    document.querySelector('#modal-cancel').addEventListener('click', closeModal);
 
     modal.addEventListener('click', function (event) {
         if (event.target === modal) {

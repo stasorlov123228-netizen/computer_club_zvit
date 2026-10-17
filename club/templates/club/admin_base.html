@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -26,17 +27,12 @@
             color: #ffffff;
         }
 
-        /* ШАПКА */
+
 
         .page-header {
-<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
-=======
-            position: relative;
-            z-index: 100;
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -80,7 +76,6 @@
             transition: color 0.25s, background 0.25s, border-color 0.25s;
         }
 
-<<<<<<< HEAD
         .admin-nav button {
             padding: 11px 14px;
             color: #65ff9a;
@@ -101,8 +96,6 @@
             background: #65ff9a;
         }
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         .admin-nav a:hover {
             color: #65ff9a;
             background: rgba(101, 255, 154, 0.08);
@@ -124,7 +117,7 @@
             background: #65ff9a;
         }
 
-        /* БУРГЕР */
+
 
         .burger {
             display: none;
@@ -160,14 +153,14 @@
             transform: translateY(-7px) rotate(-45deg);
         }
 
-        /* ВМІСТ */
+
 
         main {
             flex: 1;
             width: 100%;
         }
 
-        /* ПІДВАЛ */
+
 
         footer {
             text-align: center;
@@ -177,21 +170,18 @@
             font-size: 13px;
         }
 
-        /* АДАПТАЦІЯ */
+
 
         @media (max-width: 1050px) {
             .admin-nav a {
                 padding: 10px 9px;
                 font-size: 10px;
             }
-<<<<<<< HEAD
 
             .admin-nav button {
                 padding: 10px 9px;
                 font-size: 10px;
             }
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         }
 
         @media (max-width: 900px) {
@@ -232,15 +222,12 @@
                 font-size: 12px;
                 text-align: center;
             }
-<<<<<<< HEAD
 
             .admin-nav button {
                 width: 100%;
                 padding: 14px 12px;
                 font-size: 12px;
             }
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -252,7 +239,9 @@
         }
     </style>
     {% block extra_css %}{% endblock %}
-</head>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
+    </head>
 
 <body>
 
@@ -287,16 +276,11 @@
                 КЕРУВАТИ КОМП'ЮТЕРАМИ
             </a>
 
-<<<<<<< HEAD
             <a href="{% url 'home' %}" class="home-link">НА ГОЛОВНУ</a>
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit">ВИЙТИ</button>
             </form>
-=======
-            <a href="{% url 'admin_panel' %}" class="home-link">НА ГОЛОВНУ </a>
-            <a href="{% url 'home' %}" class="home-link">Вийти</a>
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         </nav>
     </header>
 
@@ -305,12 +289,12 @@
     </main>
 
     <footer>
-        © 2026 Lviv Arena — Admin panel
+        © 2026 Lviv Arena -Admin panel
     </footer>
 
     <script>
-        const burger = document.getElementById('burger');
-        const nav = document.getElementById('admin-nav');
+        const burger = document.querySelector('#burger');
+        const nav = document.querySelector('#admin-nav');
 
         function closeMenu() {
             nav.classList.remove('active');

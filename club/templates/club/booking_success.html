@@ -1,9 +1,10 @@
+    {% load static %}
     <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бронювання успішне — Lviv Arena</title>
+    <title>{% if demo_payment %}Демо-перевірка завершена{% else %}Бронювання успішне{% endif %} - Lviv Arena</title>
 
     <style>
         * {
@@ -116,6 +117,10 @@
             }
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
 </head>
 
 <body>
@@ -123,11 +128,21 @@
 
         <div class="success-icon">✓</div>
 
-        <h1>Бронювання успішне!</h1>
+        {% if demo_payment %}
+            <h1>Демо-перевірку пройдено</h1>
+        {% else %}
+            <h1>Бронювання успішне!</h1>
+        {% endif %}
 
         <div class="subtitle">
-            Дякуємо, що обрали Lviv Arena.<br>
-            Ваше бронювання збережено.
+            {% if demo_payment %}
+                Дякуємо, що обрали Lviv Arena.<br>
+                Демо-перевірку завершено: статус оплати позначено як «Сплачено».
+                Кошти фактично не списувалися.
+            {% else %}
+                Дякуємо, що обрали Lviv Arena.<br>
+                Ваше бронювання збережено.
+            {% endif %}
         </div>
 
         {% if booking %}
@@ -167,6 +182,17 @@
                     <span class="label">Завершення</span>
                     <span class="value">{{ booking.end_time|date:"d.m.Y H:i" }}</span>
                 </div>
+
+                {% if demo_payment %}
+                    <div class="detail">
+                        <span class="label">Статус бронювання</span>
+                        <span class="value">{{ booking.get_status_display }}</span>
+                    </div>
+                    <div class="detail">
+                        <span class="label">Статус оплати</span>
+                        <span class="value">{{ booking.get_payment_status_display }}</span>
+                    </div>
+                {% endif %}
 
             </div>
         {% endif %}

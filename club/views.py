@@ -1,44 +1,43 @@
 
-from datetime import datetime, timedelta
-<<<<<<< HEAD
 import re
-from django.contrib.auth.decorators import login_required, user_passes_test
-=======
-from django.contrib.auth.decorators import login_required
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
+from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from urllib.parse import urlencode
+
 from django import forms
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ValidationError
-<<<<<<< HEAD
+from django.core import signing
 from django.db import transaction
 from django.db.models import (
     Case,
     Exists,
     IntegerField,
     OuterRef,
-    Q,
     When,
 )
+from django.http import Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_POST
-from .models import Computer, Tariff, Booking, Payment, UserProfile
+from django.views.decorators.http import (
+    require_GET,
+    require_http_methods,
+    require_POST,
+)
+from .models import Computer, Tariff, Booking, UserProfile
 from .phone_numbers import (
     PHONE_COUNTRIES,
     PHONE_COUNTRY_CHOICES,
     split_phone_number,
     validate_phone_number,
 )
-=======
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
-from django.views.decorators.http import require_POST
-from .models import Computer, Tariff, Booking, Payment
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 
@@ -83,7 +82,6 @@ def home(request):
 
 @login_required
 def account_view(request):
-<<<<<<< HEAD
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST' and 'update_phone' in request.POST:
@@ -102,10 +100,6 @@ def account_view(request):
     return render(request, 'club/account.html', {
         'phone_form': phone_form,
     })
-=======
-    return render(request, 'club/account.html')
-
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 
@@ -114,7 +108,6 @@ def account_view(request):
 def my_bookings(request):
     update_computer_statuses()
 
-<<<<<<< HEAD
     return render_my_bookings(request)
 
 
@@ -130,14 +123,18 @@ def render_my_bookings(request, editing_booking_id=None, edit_form=None):
     now = timezone.now()
     for booking_record in bookings:
         form = None
-        if booking_record.status != 'cancelled' and booking_record.start_time > now:
+        if (
+            booking_record.status != 'cancelled'
+            and booking_record.start_time > now
+        ):
             if booking_record.id == editing_booking_id and edit_form is not None:
                 form = edit_form
             else:
                 form = BookingEditForm(
+                    booking=booking_record,
                     initial={
                         'start_time': booking_record.start_time,
-                        'end_time': booking_record.end_time,
+                        'duration': booking_duration_value(booking_record),
                         'payment_method': booking_record.payment_method,
                         'tariff': booking_record.tariff_id,
                     }
@@ -150,6 +147,7 @@ def render_my_bookings(request, editing_booking_id=None, edit_form=None):
         'bookings': bookings,
         'booking_rows': booking_rows,
         'editing_booking_id': editing_booking_id,
+        'now': now,
     })
 
 
@@ -191,19 +189,56 @@ def find_available_computer(tariff_code, start, end, exclude_booking_id=None):
 
 @login_required
 @require_POST
+def cancel_my_booking(request, booking_id):
+    with transaction.atomic():
+        booking_record = get_object_or_404(
+            Booking.objects.select_for_update(),
+            pk=booking_id,
+            user=request.user,
+        )
+        if booking_record.status == 'cancelled':
+            messages.error(request, 'Це бронювання вже скасоване.')
+        elif booking_record.start_time <= timezone.now():
+            messages.error(
+                request,
+                'Скасувати бронювання можна лише до початку сеансу.',
+            )
+        elif booking_record.payment_method == 'card':
+            messages.error(
+                request,
+                'Бронювання з оплатою карткою скасувати неможливо.',
+            )
+        else:
+            booking_record.status = 'cancelled'
+            booking_record.save(update_fields=['status'])
+            messages.success(request, 'Бронювання успішно скасоване.')
+
+    update_computer_statuses()
+    return redirect('my_bookings')
+
+
+@login_required
+@require_POST
 def edit_my_booking(request, booking_id):
     booking_record = get_object_or_404(
         Booking,
         pk=booking_id,
         user=request.user,
     )
-    form = BookingEditForm(request.POST)
+    form = BookingEditForm(request.POST, booking=booking_record)
     if booking_record.payment_status == 'paid':
         lock_booking_payment_method(form, booking_record)
+        if not form.is_valid():
+            return render_my_bookings(request, booking_id, form)
+        form.add_error(
+            None,
+            'Оплачене бронювання не можна редагувати. '
+            'Зверніться до адміністратора клубу.',
+        )
+        return render_my_bookings(request, booking_id, form)
 
     if not form.is_valid():
         return render_my_bookings(request, booking_id, form)
-
     needs_payment = False
     with transaction.atomic():
         booking_record = get_object_or_404(
@@ -211,7 +246,13 @@ def edit_my_booking(request, booking_id):
             pk=booking_id,
             user=request.user,
         )
-        if (
+        if booking_record.payment_status == 'paid':
+            form.add_error(
+                None,
+                'Оплачене бронювання не можна редагувати. '
+                'Зверніться до адміністратора клубу.',
+            )
+        elif (
             booking_record.status == 'cancelled'
             or booking_record.start_time <= timezone.now()
         ):
@@ -221,17 +262,14 @@ def edit_my_booking(request, booking_id):
             )
         else:
             start = form.cleaned_data['start_time']
-            end = form.cleaned_data['end_time']
+            end = start + duration_as_timedelta(
+                form.cleaned_data['duration']
+            )
             tariff = form.cleaned_data['tariff']
             if start <= timezone.now():
                 form.add_error(
                     'start_time',
                     'Оберіть час початку в майбутньому.',
-                )
-            elif end <= start:
-                form.add_error(
-                    'end_time',
-                    'Час завершення має бути пізніше за час початку.',
                 )
             else:
                 tariff_codes = {
@@ -266,12 +304,18 @@ def edit_my_booking(request, booking_id):
                         booking_record.payment_method = (
                             form.cleaned_data['payment_method']
                         )
+                        booking_record.status = (
+                            'pending'
+                            if booking_record.payment_method == 'card'
+                            else 'confirmed'
+                        )
                     booking_record.save(update_fields=[
                         'start_time',
                         'end_time',
                         'payment_method',
                         'tariff',
                         'computer',
+                        'status',
                     ])
                     needs_payment = (
                         booking_record.payment_method == 'card'
@@ -313,30 +357,18 @@ def booking(request):
 
     if request.method != 'POST':
         return render(request, 'club/booking.html', context)
-=======
-    bookings = Booking.objects.filter(
-        user=request.user
-    ).select_related(
-        'computer', 'tariff'
-    ).order_by('-created_at')
-
-    return render(request, 'club/my_bookings.html', {
-        'bookings': bookings,
-    })
-
-def booking(request):
-    if request.method != 'POST':
-        return render(request, 'club/booking.html', {'errors': []})
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     errors = []
-    name = request.POST.get('name', '').strip()
+    name = (
+        request.user.username
+        if request.user.is_authenticated
+        else request.POST.get('name', '').strip()
+    )
     tariff_code = request.POST.get('tariff', '').strip()
     duration_value = request.POST.get('duration', '').strip()
     date_value = request.POST.get('date', '').strip()
     time_value = request.POST.get('time', '').strip()
     payment_method = request.POST.get('payment_method', '').strip()
-<<<<<<< HEAD
 
     if request.user.is_authenticated:
         if not phone:
@@ -352,7 +384,7 @@ def booking(request):
         except ValidationError as error:
             errors.extend(error.messages)
 
-    if not name:
+    if not request.user.is_authenticated and not name:
         errors.append("Введіть ім’я.")
 
     tariff_names = {
@@ -367,7 +399,6 @@ def booking(request):
         errors.append('Оберіть тривалість бронювання.')
     if payment_method not in ('card', 'cash'):
         errors.append('Оберіть спосіб оплати.')
-
     start = None
     end = None
     try:
@@ -407,143 +438,11 @@ def booking(request):
                 start,
                 end,
             )
-=======
-    phone_country = request.POST.get('phone_country', '+380').strip()
-    phone_local = request.POST.get('phone_local', '').strip()
-
-    # Код країни: (мінімум цифр, максимум цифр) у номері без коду країни
-    phone_rules = {
-        '+380': (9, 9),   '+1': (10, 10),   '+44': (10, 10),
-        '+48': (9, 9),    '+49': (10, 11),  '+33': (9, 9),
-        '+39': (9, 10),   '+34': (9, 9),    '+420': (9, 9),
-        '+421': (9, 9),   '+40': (9, 9),    '+373': (8, 8),
-        '+43': (10, 11),  '+41': (9, 9),    '+31': (9, 9),
-        '+32': (8, 9),    '+351': (9, 9),   '+30': (10, 10),
-        '+359': (8, 9),   '+385': (8, 9),   '+386': (8, 8),
-        '+36': (9, 9),    '+370': (8, 8),   '+371': (8, 8),
-        '+372': (7, 8),   '+358': (9, 10),  '+46': (9, 9),
-        '+47': (8, 8),    '+45': (8, 8),    '+354': (7, 7),
-        '+353': (9, 9),   '+90': (10, 10),  '+995': (9, 9),
-        '+374': (8, 8),   '+994': (9, 9),   '+7': (10, 10),
-        '+81': (10, 10),  '+82': (9, 10),   '+86': (11, 11),
-        '+91': (10, 10),  '+92': (10, 10),  '+880': (10, 10),
-        '+66': (9, 9),    '+84': (9, 10),   '+60': (9, 10),
-        '+65': (8, 8),    '+62': (9, 11),   '+63': (10, 10),
-        '+972': (9, 9),   '+971': (9, 9),   '+966': (9, 9),
-        '+20': (10, 10),  '+27': (9, 9),    '+234': (10, 10),
-        '+254': (9, 9),   '+212': (9, 9),   '+55': (10, 11),
-        '+54': (10, 10),  '+56': (9, 9),    '+57': (10, 10),
-        '+52': (10, 10),  '+61': (9, 9),    '+64': (8, 9),
-    }
-
-    country_digits = ''.join(filter(str.isdigit, phone_country))
-    local_digits = ''.join(filter(str.isdigit, phone_local))
-    phone = f'+{country_digits}{local_digits}'
-
-    if phone_country not in phone_rules:
-        errors.append('Оберіть країну зі списку.')
-    elif not phone_local:
-        errors.append('Введіть номер телефону.')
-    elif not phone_local.isdigit():
-        errors.append('Номер телефону повинен містити лише цифри.')
-    else:
-        min_len, max_len = phone_rules[phone_country]
-
-        if not (min_len <= len(phone_local) <= max_len):
-            if min_len == max_len:
-                expected = f'{min_len}'
-            else:
-                expected = f'{min_len}–{max_len}'
-
-            errors.append(
-                f'Для {phone_country} номер має містити '
-                f'{expected} цифр після коду країни.'
-            )
-
-        if not name:
-            errors.append("Введіть ім’я.")
-
-        tariff_names = {
-            'default': 'DEFAULT',
-            'pro': 'PRO',
-            'vip': 'VIP',
-            'stream': 'STREAM',
-        }
-
-        computer_suffixes = {
-            'default': 'defolt',
-            'pro': 'pro',
-            'vip': 'vip',
-            'stream': 'stream',
-        }
-
-        if tariff_code not in tariff_names:
-            errors.append('Оберіть правильний тариф.')
-
-        if duration_value not in ('1', '2', '3', '5', '8'):
-            errors.append('Оберіть тривалість бронювання.')
-
-        if payment_method not in ('card', 'cash'):
-            errors.append('Оберіть спосіб оплати.')
-
-        start = None
-        end = None
-
-        try:
-            duration = int(duration_value)
-
-            if duration_value not in ('1', '2', '3', '5', '8'):
-                raise ValueError
-
-            start = datetime.strptime(
-                f'{date_value} {time_value}',
-                '%Y-%m-%d %H:%M'
-            )
-
-            start = timezone.make_aware(
-                start,
-                timezone.get_current_timezone()
-            )
-
-            end = start + timedelta(hours=duration)
-
-        except (ValueError, TypeError):
-            if 'Оберіть тривалість бронювання.' not in errors:
-                errors.append('Перевірте дату та час.')
-
-        if start and start <= timezone.now():
-            errors.append('Оберіть час у майбутньому.')
-
-        tariff = None
-        computer = None
-
-        if not errors:
-            tariff = Tariff.objects.filter(
-                name__iexact=tariff_names[tariff_code]
-            ).first()
-
-            if not tariff:
-                errors.append(
-                    'Цей тариф ще не доданий в адмінпанелі.'
-                )
-
-        if not errors:
-            computer = Computer.objects.filter(
-                status='available',
-                name__iendswith=computer_suffixes[tariff_code]
-            ).exclude(
-                booking__start_time__lt=end,
-                booking__end_time__gt=start,
-                booking__status='cancelled',
-            ).order_by('id').first()
-
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             if not computer:
                 errors.append(
                     'Немає вільного комп’ютера для цього тарифу '
                     'на вибраний час.'
                 )
-<<<<<<< HEAD
             else:
                 booking_record = Booking.objects.create(
                     user=(
@@ -559,13 +458,23 @@ def booking(request):
                     end_time=end,
                     payment_method=payment_method,
                     payment_status='unpaid',
+                    status='pending' if payment_method == 'card' else 'confirmed',
                 )
 
     if booking_record:
         if payment_method == 'card':
-            return redirect(
+            payment_url = reverse(
                 'payment_result',
-                booking_id=booking_record.id
+                kwargs={'booking_id': booking_record.id},
+            )
+            if not request.user.is_authenticated:
+                access_token = signing.dumps(
+                    booking_record.pk,
+                    salt='club.guest-booking',
+                )
+                payment_url = f'{payment_url}?{urlencode({"access": access_token})}'
+            return redirect(
+                payment_url,
             )
 
         return render(
@@ -581,41 +490,6 @@ def booking(request):
         'phone_local': request.POST.get('phone_local', phone_local),
     })
     return render(request, 'club/booking.html', context)
-=======
-
-        if not errors:
-            booking_record = Booking.objects.create(
-                user=request.user if request.user.is_authenticated else None,
-                customer_name=name,
-                phone=phone,
-                tariff=tariff,
-                computer=computer,
-                start_time=start,
-                end_time=end,
-                payment_method=payment_method,
-                payment_status='unpaid',
-            )
-
-            # Якщо карткою — переходимо до форми оплати
-            if payment_method == 'card':
-                return redirect(
-                    'payment_result',
-                    booking_id=booking_record.id
-                )
-
-            # Якщо готівкою — показуємо успішне бронювання
-            return render(
-                request,
-                'club/booking_success.html',
-                {'booking': booking_record}
-            )
-
-    return render(
-        request,
-        'club/booking.html',
-        {'errors': errors}
-    )
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     
 
@@ -623,11 +497,6 @@ def booking(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-<<<<<<< HEAD
-=======
-        if request.user.username == 'admin':
-            return redirect('admin_panel')
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return redirect('home')
 
     form = AuthenticationForm(
@@ -638,19 +507,11 @@ def login_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         login(request, user)
-<<<<<<< HEAD
-=======
-
-        if user.username == 'admin':
-            return redirect('admin_panel')
-
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return redirect('home')
 
     return render(request, 'club/login.html', {'form': form})
 
 
-<<<<<<< HEAD
 def clean_phone_fields(form):
     country_code = form.cleaned_data.get('phone_country')
     local_number = form.cleaned_data.get('phone_local', '').strip()
@@ -665,93 +526,34 @@ def clean_phone_fields(form):
     return form.cleaned_data
 
 
-class PaymentCardForm(forms.Form):
-    card_number = forms.CharField(
-        label='Номер картки',
-        widget=forms.TextInput(attrs={
-            'id': 'card-number',
-            'inputmode': 'numeric',
-            'autocomplete': 'off',
-            'placeholder': '0000 0000 0000 0000',
-            'maxlength': '19',
-            'required': True,
-        }),
-    )
-    card_name = forms.CharField(
-        label='Ім’я платника',
-        max_length=100,
-        widget=forms.TextInput(attrs={
-            'id': 'card-name',
-            'autocomplete': 'off',
-            'placeholder': 'ІМ’Я ПРІЗВИЩЕ',
-            'required': True,
-        }),
-    )
-    expiry = forms.CharField(
-        label='Термін дії',
-        widget=forms.TextInput(attrs={
-            'id': 'expiry',
-            'inputmode': 'numeric',
-            'autocomplete': 'off',
-            'placeholder': 'ММ/РР',
-            'maxlength': '5',
-            'required': True,
-        }),
-    )
-    cvc = forms.CharField(
-        label='CVC',
-        widget=forms.PasswordInput(attrs={
-            'id': 'cvc',
-            'inputmode': 'numeric',
-            'autocomplete': 'off',
-            'placeholder': '•••',
-            'maxlength': '3',
-            'required': True,
-        }, render_value=False),
-    )
+BOOKING_DURATION_CHOICES = (
+    ('1', '1 година'),
+    ('2', '2 години'),
+    ('3', '3 години'),
+    ('5', '5 годин'),
+    ('8', '8 годин'),
+)
 
-    def clean_card_number(self):
-        number = self.cleaned_data['card_number'].replace(' ', '')
-        if not number.isascii() or not number.isdigit() or len(number) != 16:
-            raise forms.ValidationError(
-                'Введіть номер картки з 16 цифр.'
-            )
-        return number
 
-    def clean_card_name(self):
-        name = ' '.join(self.cleaned_data['card_name'].split())
-        if (
-            not name
-            or not name[0].isalpha()
-            or not all(
-                character.isalpha() or character in " '-"
-                for character in name
-            )
-            or not any(character.isalpha() for character in name)
-        ):
-            raise forms.ValidationError(
-                'Введіть правильне ім’я платника.'
-            )
-        return name
+def booking_duration_value(booking):
+    duration_hours = Decimal(
+        str((booking.end_time - booking.start_time).total_seconds())
+    ) / Decimal('3600')
+    return format(duration_hours.normalize(), 'f')
 
-    def clean_expiry(self):
-        expiry = self.cleaned_data['expiry']
-        match = re.fullmatch(r'(0[1-9]|1[0-2])/([0-9]{2})', expiry)
-        if not match:
-            raise forms.ValidationError(
-                'Введіть дату у форматі ММ/РР. Місяць має бути від 01 до 12.'
-            )
-        month, year = int(match.group(1)), 2000 + int(match.group(2))
-        now = timezone.localtime()
-        if (year, month) < (now.year, now.month):
-            raise forms.ValidationError('Термін дії картки минув.')
-        return expiry
 
-    def clean_cvc(self):
-        cvc = self.cleaned_data['cvc']
-        if not cvc.isascii() or not cvc.isdigit() or len(cvc) != 3:
-            raise forms.ValidationError('CVC має містити рівно 3 цифри.')
-        return cvc
+def duration_as_timedelta(duration_hours):
+    seconds = int(Decimal(str(duration_hours)) * Decimal('3600'))
+    return timedelta(seconds=seconds)
+
+
+def booking_duration_choices(booking=None):
+    choices = list(BOOKING_DURATION_CHOICES)
+    if booking:
+        value = booking_duration_value(booking)
+        if value not in {choice[0] for choice in choices}:
+            choices.append((value, f'{value} год (поточна тривалість)'))
+    return choices
 
 
 class BookingEditForm(forms.Form):
@@ -768,13 +570,9 @@ class BookingEditForm(forms.Form):
             attrs={'type': 'datetime-local', 'required': True},
         ),
     )
-    end_time = forms.DateTimeField(
-        label='Завершення',
-        input_formats=['%Y-%m-%dT%H:%M'],
-        widget=forms.DateTimeInput(
-            format='%Y-%m-%dT%H:%M',
-            attrs={'type': 'datetime-local', 'required': True},
-        ),
+    duration = forms.ChoiceField(
+        label='Тривалість',
+        choices=BOOKING_DURATION_CHOICES,
     )
     payment_method = forms.ChoiceField(
         label='Спосіб оплати',
@@ -784,19 +582,18 @@ class BookingEditForm(forms.Form):
         ),
     )
 
+    def __init__(self, *args, booking=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.booking = booking
+        self.fields['duration'].choices = booking_duration_choices(booking)
+
     def clean(self):
         cleaned_data = super().clean()
         start = cleaned_data.get('start_time')
-        end = cleaned_data.get('end_time')
         if start and start <= timezone.now():
             self.add_error(
                 'start_time',
                 'Оберіть час початку в майбутньому.',
-            )
-        if start and end and end <= start:
-            self.add_error(
-                'end_time',
-                'Час завершення має бути пізніше за час початку.',
             )
         return cleaned_data
 
@@ -820,13 +617,9 @@ class AdminBookingEditForm(forms.Form):
             attrs={'type': 'datetime-local', 'required': True},
         ),
     )
-    end_time = forms.DateTimeField(
-        label='Завершення',
-        input_formats=['%Y-%m-%dT%H:%M'],
-        widget=forms.DateTimeInput(
-            format='%Y-%m-%dT%H:%M',
-            attrs={'type': 'datetime-local', 'required': True},
-        ),
+    duration = forms.ChoiceField(
+        label='Тривалість',
+        choices=BOOKING_DURATION_CHOICES,
     )
     payment_method = forms.ChoiceField(
         label='Оплата',
@@ -843,20 +636,29 @@ class AdminBookingEditForm(forms.Form):
 
     def __init__(self, *args, booking=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['duration'].choices = booking_duration_choices(booking)
         start = booking.start_time if booking else None
-        end = booking.end_time if booking else None
+        duration = booking_duration_value(booking) if booking else None
 
         if self.is_bound:
             try:
                 start = self.fields['start_time'].clean(
                     self.data.get('start_time', '')
                 )
-                end = self.fields['end_time'].clean(
-                    self.data.get('end_time', '')
+                duration = self.fields['duration'].clean(
+                    self.data.get('duration', '')
                 )
             except ValidationError:
                 start = booking.start_time if booking else None
-                end = booking.end_time if booking else None
+                duration = (
+                    booking_duration_value(booking) if booking else None
+                )
+
+        end = (
+            start + duration_as_timedelta(duration)
+            if start and duration
+            else None
+        )
 
         computers = Computer.objects.filter(
             manual_occupied=False,
@@ -906,6 +708,28 @@ class AdminBookingEditForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+        payment_method = cleaned_data.get('payment_method')
+        payment_status = cleaned_data.get('payment_status')
+        status = cleaned_data.get('status')
+        if self.booking and self.booking.payment_status == 'paid':
+            if (
+                cleaned_data.get('start_time') != self.booking.start_time
+                or (
+                    cleaned_data.get('duration')
+                    != booking_duration_value(self.booking)
+                )
+                or cleaned_data.get('tariff') != self.booking.tariff
+            ):
+                self.add_error(
+                    None,
+                    'Параметри оплаченого бронювання змінювати не можна.',
+                )
+        if (
+            payment_method == 'card'
+            and payment_status != 'paid'
+            and status == 'confirmed'
+        ):
+            cleaned_data['status'] = 'pending'
         selected_id = self.data.get('computer') if self.is_bound else None
         try:
             selected_pk = Computer._meta.pk.to_python(selected_id)
@@ -958,9 +782,6 @@ class CustomUserCreationForm(forms.ModelForm):
             'autocomplete': 'tel-national',
         }),
     )
-=======
-class CustomUserCreationForm(forms.ModelForm):
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     password = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput,
@@ -977,14 +798,11 @@ class CustomUserCreationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['username'].help_text = ''
 
-<<<<<<< HEAD
     def clean(self):
         cleaned_data = super().clean()
         clean_phone_fields(self)
         return cleaned_data
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     def clean_password(self):
         password = self.cleaned_data.get('password')
         user = User(
@@ -1004,22 +822,16 @@ class CustomUserCreationForm(forms.ModelForm):
 
         if commit:
             user.save()
-<<<<<<< HEAD
             UserProfile.objects.update_or_create(
                 user=user,
                 defaults={'phone': self.cleaned_data['phone']},
             )
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
         return user
 
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -1031,14 +843,10 @@ def register_view(request):
         login(request, user)
         return redirect('home')
 
-<<<<<<< HEAD
     return render(request, 'club/register.html', {
         'form': form,
         'phone_countries': [list(country) for country in PHONE_COUNTRIES],
     })
-=======
-    return render(request, 'club/register.html', {'form': form})
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 @require_POST
@@ -1117,7 +925,6 @@ def feedback_view(request):
 def partnership_view(request):
     sent = False
     error = ''
-<<<<<<< HEAD
     phone_country = '+380'
     phone_local = ''
 
@@ -1129,149 +936,103 @@ def partnership_view(request):
             sent = True
         except ValidationError as validation_error:
             error = ' '.join(validation_error.messages)
-=======
-
-    if request.method == 'POST':
-        phone = request.POST.get('phone', '').strip()
-
-        if phone:
-            sent = True
-        else:
-            error = 'Будь ласка, введіть номер телефону.'
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
     return render(request, 'club/section_page.html', {
         'page_type': 'partnership',
         'title': 'Партнерство',
         'sent': sent,
         'error': error,
-<<<<<<< HEAD
         'phone_country': phone_country,
         'phone_local': phone_local,
         'phone_countries': [list(country) for country in PHONE_COUNTRIES],
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     })
 
 
 
+@require_http_methods(['GET', 'POST'])
 def payment_result(request, booking_id):
-    update_computer_statuses()
-
-<<<<<<< HEAD
-    bookings = Booking.objects.filter(id=booking_id)
+    access_token = ''
     if request.user.is_authenticated:
-        bookings = bookings.filter(
-            Q(user=request.user) | Q(user__isnull=True)
+        booking_record = get_object_or_404(
+            Booking,
+            pk=booking_id,
+            user=request.user,
         )
     else:
-        booking_record = get_object_or_404(bookings)
-        if booking_record.user_id:
-            return redirect('login')
-        bookings = Booking.objects.filter(pk=booking_record.pk)
+        access_token = request.GET.get('access', '')
+        try:
+            token_booking_id = signing.loads(
+                access_token,
+                salt='club.guest-booking',
+            )
+        except signing.BadSignature as error:
+            raise Http404 from error
+        if token_booking_id != booking_id:
+            raise Http404
+        booking_record = get_object_or_404(
+            Booking,
+            pk=booking_id,
+            user__isnull=True,
+        )
 
-    booking_record = get_object_or_404(bookings)
-
-    if booking_record.status == 'cancelled':
-        return redirect('my_bookings' if booking_record.user_id else 'home')
-
-    if booking_record.payment_status == 'paid':
-        return redirect('my_bookings' if booking_record.user_id else 'home')
-
+    if booking_record.user_id and booking_record.user_id != request.user.id:
+        raise Http404
     if booking_record.payment_method != 'card':
         return redirect('my_bookings' if booking_record.user_id else 'home')
 
     if request.method == 'POST':
-        payment_form = PaymentCardForm(request.POST)
-        if payment_form.is_valid():
-            with transaction.atomic():
-                booking_record = get_object_or_404(
-                    Booking.objects.select_for_update(),
-                    pk=booking_record.pk,
-                )
-                if (
-                    booking_record.status == 'cancelled'
-                    or booking_record.payment_method != 'card'
-                ):
-                    payment_form.add_error(
-                        None,
-                        'Оплату для цього бронювання завершити неможливо.',
-                    )
-                elif booking_record.payment_status != 'paid':
-                    booking_record.payment_status = 'paid'
-                    booking_record.save(update_fields=['payment_status'])
+        if request.POST.get('demo_confirm') != '1':
+            raise Http404
+        if (
+            booking_record.status == 'cancelled'
+            or booking_record.start_time <= timezone.now()
+        ):
+            raise Http404
+        booking_record.status = 'confirmed'
+        booking_record.payment_status = 'paid'
+        booking_record.save(update_fields=['status', 'payment_status'])
+        success_url = reverse(
+            'payment_result',
+            kwargs={'booking_id': booking_record.pk},
+        )
+        query = {'demo_success': '1'}
+        if access_token:
+            query['access'] = access_token
+        return redirect(f'{success_url}?{urlencode(query)}')
 
-            if not payment_form.errors:
-                if booking_record.user_id:
-                    return redirect('my_bookings')
-                return render(
-                    request,
-                    'club/booking_success.html',
-                    {'booking': booking_record}
-                )
-
-        payment_errors = [
-            error
-            for errors in payment_form.errors.values()
-            for error in errors
-        ]
-        return render(request, 'club/payment_result.html', {
+    if (
+        request.GET.get('demo_success') == '1'
+        and booking_record.status == 'confirmed'
+        and booking_record.payment_status == 'paid'
+    ):
+        return render(request, 'club/booking_success.html', {
             'booking': booking_record,
-            'payment_form': PaymentCardForm(),
-            'payment_errors': payment_errors,
+            'demo_payment': True,
+        })
+
+    if booking_record.payment_status == 'paid':
+        if booking_record.user_id:
+            return redirect('my_bookings')
+        return render(request, 'club/booking_success.html', {
+            'booking': booking_record,
         })
 
     return render(request, 'club/payment_result.html', {
         'booking': booking_record,
-        'payment_form': PaymentCardForm(),
+        'payment_pending': booking_record.payment_status != 'paid',
     })
-=======
-    booking_record = get_object_or_404(
-        Booking,
-        id=booking_id
-    )
 
-    if request.method == 'POST':
-        booking_record.payment_status = 'paid'
-        booking_record.save(update_fields=['payment_status'])
-
-        update_computer_statuses()
-
-        return render(
-            request,
-            'club/booking_success.html',
-            {'booking': booking_record}
-        )
-
-    return render(
-        request,
-        'club/payment_result.html',
-        {'booking': booking_record}
-    )
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
-
-
-
-def liqpay_callback(request):
-    return redirect('payment_result')
 
 @login_required
 def admin_panel(request):
-<<<<<<< HEAD
     if not is_admin_or_staff(request.user):
-=======
-    if request.user.username != 'admin' or not request.user.is_staff:
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return redirect('home')
 
     return render(request, 'club/admin_panel.html')
 
 
-<<<<<<< HEAD
 def is_admin_or_staff(user):
-    return user.is_authenticated and (
-        user.username == 'admin' or user.is_staff
-    )
+    return user.is_authenticated and user.is_active and user.is_staff
 
 
 @user_passes_test(is_admin_or_staff)
@@ -1311,14 +1072,26 @@ def edit_admin_booking(request, booking_id):
         computer = form.cleaned_data['computer']
         tariff = form.cleaned_data['tariff']
         start = form.cleaned_data['start_time']
-        end = form.cleaned_data['end_time']
+        end = start + duration_as_timedelta(
+            form.cleaned_data['duration']
+        )
         status = form.cleaned_data['status']
         computer = Computer.objects.select_for_update().get(pk=computer.pk)
 
-        if end <= start:
+        if (
+            booking_record.payment_status == 'paid'
+            and (
+                start != booking_record.start_time
+                or (
+                    form.cleaned_data['duration']
+                    != booking_duration_value(booking_record)
+                )
+                or tariff.pk != booking_record.tariff_id
+            )
+        ):
             form.add_error(
-                'end_time',
-                'Час завершення має бути пізніше за час початку.',
+                None,
+                'Параметри оплаченого бронювання змінювати не можна.',
             )
         elif get_pc_kind(computer.name) != get_tariff_kind(tariff.name):
             form.add_error(
@@ -1358,6 +1131,17 @@ def edit_admin_booking(request, booking_id):
                     'payment_status'
                 ]
                 booking_record.status = status
+                if (
+                    booking_record.payment_method == 'card'
+                    and booking_record.payment_status != 'paid'
+                    and booking_record.status != 'cancelled'
+                ):
+                    booking_record.status = 'pending'
+                elif (
+                    booking_record.payment_method == 'cash'
+                    and booking_record.status == 'pending'
+                ):
+                    booking_record.status = 'confirmed'
                 booking_record.save(update_fields=[
                     'computer',
                     'tariff',
@@ -1404,7 +1188,7 @@ def admin_booking_initial(booking_record):
         'computer': booking_record.computer_id,
         'tariff': booking_record.tariff_id,
         'start_time': booking_record.start_time,
-        'end_time': booking_record.end_time,
+        'duration': booking_duration_value(booking_record),
         'payment_method': booking_record.payment_method,
         'payment_status': booking_record.payment_status,
         'status': booking_record.status,
@@ -1421,7 +1205,29 @@ def get_tariff_kind(name):
 
 
 @user_passes_test(is_admin_or_staff)
+@require_http_methods(['GET', 'POST'])
 def admin_users(request):
+    if request.method == 'POST':
+        user_to_delete = get_object_or_404(
+            User,
+            pk=request.POST.get('user_id'),
+        )
+        if user_to_delete.pk == request.user.pk:
+            messages.error(request, 'Не можна видалити власний акаунт.')
+        elif user_to_delete.is_superuser:
+            messages.error(
+                request,
+                'Акаунт суперадміністратора видалити неможливо.',
+            )
+        else:
+            username = user_to_delete.username
+            user_to_delete.delete()
+            messages.success(
+                request,
+                f'Акаунт «{username}» видалено.',
+            )
+        return redirect('admin_users')
+
     return render(request, 'club/admin_users.html', {
         'users': User.objects.select_related(
             'profile',
@@ -1430,48 +1236,15 @@ def admin_users(request):
 
 
 @user_passes_test(is_admin_or_staff)
-=======
-from django.contrib.admin.views.decorators import staff_member_required
-
-
-@staff_member_required
-def admin_bookings(request):
-    bookings = Booking.objects.select_related(
-        'computer', 'tariff', 'user'
-    ).order_by('-created_at')
-
-    return render(request, 'club/admin_bookings.html', {'bookings': bookings})
-
-
-@staff_member_required
-def admin_users(request):
-    return render(request, 'club/admin_users.html', {
-        'users': User.objects.order_by('-date_joined'),
-    })
-
-
-@staff_member_required
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 def admin_tariffs(request):
     return render(request, 'club/admin_tariffs.html', {
         'tariffs': Tariff.objects.all(),
     })
 
 
-from decimal import Decimal, InvalidOperation
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect
-from .models import Tariff
-
-
 @login_required
 def admin_update_tariff_price(request, tariff_id):
-<<<<<<< HEAD
     if not is_admin_or_staff(request.user):
-=======
-    if request.user.username != 'admin' or not request.user.is_staff:
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         return HttpResponseForbidden('Доступ заборонено.')
 
     if request.method != 'POST':
@@ -1499,72 +1272,7 @@ def admin_update_tariff_price(request, tariff_id):
     return redirect('admin_tariffs')
 
 
-PC_SPECS = {
-    'default': {
-        'title': 'DEFAULT',
-        'tier': 'Базова зона',
-        'parts': [
-            ['Процесор (CPU)', 'AMD Ryzen 5 5600'],
-            ['Материнська плата', 'B550 / B660'],
-            ['Оперативна пам\'ять', '16 GB DDR4 (3200–3600 MHz)'],
-            ['Відеокарта (GPU)', 'NVIDIA GeForce RTX 3060 12GB'],
-            ['Накопичувач (SSD)', '512 GB NVMe M.2'],
-            ['Миша', 'HyperX Pulsefire'],
-            ['Клавіатура', 'Logitech G213'],
-            ['Монітор', 'ASUS TUF Gaming 144 Hz'],
-        ],
-        'extra': [],
-    },
-    'pro': {
-        'title': 'PRO',
-        'tier': 'Для змагальних матчів',
-        'parts': [
-            ['Процесор (CPU)', 'AMD Ryzen 7 5700X3D'],
-            ['Материнська плата', 'B650 / B760'],
-            ['Оперативна пам\'ять', '32 GB DDR5'],
-            ['Відеокарта (GPU)', 'NVIDIA GeForce RTX 4070'],
-            ['Накопичувач (SSD)', '1 TB NVMe M.2'],
-            ['Миша', 'HyperX Pulsefire'],
-            ['Клавіатура', 'Logitech G213'],
-            ['Монітор', 'ASUS TUF Gaming 240 Hz'],
-        ],
-        'extra': [],
-    },
-    'vip': {
-        'title': 'VIP',
-        'tier': 'Преміум-зона',
-        'parts': [
-            ['Процесор (CPU)', 'AMD Ryzen 7 7800X3D'],
-            ['Материнська плата', 'B650E'],
-            ['Оперативна пам\'ять', '32 GB DDR5'],
-            ['Відеокарта (GPU)', 'NVIDIA GeForce RTX 4080 Super 16GB'],
-            ['Накопичувач (SSD)', '2 TB NVMe M.2'],
-            ['Миша', 'Logitech G Pro X Superlight'],
-            ['Клавіатура', 'MCHOSE JET 75 HE'],
-            ['Монітор', 'ASUS TUF Gaming 360 Hz'],
-        ],
-        'extra': [],
-    },
-    'stream': {
-        'title': 'STREAM',
-        'tier': 'Stream-Room',
-        'parts': [
-            ['Процесор (CPU)', 'AMD Ryzen 9 7900X'],
-            ['Материнська плата', 'Z790'],
-            ['Оперативна пам\'ять', '64 GB DDR5'],
-            ['Відеокарта (GPU)', 'NVIDIA GeForce RTX 4080 Super'],
-            ['Накопичувач (SSD)', '2 TB NVMe M.2'],
-            ['Клавіатура', 'MCHOSE JET 75 HE'],
-            ['Монітор', 'ASUS TUF Gaming 360 Hz'],
-        ],
-        'extra': [
-            ['Мониторы', 'Основний 27" QHD (360 Hz) + допоміжний 24" FHD (60–144 Hz)'],
-            ['Аудіо', 'Студійний мікрофон Fifine AM8'],
-            ['Відео', 'Веб-камера 4K'],
-            ['Світло та кріплення', 'Пантограф для мікрофона, LED-софтбокси'],
-        ],
-    },
-}
+
 
 
 PC_SPECS = {
@@ -1648,11 +1356,7 @@ def get_pc_kind(name):
 
     return ''
 
-<<<<<<< HEAD
 @user_passes_test(is_admin_or_staff)
-=======
-@staff_member_required
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 def admin_computers(request):
     if request.method == 'POST':
         computer = get_object_or_404(
@@ -1683,28 +1387,25 @@ def admin_computers(request):
 
 
 
-<<<<<<< HEAD
 @user_passes_test(is_admin_or_staff)
 @require_POST
 def admin_booking_action(request, booking_id):
-=======
-@login_required
-@require_POST
-def admin_booking_action(request, booking_id):
-    if request.user.username != 'admin' or not request.user.is_staff:
-        return HttpResponseForbidden('Доступ заборонено.')
-
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     booking = get_object_or_404(Booking, id=booking_id)
     action = request.POST.get('action')
 
     if action == 'toggle_payment':
-        if booking.payment_status == 'paid':
-            booking.payment_status = 'unpaid'
+        booking.payment_status = (
+            'unpaid' if booking.payment_status == 'paid' else 'paid'
+        )
+        if booking.payment_method == 'card' and booking.status != 'cancelled':
+            booking.status = (
+                'confirmed'
+                if booking.payment_status == 'paid'
+                else 'pending'
+            )
+            booking.save(update_fields=['payment_status', 'status'])
         else:
-            booking.payment_status = 'paid'
-
-        booking.save(update_fields=['payment_status'])
+            booking.save(update_fields=['payment_status'])
 
     elif action == 'delete':
         booking.delete()

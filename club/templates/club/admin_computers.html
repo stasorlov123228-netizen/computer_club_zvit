@@ -71,7 +71,7 @@
         gap: 16px;
     }
 
-    /* Картка ПК (кнопка) */
+
 
     .pc-card {
         width: 100%;
@@ -158,7 +158,7 @@
         border-radius: 14px;
     }
 
-    /* Вікно ПК */
+
 
     body.modal-open { overflow: hidden; }
 
@@ -304,7 +304,7 @@
         font-size: 14px;
     }
 
-    /* Вибір статусу */
+
 
     .status-options {
         display: grid;
@@ -440,7 +440,7 @@
                             data-kind="{{ pc.kind }}">
                         <div class="pc-icon">🖥️</div>
                         <div class="pc-name">{{ pc.name }}</div>
-                        <div class="pc-kind">{{ pc.kind|default:"—" }}</div>
+                        <div class="pc-kind">{{ pc.kind|default:"- " }}</div>
 
                         {% if pc.status == 'available' %}
                             <span class="badge available">Вільний</span>
@@ -460,7 +460,6 @@
 
     </div>
 
-    <!-- ВІКНО КОМП'ЮТЕРА -->
 
     <div class="modal-overlay" id="pc-modal" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pc-title">
@@ -516,8 +515,8 @@
     {{ specs|json_script:"pc-specs" }}
 
     <script>
-        const specs = JSON.parse(document.getElementById('pc-specs').textContent);
-        const modal = document.getElementById('pc-modal');
+        const specs = JSON.parse(document.querySelector('#pc-specs').textContent);
+        const modal = document.querySelector('#pc-modal');
 
         const STATUS_TEXT = {
             available: 'Вільний',
@@ -549,29 +548,29 @@
             const data = card.dataset;
             const spec = specs[data.kind];
 
-            document.getElementById('pc-title').textContent = data.name;
-            document.getElementById('pc-id').value = data.id;
+            document.querySelector('#pc-title').textContent = data.name;
+            document.querySelector('#pc-id').value = data.id;
 
-            const badge = document.getElementById('pc-badge');
+            const badge = document.querySelector('#pc-badge');
             badge.className = 'badge ' + data.status;
             badge.textContent = STATUS_TEXT[data.status] || data.status;
 
-            const parts = document.getElementById('pc-parts');
-            const extraWrap = document.getElementById('pc-extra-wrap');
+            const parts = document.querySelector('#pc-parts');
+            const extraWrap = document.querySelector('#pc-extra-wrap');
 
             if (spec) {
-                document.getElementById('pc-tier').textContent =
+                document.querySelector('#pc-tier').textContent =
                     'Тариф ' + spec.title + ' · ' + spec.tier;
                 fillRows(parts, spec.parts);
 
                 if (spec.extra.length) {
-                    fillRows(document.getElementById('pc-extra'), spec.extra);
+                    fillRows(document.querySelector('#pc-extra'), spec.extra);
                     extraWrap.hidden = false;
                 } else {
                     extraWrap.hidden = true;
                 }
             } else {
-                document.getElementById('pc-tier').textContent = '';
+                document.querySelector('#pc-tier').textContent = '';
                 parts.innerHTML =
                     '<div class="no-specs">Для цього комп\'ютера характеристики не задані.</div>';
                 extraWrap.hidden = true;
@@ -598,7 +597,7 @@
             });
         });
 
-        document.getElementById('pc-close').addEventListener('click', closePc);
+        document.querySelector('#pc-close').addEventListener('click', closePc);
 
         modal.addEventListener('click', function (event) {
             if (event.target === modal) {

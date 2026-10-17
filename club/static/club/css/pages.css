@@ -1,0 +1,618 @@
+:root {
+    color-scheme: dark;
+    --arena-bg: #080810;
+    --arena-surface: #120d1d;
+    --arena-surface-raised: #171124;
+    --arena-purple: #a855f7;
+    --arena-lilac: #c084fc;
+    --arena-pink: #ec4899;
+    --arena-text: #f5f3ff;
+    --arena-muted: #aaa3b8;
+    --arena-line: rgba(192, 132, 252, 0.19);
+}
+
+body {
+    color: var(--arena-text);
+    background-color: var(--arena-bg);
+    background-image:
+        radial-gradient(ellipse at 82% 0, rgba(112, 43, 184, 0.17), transparent 38rem),
+        radial-gradient(ellipse at 0 58%, rgba(112, 43, 184, 0.08), transparent 32rem);
+    background-attachment: fixed;
+    font-family: 'DM Sans', Arial, sans-serif;
+}
+
+body *,
+body *::before,
+body *::after {
+    box-sizing: border-box;
+}
+
+body :focus-visible {
+    outline: 3px solid var(--arena-lilac);
+    outline-offset: 3px;
+}
+
+body h1,
+body h2,
+body h3,
+body .logo,
+body .page-title,
+body .tariff-price,
+body .pc-name,
+body .modal-name {
+    font-family: 'Orbitron', 'DM Sans', sans-serif;
+}
+
+body h1 {
+    color: var(--arena-text);
+}
+
+body p,
+body .subtitle,
+body .description,
+body .hint,
+body .muted,
+body .empty,
+body .empty-text,
+body .helptext {
+    color: var(--arena-muted);
+}
+
+body .page-header,
+body .main-header,
+body > header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(8, 8, 16, 0.82);
+    border-bottom: 1px solid rgba(192, 132, 252, 0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+body .logo {
+    color: var(--arena-lilac);
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 24px rgba(168, 85, 247, 0.22);
+}
+
+body .main-nav a,
+body .admin-nav a {
+    border-radius: 8px;
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+body .main-nav a:not(.account-link):not(.register-link),
+body .admin-nav a {
+    position: relative;
+}
+
+body .main-nav a:not(.account-link):not(.register-link)::after,
+body .admin-nav a::after {
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    left: 0;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, var(--arena-purple), var(--arena-pink));
+    content: '';
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms ease;
+}
+
+body .main-nav a:not(.account-link):not(.register-link):hover::after,
+body .admin-nav a:hover::after {
+    width: auto;
+    transform: scaleX(1);
+}
+
+body .main-nav a:hover,
+body .admin-nav a:hover {
+    color: #e2c3ff;
+}
+
+body .main-nav a:not(.account-link):not(.register-link):hover,
+body .admin-nav a:hover {
+    color: var(--arena-lilac);
+}
+
+body .main-nav a:not(.account-link):not(.register-link):hover {
+    background: transparent;
+}
+
+body .main-nav .account-link,
+body .main-nav .register-link,
+body .admin-nav a.active,
+body .header-link {
+    border-color: rgba(192, 132, 252, 0.43);
+    border-radius: 8px;
+    color: var(--arena-text);
+    background: rgba(168, 85, 247, 0.1);
+}
+
+body .main-nav .account-link:hover,
+body .main-nav .register-link:hover,
+body .admin-nav a.active:hover,
+body .header-link:hover {
+    border-color: var(--arena-lilac);
+    color: #fff;
+    background: rgba(168, 85, 247, 0.12);
+}
+
+body .main-nav .home-link {
+    border-color: transparent;
+    background: transparent;
+    color: #d6d0e1;
+}
+
+body .main-nav .home-link:hover {
+    border-color: transparent;
+    background: transparent;
+    color: var(--arena-lilac);
+}
+
+body .admin-nav a.home-link {
+    border-color: transparent;
+    background: transparent;
+    color: #d6d0e1;
+}
+
+body .admin-nav a.home-link:hover {
+    border-color: transparent;
+    background: transparent;
+    color: var(--arena-lilac);
+}
+
+body .burger {
+    border-color: rgba(192, 132, 252, 0.48);
+    border-radius: 10px;
+    background: rgba(18, 13, 29, 0.9);
+}
+
+body .burger span {
+    background: var(--arena-lilac);
+}
+
+body .main-nav,
+body .admin-nav {
+    background-color: rgba(8, 8, 16, 0.97);
+    border-color: rgba(192, 132, 252, 0.18);
+}
+
+body .container,
+body .card,
+body .form-card,
+body .table-card,
+body .tariff-card,
+body .booking,
+body .edit-section,
+body .pc-card,
+body .admin-hero,
+body .profile,
+body .details,
+body .feedback-layout,
+body .tournament-card,
+body .partner-card,
+body .callback-success {
+    border-color: var(--arena-line);
+    border-radius: 16px;
+    background-color: rgba(18, 13, 29, 0.88);
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
+    transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+body .card:hover,
+body .tariff-card:hover,
+body .booking:hover,
+body .pc-card:hover,
+body .tournament-card:hover,
+body .partner-card:hover {
+    border-color: rgba(192, 132, 252, 0.46);
+    box-shadow: 0 18px 45px rgba(91, 37, 139, 0.19);
+}
+
+body .page-tag,
+body .tag,
+body .page-title .page-tag,
+body .tariff-label,
+body .tournament-badge,
+body .contact-label,
+body .section-title {
+    color: var(--arena-lilac);
+}
+
+body .subtitle strong,
+body a.back,
+body .booking-value.accent,
+body .booking h2 span,
+body .status,
+body .counter,
+body .badge.available,
+body .pc-card.available {
+    color: var(--arena-lilac);
+}
+
+body .status,
+body .counter,
+body .badge.available {
+    border-color: rgba(192, 132, 252, 0.35);
+    background: rgba(168, 85, 247, 0.08);
+}
+
+body .status::before {
+    background: var(--arena-lilac);
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.7);
+}
+
+body .pc-card.available {
+    border-color: rgba(192, 132, 252, 0.4);
+}
+
+body .tournament-info h2,
+body .tournament-info p strong,
+body .contact-value a,
+body .callback-success h3 {
+    color: var(--arena-lilac);
+}
+
+body .tournament-badge {
+    border-color: rgba(192, 132, 252, 0.3);
+    background: rgba(168, 85, 247, 0.08);
+}
+
+body .tournament-image {
+    border-color: rgba(192, 132, 252, 0.35);
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.1);
+}
+
+body .callback-success {
+    border-color: rgba(192, 132, 252, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.14), rgba(168, 85, 247, 0.04));
+    box-shadow: 0 0 28px rgba(168, 85, 247, 0.1);
+}
+
+body .callback-success-icon {
+    background: linear-gradient(145deg, var(--arena-purple), var(--arena-pink));
+    color: #fff;
+}
+
+body .success {
+    border-color: rgba(192, 132, 252, 0.3) !important;
+    background: rgba(168, 85, 247, 0.08) !important;
+    color: var(--arena-lilac) !important;
+}
+
+body #payment-title span {
+    color: var(--arena-lilac);
+}
+
+body .cc-button .cc-arrow {
+    color: var(--arena-lilac);
+}
+
+body .phone-box:focus-within,
+body .phone-box.open {
+    border-color: var(--arena-lilac);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.14);
+}
+
+body .cc-list {
+    border-color: rgba(192, 132, 252, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(168, 85, 247, 0.12);
+}
+
+body .cc-item:hover,
+body .cc-item:focus {
+    background: rgba(168, 85, 247, 0.12);
+}
+
+body .cc-item.selected {
+    color: var(--arena-lilac);
+}
+
+body .pay-button.primary {
+    border-color: transparent;
+    background: linear-gradient(110deg, #963fe2, #b04eea 55%, #d044bc);
+    color: #fff;
+}
+
+body .pay-button.primary small {
+    color: #f0dfff;
+}
+
+body .pay-note {
+    border-color: rgba(192, 132, 252, 0.22);
+    background: rgba(168, 85, 247, 0.06);
+}
+
+body .pay-note a.phone,
+body .telegram-button {
+    border-color: rgba(192, 132, 252, 0.4);
+    color: var(--arena-lilac);
+}
+
+body .pay-button.primary:hover {
+    background: linear-gradient(110deg, #a855f7, #bd5bf1 55%, #ec4899);
+}
+
+body h1 span,
+body h2 span,
+body .page-title h1,
+body .profile h2,
+body .card h2,
+body .page-title h2 {
+    color: var(--arena-text);
+}
+
+body .title-line {
+    background: linear-gradient(90deg, var(--arena-purple), var(--arena-pink));
+    box-shadow: 0 0 16px rgba(168, 85, 247, 0.38);
+}
+
+body a,
+body .link,
+body .back-home,
+body .map-link,
+body .telegram,
+body .contact-value {
+    color: var(--arena-lilac);
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+body a:hover,
+body .link:hover,
+body .back-home:hover,
+body .map-link:hover,
+body .telegram:hover {
+    color: #e2c3ff;
+}
+
+body .button,
+body button[type='submit'],
+body .submit-button,
+body .pay-button,
+body .save-button,
+body .save-edit-btn,
+body .edit-submit,
+body .primary,
+body .paid-btn,
+body .unpaid-btn,
+body .price-btn {
+    border-color: transparent;
+    border-radius: 9px;
+    background: linear-gradient(110deg, #963fe2, #b04eea 55%, #d044bc);
+    box-shadow: 0 9px 26px rgba(168, 85, 247, 0.18);
+    color: #fff;
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-weight: 700;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+body .button:hover,
+body button[type='submit']:hover,
+body .submit-button:hover,
+body .pay-button:hover,
+body .save-button:hover,
+body .save-edit-btn:hover,
+body .edit-submit:hover,
+body .primary:hover,
+body .paid-btn:hover,
+body .unpaid-btn:hover,
+body .price-btn:hover {
+    box-shadow: 0 12px 30px rgba(168, 85, 247, 0.31);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+body .admin-nav button {
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    background: rgba(18, 13, 29, 0.84);
+    color: var(--arena-lilac);
+}
+
+body .admin-nav button:hover {
+    border-color: var(--arena-lilac);
+    background: rgba(168, 85, 247, 0.18);
+    color: var(--arena-text);
+    transform: translateY(-2px);
+}
+
+body .button.outline,
+body .outline,
+body .modal-cancel,
+body .delete-btn {
+    border: 1px solid rgba(192, 132, 252, 0.36);
+    background: rgba(18, 13, 29, 0.86);
+    box-shadow: none;
+    color: var(--arena-lilac);
+}
+
+body .button.outline:hover,
+body .outline:hover,
+body .modal-cancel:hover,
+body .delete-btn:hover {
+    border-color: var(--arena-lilac);
+    background: rgba(168, 85, 247, 0.15);
+    color: var(--arena-text);
+}
+
+body .logout,
+body .delete-btn {
+    border-color: rgba(236, 72, 153, 0.38);
+    color: #f0a4c9;
+}
+
+body input,
+body select,
+body textarea,
+body .cc-button,
+body .cc-search {
+    border-color: rgba(192, 132, 252, 0.24);
+    border-radius: 9px;
+    background-color: rgba(8, 8, 16, 0.84);
+    color: var(--arena-text);
+    accent-color: var(--arena-purple);
+}
+
+body input::placeholder,
+body textarea::placeholder {
+    color: #857b94;
+}
+
+body input:focus,
+body select:focus,
+body textarea:focus,
+body .cc-button:focus-visible,
+body .cc-search:focus-visible {
+    border-color: var(--arena-lilac);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.14);
+    outline: none;
+}
+
+body .info-row,
+body .booking-item,
+body .detail,
+body .spec-row,
+body .contact-row {
+    border-color: rgba(192, 132, 252, 0.13);
+}
+
+body .info-label,
+body .booking-label,
+body .label,
+body .spec-label {
+    color: var(--arena-muted);
+}
+
+body .info-value,
+body .booking-value,
+body .value,
+body .spec-value {
+    color: var(--arena-text);
+}
+
+body .avatar,
+body .pc-icon,
+body .club-icon,
+body .modal-icon,
+body .success-icon {
+    border: 1px solid rgba(192, 132, 252, 0.28);
+    background: linear-gradient(145deg, rgba(168, 85, 247, 0.23), rgba(236, 72, 153, 0.12));
+    color: var(--arena-lilac);
+}
+
+body .map-frame,
+body .map-container {
+    overflow: hidden;
+    border: 1px solid var(--arena-line);
+    border-radius: 14px;
+    background: var(--arena-surface);
+}
+
+body .map-frame iframe {
+    filter: grayscale(0.7) invert(0.9) hue-rotate(230deg) saturate(0.72);
+}
+
+body table {
+    border-color: rgba(192, 132, 252, 0.13);
+}
+
+body th {
+    color: var(--arena-lilac);
+    background: rgba(168, 85, 247, 0.1);
+}
+
+body td,
+body th {
+    border-color: rgba(192, 132, 252, 0.13);
+}
+
+body tr:hover td {
+    background: rgba(168, 85, 247, 0.055);
+}
+
+body .table-card {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+body .modal-overlay {
+    background: rgba(4, 3, 9, 0.8);
+    backdrop-filter: blur(7px);
+}
+
+body .modal,
+body .cc-list {
+    border-color: var(--arena-line);
+    border-radius: 14px;
+    background: #120d1d;
+    box-shadow: 0 25px 75px rgba(0, 0, 0, 0.45);
+    color: var(--arena-text);
+}
+
+body .cc-item:hover,
+body .cc-item.selected {
+    background: rgba(168, 85, 247, 0.15);
+}
+
+body footer {
+    border-color: rgba(192, 132, 252, 0.12);
+    color: #8f879d;
+}
+
+@media (max-width: 850px) {
+    body .main-nav,
+    body .admin-nav {
+        background: rgba(8, 8, 16, 0.98);
+        border-bottom-color: rgba(192, 132, 252, 0.18);
+    }
+
+    body .main-nav a:not(.account-link):not(.register-link)::after,
+    body .admin-nav a::after {
+        display: none;
+    }
+
+    body .main-nav a:not(.account-link):not(.register-link):hover,
+    body .admin-nav a:hover {
+        background: rgba(168, 85, 247, 0.1);
+    }
+
+    body .container {
+        width: min(92%, 950px);
+    }
+}
+
+@media (max-width: 600px) {
+    body .page-header,
+    body > header {
+        padding-right: 5%;
+        padding-left: 5%;
+    }
+
+    body .container {
+        width: min(94%, 950px);
+    }
+
+    body .form-card,
+    body .card,
+    body .table-card,
+    body .booking,
+    body .edit-section {
+        border-radius: 13px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body *,
+    body *::before,
+    body *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

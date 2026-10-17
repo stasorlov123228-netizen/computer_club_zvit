@@ -1,9 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мої бронювання — Lviv Arena</title>
+    <title>Мої бронювання -  Lviv Arena</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,12 +26,9 @@
         }
 
         .page-header {
-<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -174,7 +172,6 @@
             font-weight: bold;
         }
 
-<<<<<<< HEAD
         .edit-section {
             margin-top: 24px;
             padding-top: 18px;
@@ -185,6 +182,44 @@
             color: #65ff9a;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .booking-notices {
+            margin-bottom: 20px;
+        }
+
+        .booking-notice,
+        .paid-cancellation-note {
+            padding: 12px 15px;
+            color: #ffd6e7;
+            background: rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(236, 72, 153, 0.35);
+            border-radius: 7px;
+        }
+
+        .booking-notice.success {
+            color: #d6ffe4;
+            background: rgba(101, 255, 154, 0.08);
+            border-color: rgba(101, 255, 154, 0.35);
+        }
+
+        .cancel-button {
+            margin-top: 22px;
+            color: #ffb4c9;
+            background: rgba(236, 72, 153, 0.08);
+            border-color: rgba(236, 72, 153, 0.45);
+            cursor: pointer;
+        }
+
+        .cancel-button:hover {
+            color: #fff;
+            background: rgba(236, 72, 153, 0.22);
+            border-color: #ec4899;
+        }
+
+        .paid-cancellation-note {
+            margin-top: 20px;
+            font-size: 13px;
         }
 
         .edit-form {
@@ -233,8 +268,6 @@
             cursor: pointer;
         }
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         .empty {
             text-align: center;
             padding: 50px 25px;
@@ -340,7 +373,6 @@
                 gap: 16px;
             }
 
-<<<<<<< HEAD
             .edit-form {
                 grid-template-columns: 1fr;
             }
@@ -349,8 +381,6 @@
                 width: 100%;
             }
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             .actions {
                 flex-direction: column;
             }
@@ -370,6 +400,8 @@
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
 </head>
 
 <body>
@@ -387,11 +419,15 @@
             <div class="title-line"></div>
         </div>
 
-<<<<<<< HEAD
+        {% if messages %}
+            <div class="booking-notices" role="status" aria-live="polite">
+                {% for message in messages %}
+                    <p class="booking-notice {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         {% for booking, edit_form in booking_rows %}
-=======
-        {% for booking in bookings %}
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             <section class="booking">
                 <h2>Бронювання <span>№{{ booking.id }}</span></h2>
 
@@ -435,8 +471,29 @@
                         <span class="booking-label">Статус оплати</span>
                         <span class="booking-value accent">{{ booking.get_payment_status_display }}</span>
                     </div>
+
+                    <div class="booking-item">
+                        <span class="booking-label">Статус бронювання</span>
+                        <span class="booking-value accent">{{ booking.get_status_display }}</span>
+                    </div>
                 </div>
-<<<<<<< HEAD
+
+                {% if booking.status != 'cancelled' and booking.start_time > now %}
+                    {% if booking.payment_method == 'cash' %}
+                        <form method="post"
+                              action="{% url 'cancel_my_booking' booking.id %}"
+                              onsubmit="return confirm('Скасувати це бронювання?');">
+                            {% csrf_token %}
+                            <button class="button cancel-button" type="submit">
+                                СКАСУВАТИ БРОНЮВАННЯ
+                            </button>
+                        </form>
+                    {% else %}
+                        <p class="paid-cancellation-note">
+                            Бронювання з оплатою карткою скасувати неможливо.
+                        </p>
+                    {% endif %}
+                {% endif %}
 
                 {% if edit_form %}
                     <details class="edit-section"
@@ -456,9 +513,9 @@
                                 {{ edit_form.start_time.errors }}
                             </div>
                             <div class="edit-field">
-                                {{ edit_form.end_time.label_tag }}
-                                {{ edit_form.end_time }}
-                                {{ edit_form.end_time.errors }}
+                                {{ edit_form.duration.label_tag }}
+                                {{ edit_form.duration }}
+                                {{ edit_form.duration.errors }}
                             </div>
                             <div class="edit-field">
                                 {{ edit_form.tariff.label_tag }}
@@ -481,8 +538,6 @@
                         </form>
                     </details>
                 {% endif %}
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             </section>
         {% empty %}
             <div class="empty">

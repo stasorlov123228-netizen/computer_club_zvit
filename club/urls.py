@@ -12,14 +12,16 @@ urlpatterns = [
 
     path('account/', views.account_view, name='account'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
-<<<<<<< HEAD
     path(
         'my-bookings/<int:booking_id>/edit/',
         views.edit_my_booking,
         name='edit_my_booking',
     ),
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
+    path(
+        'my-bookings/<int:booking_id>/cancel/',
+        views.cancel_my_booking,
+        name='cancel_my_booking',
+    ),
 
     path('tournaments/', views.tournaments_view, name='tournaments'),
     path('news/', views.news_view, name='news'),
@@ -28,11 +30,6 @@ urlpatterns = [
     path('partnership/', views.partnership_view, name='partnership'),
 
     path(
-        'payment/liqpay/callback/',
-        views.liqpay_callback,
-        name='liqpay_callback'
-    ),
-    path(
         'payment/<int:booking_id>/',
         views.payment_result,
         name='payment_result'
@@ -40,14 +37,11 @@ urlpatterns = [
 
     path('admin-panel/', views.admin_panel, name='admin_panel'),
     path('admin-panel/bookings/', views.admin_bookings, name='admin_bookings'),
-<<<<<<< HEAD
     path(
         'admin-panel/bookings/<int:booking_id>/edit/',
         views.edit_admin_booking,
         name='edit_admin_booking',
     ),
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
     path('admin-panel/users/', views.admin_users, name='admin_users'),
     path('admin-panel/tariffs/', views.admin_tariffs, name='admin_tariffs'),
     path('admin-panel/computers/', views.admin_computers, name='admin_computers'),
@@ -66,7 +60,3 @@ path(
 ),
 
 ]
-<<<<<<< HEAD
-=======
-
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1

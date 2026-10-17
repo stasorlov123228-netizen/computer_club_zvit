@@ -153,6 +153,53 @@
         text-align: center;
         color: #778395;
     }
+
+    .notice {
+        margin: 0 0 18px;
+        padding: 12px 16px;
+        border: 1px solid rgba(101, 255, 154, 0.35);
+        border-radius: 8px;
+        color: #d9ffe7;
+        background: rgba(101, 255, 154, 0.08);
+    }
+
+    .notice.error {
+        border-color: rgba(255, 92, 108, 0.4);
+        color: #ffd5d9;
+        background: rgba(255, 92, 108, 0.08);
+    }
+
+    .actions {
+        white-space: nowrap;
+    }
+
+    .delete-form {
+        display: inline;
+    }
+
+    .delete-button {
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 92, 108, 0.5);
+        border-radius: 6px;
+        color: #ffb8bf;
+        background: rgba(255, 92, 108, 0.08);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: color 0.2s, background 0.2s, border-color 0.2s;
+    }
+
+    .delete-button:hover {
+        border-color: #ff5c6c;
+        color: #fff;
+        background: #c92e43;
+    }
+
+    .delete-button:focus-visible {
+        outline: 3px solid #f5f3ff;
+        outline-offset: 3px;
+    }
 </style>{% endblock %}
 
 {% block content %}
@@ -166,20 +213,22 @@
 
         <div class="counter">Всього: {{ users|length }}</div>
 
+        {% for message in messages %}
+            <div class="notice {{ message.tags }}" role="status">{{ message }}</div>
+        {% endfor %}
+
         <div class="table-card">
             <table>
                 <thead>
                     <tr>
                         <th>Користувач</th>
                         <th>Пошта</th>
-<<<<<<< HEAD
                         <th>Номер телефону</th>
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                         <th>Реєстрація</th>
                         <th>Останній вхід</th>
                         <th>Роль</th>
                         <th>Статус</th>
+                        <th>Дії</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -194,7 +243,6 @@
                             <td>
                                 {% if u.email %}{{ u.email }}{% else %}<span class="muted">не вказана</span>{% endif %}
                             </td>
-<<<<<<< HEAD
                             <td>
                                 {% if u.profile.phone %}
                                     {{ u.profile.phone }}
@@ -202,8 +250,6 @@
                                     <span class="muted">не вказаний</span>
                                 {% endif %}
                             </td>
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                             <td>{{ u.date_joined|date:"d.m.Y" }}</td>
                             <td>
                                 {% if u.last_login %}
@@ -215,11 +261,7 @@
                             <td>
                                 {% if u.is_superuser %}
                                     <span class="badge admin">Суперадмін</span>
-<<<<<<< HEAD
-                                {% elif u.is_staff or u.username == 'admin' %}
-=======
                                 {% elif u.is_staff %}
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                                     <span class="badge admin">Адміністратор</span>
                                 {% else %}
                                     <span class="badge client">Клієнт</span>
@@ -232,14 +274,28 @@
                                     <span class="badge off">Вимкнений</span>
                                 {% endif %}
                             </td>
+                            <td class="actions">
+                                {% if u.pk != request.user.pk and not u.is_superuser %}
+                                    <form
+                                        class="delete-form"
+                                        method="post"
+                                        action="{% url 'admin_users' %}"
+                                        data-delete-username="{{ u.username }}"
+                                    >
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_id" value="{{ u.pk }}">
+                                        <button class="delete-button" type="submit">
+                                            Видалити
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="muted">недоступно</span>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
-<<<<<<< HEAD
-                            <td colspan="7" class="empty">Користувачів поки немає.</td>
-=======
-                            <td colspan="6" class="empty">Користувачів поки немає.</td>
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
+                            <td colspan="8" class="empty">Користувачів поки немає.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -247,4 +303,14 @@
         </div>
 
     </div>
+    <script>
+        document.querySelectorAll('.delete-form').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                const username = form.dataset.deleteUsername;
+                if (!window.confirm(`Видалити акаунт «${username}»?`)) {
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
 {% endblock %}

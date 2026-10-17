@@ -1,311 +1,371 @@
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оплата карткою — Lviv Arena</title>
-
+    <meta name="referrer" content="no-referrer">
+    <title>Оплата бронювання - Lviv Arena</title>
     <style>
         * {
             box-sizing: border-box;
         }
 
         body {
-            margin: 0;
+            display: grid;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: #101114;
-            color: white;
+            margin: 0;
+            padding: 24px;
+            place-items: center;
+            background: #080810;
+            color: #f5f3ff;
             font-family: Arial, sans-serif;
         }
 
-        .payment-card {
-            width: 100%;
-            max-width: 460px;
+        main {
+            width: min(100%, 480px);
             padding: 32px;
-            border: 1px solid #303139;
+            border: 1px solid rgba(192, 132, 252, 0.3);
             border-radius: 18px;
-            background: #1b1c22;
-            box-shadow: 0 15px 45px #0005;
+            background: #120d1d;
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.16);
         }
 
-        .logo {
-            color: #a6ff00;
-            font-size: 25px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        h1 {
-            margin-top: 28px;
-            font-size: 25px;
-            text-align: center;
-        }
-
-        .subtitle {
-            margin-bottom: 28px;
-            color: #aaaab5;
-            text-align: center;
-            line-height: 1.5;
-        }
-
-        label {
-            display: block;
-            margin: 16px 0 8px;
+        .demo-warning {
+            padding: 12px 14px;
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            border-radius: 9px;
+            background: rgba(236, 72, 153, 0.08);
+            color: #ffd8ea;
             font-size: 14px;
         }
 
-        input {
+        .payment-fields {
+            display: grid;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #d8cee5;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .field input {
             width: 100%;
-            padding: 14px;
-            border: 1px solid #41424c;
-            border-radius: 9px;
-            outline: none;
-            background: #25262e;
-            color: white;
-            font-size: 16px;
+            min-height: 46px;
+            padding: 11px 13px;
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            border-radius: 8px;
+            background: #080810;
+            color: #f5f3ff;
+            font: inherit;
         }
 
-        input:focus {
-            border-color: #a6ff00;
+        .field input:focus-visible {
+            outline: 3px solid rgba(192, 132, 252, 0.5);
+            outline-offset: 2px;
         }
 
-        .row {
+        .field input[aria-invalid="true"] {
+            border-color: #fb7185;
+        }
+
+        .field-hint,
+        .field-error {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        .field-hint {
+            color: #aaa0ba;
+        }
+
+        .field-error {
+            min-height: 15px;
+            color: #fda4af;
+        }
+
+        .payment-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
         }
 
-        button {
-            width: 100%;
-            margin-top: 25px;
-            padding: 15px;
-            border: none;
-            border-radius: 9px;
-            background: #a6ff00;
-            color: #111;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
+        h1 {
+            margin: 0 0 12px;
+            font-size: 25px;
         }
 
-        button:hover {
-            background: #baff36;
-        }
-
-        .error {
-            margin-top: 15px;
-            color: #ff7777;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .success {
-            padding: 18px;
-            border-radius: 10px;
-            background: #252f1b;
-            color: #c4ff80;
-            text-align: center;
+        p {
+            color: #c4bdd1;
             line-height: 1.6;
         }
 
-        .notice {
-            margin-top: 20px;
-            color: #aaaab5;
-            font-size: 12px;
-            line-height: 1.5;
-            text-align: center;
+        .booking-number {
+            color: #c084fc;
+            font-weight: 700;
         }
 
-        [hidden] {
-            display: none !important;
+        button,
+        a {
+            display: inline-flex;
+            min-height: 46px;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border: 1px solid rgba(192, 132, 252, 0.5);
+            border-radius: 9px;
+            background: linear-gradient(110deg, #a855f7, #ec4899);
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #f5f3ff;
+            outline-offset: 3px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .demo-result {
+            margin-top: 18px;
+            padding: 13px;
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            border-radius: 9px;
+            color: #e9d5ff;
+        }
+
+        @media (max-width: 520px) {
+            main {
+                padding: 24px 18px;
+            }
+
+            .payment-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
         }
     </style>
 </head>
-
 <body>
-    <main class="payment-card">
-        <div class="logo">LVIV ARENA</div>
-
-        <h1>Оплата карткою</h1>
-<<<<<<< HEAD
-        <p class="subtitle">
-            Бронювання №{{ booking.id }} — {{ booking.start_time|date:"d.m.Y H:i" }}
+    <main>
+        <h1>Демо-оплата карткою</h1>
+        <p>
+            Бронювання №<span class="booking-number">{{ booking.id }}</span>
+            · {{ booking.start_time|date:"d.m.Y H:i" }}
         </p>
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
-
-        <form id="payment-form" method="post" novalidate>
-            {% csrf_token %}
-<<<<<<< HEAD
-            {{ payment_form.card_number.label_tag }}
-            {{ payment_form.card_number }}
-
-            {{ payment_form.card_name.label_tag }}
-            {{ payment_form.card_name }}
-
-            <div class="row">
-                <div>
-                    {{ payment_form.expiry.label_tag }}
-                    {{ payment_form.expiry }}
-                </div>
-
-                <div>
-                    {{ payment_form.cvc.label_tag }}
-                    {{ payment_form.cvc }}
-                </div>
-            </div>
-
-            {% if payment_errors %}
-                <div class="error" role="alert">
-                    {% for error in payment_errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-=======
-            <label for="card-number">Номер картки</label>
-            <input
-                id="card-number"
-                type="text"
-                inputmode="numeric"
-                autocomplete="off"
-                placeholder="0000 0000 0000 0000"
-                maxlength="19"
-                required
-            >
-
-            <label for="card-name">Ім’я платника</label>
-            <input
-                id="card-name"
-                type="text"
-                autocomplete="off"
-                placeholder="ІМ’Я ПРІЗВИЩЕ"
-                maxlength="100"
-                required
-            >
-
-            <div class="row">
-                <div>
-                    <label for="expiry">Термін дії</label>
+        {% if booking.status == 'cancelled' %}
+            <p>Це бронювання скасовано.</p>
+        {% elif payment_pending %}
+            <p>
+                Демо-форма перевіряє введення лише у вашому браузері.
+                Дані не надсилаються та не зберігаються.
+            </p>
+            <p>
+                Бронювання створено, але оплату карткою не підтверджено.
+                Статус платежу: <strong>не оплачено</strong>.
+            </p>
+            <div class="payment-fields" id="demo-payment">
+                <div class="field">
+                    <label for="demo-card-number">Номер картки</label>
                     <input
-                        id="expiry"
+                        id="demo-card-number"
                         type="text"
                         inputmode="numeric"
                         autocomplete="off"
-                        placeholder="ММ/РР"
-                        maxlength="5"
-                        required
+                        maxlength="19"
+                        placeholder="•••• •••• •••• ••••"
+                        aria-describedby="demo-card-hint demo-card-error"
                     >
+                    <small class="field-hint" id="demo-card-hint">
+                        Введіть 16 цифр
+                    </small>
+                    <small class="field-error" id="demo-card-error" aria-live="polite"></small>
                 </div>
 
-                <div>
-                    <label for="cvc">CVC</label>
+                <div class="field">
+                    <label for="demo-card-name">Ім’я власника</label>
                     <input
-                        id="cvc"
-                        type="password"
-                        inputmode="numeric"
+                        id="demo-card-name"
+                        type="text"
                         autocomplete="off"
-                        placeholder="•••"
-                        maxlength="3"
-                        required
+                        maxlength="60"
+                        placeholder="NAME"
+                        aria-describedby="demo-name-error"
                     >
+                    <small class="field-error" id="demo-name-error" aria-live="polite"></small>
                 </div>
+
+                <div class="payment-row">
+                    <div class="field">
+                        <label for="demo-card-expiry">Термін дії</label>
+                        <input
+                            id="demo-card-expiry"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            maxlength="5"
+                            placeholder="MM/YY"
+                            aria-describedby="demo-expiry-error"
+                        >
+                        <small class="field-error" id="demo-expiry-error" aria-live="polite"></small>
+                    </div>
+
+                    <div class="field">
+                        <label for="demo-card-cvc">CVC</label>
+                        <input
+                            id="demo-card-cvc"
+                            type="password"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            maxlength="3"
+                            placeholder="•••"
+                            aria-describedby="demo-cvc-hint demo-cvc-error"
+                        >
+                        <small class="field-hint" id="demo-cvc-hint">
+                            Введіть 3 цифри
+                        </small>
+                        <small class="field-error" id="demo-cvc-error" aria-live="polite"></small>
+                    </div>
+                </div>
+
+                <button id="demo-payment-submit" type="button">
+                    Оплатити
+                </button>
+                <p class="demo-result" id="demo-result" role="status" aria-live="polite" hidden></p>
             </div>
 
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
-            <div id="error" class="error" role="alert" hidden></div>
+            <form id="demo-confirm-form" method="post" action="{{ request.get_full_path }}" hidden>
+                {% csrf_token %}
+                <input type="hidden" name="demo_confirm" value="1">
+            </form>
+        {% endif %}
 
-            <button type="submit">Оплатити</button>
-        </form>
-
-        <div id="success" class="success" hidden>
-            <h2>✓ Оплату виконано!</h2>
-            <p>
-                Реального списання коштів не було.
-            </p>
-            <a href="/" style="color:#c4ff80;">Повернутися на головну</a>
+        <div class="actions">
+            {% if booking.user_id %}
+                <a href="{% url 'my_bookings' %}">Мої бронювання</a>
+            {% else %}
+                <a href="{% url 'home' %}">На головну</a>
+            {% endif %}
         </div>
-
     </main>
+    {% if payment_pending and booking.status != 'cancelled' %}
+        <script>
+            const cardNumberInput = document.querySelector('#demo-card-number');
+            const cardNameInput = document.querySelector('#demo-card-name');
+            const expiryInput = document.querySelector('#demo-card-expiry');
+            const cvcInput = document.querySelector('#demo-card-cvc');
+            const demoResult = document.querySelector('#demo-result');
+            const demoSubmit = document.querySelector('#demo-payment-submit');
+            const demoConfirmForm = document.querySelector('#demo-confirm-form');
 
-    <script>
-        const form = document.getElementById('payment-form');
-        const numberInput = document.getElementById('card-number');
-        const nameInput = document.getElementById('card-name');
-        const expiryInput = document.getElementById('expiry');
-        const cvcInput = document.getElementById('cvc');
-        const errorBox = document.getElementById('error');
-
-        numberInput.addEventListener('input', function () {
-            let digits = this.value.replace(/\D/g, '').slice(0, 16);
-            this.value = digits.match(/.{1,4}/g)?.join(' ') || '';
-        });
-
-        expiryInput.addEventListener('input', function () {
-            let digits = this.value.replace(/\D/g, '').slice(0, 4);
-
-            if (digits.length > 2) {
-                digits = digits.slice(0, 2) + '/' + digits.slice(2);
+            function setFieldError(input, message) {
+                const error = document.querySelector(`#${input.getAttribute('aria-describedby').split(' ').pop()}`);
+                error.textContent = message;
+                input.setAttribute('aria-invalid', message ? 'true' : 'false');
+                return !message;
             }
 
-            this.value = digits;
-        });
-
-        cvcInput.addEventListener('input', function () {
-            this.value = this.value.replace(/\D/g, '').slice(0, 3);
-        });
-
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            errorBox.hidden = true;
-
-            const number = numberInput.value.replace(/\s/g, '');
-            const name = nameInput.value.trim();
-            const expiry = expiryInput.value.trim();
-            const cvc = cvcInput.value;
-
-            if (!/^\d{16}$/.test(number)) {
-                return showError('Введіть номер картки з 16 цифр.');
+            function validateCardNumber() {
+                const digits = cardNumberInput.value.replace(/\D/g, '');
+                return setFieldError(
+                    cardNumberInput,
+                    digits.length === 16
+                        ? ''
+                        : 'Номер картки має містити 16 цифр.'
+                );
             }
 
-            if (!/^[\p{L}][\p{L}\s'-]*$/u.test(name) ||
-                !/[\p{L}]/u.test(name)) {
-                return showError('Введіть правильне ім’я платника.');
+            function validateName() {
+                const name = cardNameInput.value.trim();
+                return setFieldError(
+                    cardNameInput,
+                    name.length >= 2 ? '' : 'Введіть ім’я власника (мінімум 2 символи).'
+                );
             }
 
-            if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) {
-                return showError('Введіть дату у форматі ММ/РР. Місяць має бути від 01 до 12.');
+            function validateExpiry() {
+                const match = expiryInput.value.match(/^(0[1-9]|1[0-2])\/(\d{2})$/);
+                if (!match) {
+                    return setFieldError(expiryInput, 'Введіть дату у форматі MM/YY.');
+                }
+
+                const month = Number(match[1]);
+                const year = 2000 + Number(match[2]);
+                const now = new Date();
+                const isFuture = year > now.getFullYear()
+                    || (year === now.getFullYear() && month >= now.getMonth() + 1);
+                return setFieldError(
+                    expiryInput,
+                    isFuture ? '' : 'Термін дії картки не може бути в минулому.'
+                );
             }
 
-            const [month, year] = expiry.split('/').map(Number);
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth() + 1;
-            const currentYear = currentDate.getFullYear() % 100;
-
-            if (
-                year < currentYear ||
-                (year === currentYear && month < currentMonth)
-            ) {
-                return showError('Термін дії картки минув.');
+            function validateCvc() {
+                return setFieldError(
+                    cvcInput,
+                    /^\d{3}$/.test(cvcInput.value)
+                        ? ''
+                        : 'CVC має містити 3 цифри.'
+                );
             }
 
-            if (!/^\d{3}$/.test(cvc)) {
-                return showError('CVC має містити рівно 3 цифри.');
-            }
+            cardNumberInput.addEventListener('input', () => {
+                const digits = cardNumberInput.value.replace(/\D/g, '').slice(0, 16);
+                cardNumberInput.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+                demoResult.hidden = true;
+            });
 
-            form.submit();
-        });
+            expiryInput.addEventListener('input', () => {
+                const digits = expiryInput.value.replace(/\D/g, '').slice(0, 4);
+                expiryInput.value = digits.length > 2
+                    ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+                    : digits;
+                demoResult.hidden = true;
+            });
 
-        function showError(message) {
-            errorBox.textContent = message;
-            errorBox.hidden = false;
-        }
-    </script>
+            [cardNumberInput, cardNameInput, expiryInput, cvcInput].forEach((input) => {
+                input.addEventListener('input', () => {
+                    input.removeAttribute('aria-invalid');
+                    const error = document.querySelector(
+                        `#${input.getAttribute('aria-describedby').split(' ').pop()}`
+                    );
+                    error.textContent = '';
+                    demoResult.hidden = true;
+                });
+            });
+
+            demoSubmit.addEventListener('click', () => {
+                const valid = [
+                    validateCardNumber(),
+                    validateName(),
+                    validateExpiry(),
+                    validateCvc(),
+                ].every(Boolean);
+
+                if (!valid) {
+                    return;
+                }
+
+                [cardNumberInput, cardNameInput, expiryInput, cvcInput].forEach((input) => {
+                    input.value = '';
+                });
+                demoConfirmForm.requestSubmit();
+            });
+        </script>
+    {% endif %}
 </body>
 </html>

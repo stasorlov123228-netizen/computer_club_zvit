@@ -1,5 +1,4 @@
 from django.contrib import admin
-<<<<<<< HEAD
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User
 from .models import Computer, Tariff, Booking, Payment, UserProfile
@@ -40,17 +39,11 @@ class UserAdmin(DjangoUserAdmin):
     def role(self, obj):
         if obj.is_superuser:
             return 'Суперадміністратор'
-        if obj.is_staff or obj.username == 'admin':
+        if obj.is_staff:
             return 'Адміністратор'
         return 'Клієнт'
 
 
-=======
-from .models import Computer, Tariff, Booking, Payment
-from .views import update_computer_statuses
-
-
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 @admin.register(Computer)
 class ComputerAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'status')
@@ -103,7 +96,6 @@ class BookingAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-<<<<<<< HEAD
     list_display = (
         'id',
         'booking',
@@ -126,7 +118,3 @@ class PaymentAdmin(admin.ModelAdmin):
     )
     def payment_status(self, obj):
         return obj.booking.get_payment_status_display()
-=======
-    list_display = ('id', 'booking', 'amount', 'is_paid', 'paid_at')
-    list_filter = ('is_paid',)
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1

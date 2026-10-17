@@ -1,4 +1,5 @@
 
+{% load static %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -42,11 +43,7 @@
             margin: 15px 0 8px;
         }
 
-<<<<<<< HEAD
         input, select {
-=======
-        input {
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             width: 100%;
             padding: 12px;
             color: white;
@@ -55,11 +52,8 @@
             border-radius: 7px;
         }
 
-<<<<<<< HEAD
         select { cursor: pointer; }
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         button {
             width: 100%;
             margin-top: 25px;
@@ -112,6 +106,10 @@
 
 
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
 </head>
 
 <body>
@@ -121,7 +119,6 @@
 
         <form method="POST">
             {% csrf_token %}
-<<<<<<< HEAD
             <p>
                 {{ form.username.label_tag }}
                 {{ form.username }}
@@ -144,9 +141,6 @@
                 {{ form.password.errors }}
             </p>
             {{ form.non_field_errors }}
-=======
-            {{ form.as_p }}
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
             <button type="submit">ЗАРЕЄСТРУВАТИСЯ</button>
         </form>
@@ -159,15 +153,14 @@
         <a class="back-home" href="/"> На головну</a>
 
     </div>
-<<<<<<< HEAD
 
     {{ phone_countries|json_script:"phone-countries-data" }}
     <script>
         const phoneCountries = JSON.parse(
-            document.getElementById('phone-countries-data').textContent
+            document.querySelector('#phone-countries-data').textContent
         );
-        const countrySelect = document.getElementById('id_phone_country');
-        const phoneInput = document.getElementById('id_phone_local');
+        const countrySelect = document.querySelector('#id_phone_country');
+        const phoneInput = document.querySelector('#id_phone_local');
         const selectedCountry = function () {
             return phoneCountries.find(function (country) {
                 return country[2] === countrySelect.value;
@@ -204,7 +197,5 @@
         updatePhoneLength();
     </script>
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 </body>
 </html>

@@ -28,7 +28,6 @@ class Tariff(models.Model):
         return self.name
 
 
-<<<<<<< HEAD
 class UserProfile(models.Model):
     user = models.OneToOneField(
         User,
@@ -41,8 +40,6 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
 
 
 class Booking(models.Model):
@@ -95,7 +92,7 @@ class Booking(models.Model):
     )
 
     def __str__(self):
-        return f'{self.customer_name} — {self.computer.name}'
+        return f'{self.customer_name} - {self.computer.name}'
 
 
 class Payment(models.Model):
@@ -110,10 +107,6 @@ class Payment(models.Model):
         blank=True
     )
     status = models.CharField(max_length=40, default='pending')
-
-    def __str__(self):
-        return f'Оплата №{self.pk}'
-
 
     def __str__(self):
         return f'Оплата №{self.pk}'

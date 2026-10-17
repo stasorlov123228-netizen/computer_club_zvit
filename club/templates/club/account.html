@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -25,15 +26,12 @@
             color: #ffffff;
         }
 
-        /* ШАПКА */
+
 
         header {
-<<<<<<< HEAD
             position: sticky;
             top: 0;
             z-index: 1000;
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -72,7 +70,7 @@
             background: #65ff9a;
         }
 
-        /* ВМІСТ */
+
 
         main {
             width: 90%;
@@ -126,7 +124,7 @@
             margin-bottom: 14px;
         }
 
-        /* ПРОФІЛЬ */
+
 
         .profile {
             display: flex;
@@ -180,7 +178,7 @@
             box-shadow: 0 0 8px #65ff9a;
         }
 
-        /* ІНФОРМАЦІЯ */
+
 
         .info-row {
             display: flex;
@@ -204,7 +202,6 @@
             text-align: right;
         }
 
-<<<<<<< HEAD
         .phone-form {
             max-width: 460px;
         }
@@ -233,9 +230,7 @@
             color: #ff8585;
         }
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
-        /* КНОПКИ */
+
 
         .actions {
             display: flex;
@@ -291,7 +286,7 @@
             color: #ffffff;
         }
 
-        /* АДАПТАЦІЯ */
+
 
         @media (max-width: 550px) {
             header {
@@ -354,6 +349,10 @@
             }
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
 </head>
 
 <body>
@@ -399,7 +398,6 @@
             </div>
 
             <div class="info-row">
-<<<<<<< HEAD
                 <span class="info-label">Номер телефону</span>
                 <span class="info-value">
                     {% if request.user.profile.phone %}
@@ -411,8 +409,6 @@
             </div>
 
             <div class="info-row">
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
                 <span class="info-label">Дата реєстрації</span>
                 <span class="info-value">
                     {{ request.user.date_joined|date:"d.m.Y" }}
@@ -420,7 +416,6 @@
             </div>
         </section>
 
-<<<<<<< HEAD
         <section class="card">
             <h2>Номер телефону для бронювання</h2>
             <form method="POST" class="phone-form">
@@ -437,8 +432,6 @@
             </form>
         </section>
 
-=======
->>>>>>> 9015b66f1985c13d9b71b39eddfabeba065ab1a1
         <div class="actions">
             <a class="button" href="{% url 'my_bookings' %}">
                 МОЇ БРОНЮВАННЯ
