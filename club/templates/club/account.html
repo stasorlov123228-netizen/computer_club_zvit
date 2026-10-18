@@ -396,6 +396,15 @@
                     {% endif %}
                 </span>
             </div>
+            <form method="POST" class="phone-form">
+                {% csrf_token %}
+                {{ email_form.email.label_tag }}
+                {{ email_form.email }}
+                {{ email_form.email.errors }}
+                <button class="button" type="submit" name="update_email">
+                    ЗБЕРЕГТИ ПОШТУ
+                </button>
+            </form>
 
             <div class="info-row">
                 <span class="info-label">Номер телефону</span>
@@ -407,17 +416,6 @@
                     {% endif %}
                 </span>
             </div>
-
-            <div class="info-row">
-                <span class="info-label">Дата реєстрації</span>
-                <span class="info-value">
-                    {{ request.user.date_joined|date:"d.m.Y" }}
-                </span>
-            </div>
-        </section>
-
-        <section class="card">
-            <h2>Номер телефону для бронювання</h2>
             <form method="POST" class="phone-form">
                 {% csrf_token %}
                 {{ phone_form.phone_country.label_tag }}
@@ -430,6 +428,13 @@
                     ЗБЕРЕГТИ НОМЕР
                 </button>
             </form>
+
+            <div class="info-row">
+                <span class="info-label">Дата реєстрації</span>
+                <span class="info-value">
+                    {{ request.user.date_joined|date:"d.m.Y" }}
+                </span>
+            </div>
         </section>
 
         <div class="actions">

@@ -175,6 +175,7 @@ class AdminUsersPageTests(TestCase):
         user = User.objects.create_user(
             username='phone-user',
             password='StrongPassw0rd!xyz',
+            email='client@example.com',
         )
         UserProfile.objects.create(user=user, phone='+380671234567')
 
@@ -182,7 +183,45 @@ class AdminUsersPageTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Номер телефону')
+        self.assertContains(response, 'client@example.com')
         self.assertContains(response, '+380671234567')
+
+    def test_admin_can_search_users_by_username_email_and_phone(self):
+        user = User.objects.create_user(
+            username='searchable-user',
+            password='StrongPassw0rd!xyz',
+            email='searchable@example.com',
+        )
+        UserProfile.objects.create(user=user, phone='+380671234567')
+        searches = (
+            ('username', 'searchable-user'),
+            ('email', 'searchable@example.com'),
+            ('phone', '+380671234567'),
+        )
+
+        for search_type, query in searches:
+            with self.subTest(search_type=search_type):
+                response = self.client.get(
+                    reverse('admin_users'),
+                    {'q': query},
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    list(response.context['users']),
+                    [user],
+                )
+                self.assertContains(response, 'value="' + query + '"')
+
+    def test_admin_user_search_shows_no_results_message(self):
+        response = self.client.get(
+            reverse('admin_users'),
+            {'q': 'user-does-not-exist'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(list(response.context['users']), [])
+        self.assertContains(response, 'За вашим запитом користувачів не знайдено.')
 
     def test_admin_username_is_shown_as_admin_and_can_open_panel_sections(self):
         User.objects.create_superuser(
@@ -314,6 +353,7 @@ class AdminUsersPageTests(TestCase):
         user = User.objects.create_user(
             username='registered-client',
             password='StrongPassw0rd!xyz',
+            email='old@example.com',
         )
         profile = UserProfile.objects.create(
             user=user,
@@ -334,7 +374,7 @@ class AdminUsersPageTests(TestCase):
                 'username': user.username,
                 'first_name': '',
                 'last_name': '',
-                'email': '',
+                'email': 'new@example.com',
                 'is_active': 'on',
                 'is_staff': '',
                 'is_superuser': '',
@@ -356,6 +396,8 @@ class AdminUsersPageTests(TestCase):
         self.assertRedirects(response, reverse('admin:auth_user_changelist'))
         profile.refresh_from_db()
         self.assertEqual(profile.phone, '+380991112233')
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'new@example.com')
 
 
 class AdminPaymentTests(TestCase):
@@ -514,6 +556,7 @@ class AdminBookingEditingTests(TestCase):
         self.other_user = User.objects.create_user(
             username='booking-client',
             password='StrongPassw0rd!xyz',
+            email='booking-client@example.com',
         )
         self.tariff = Tariff.objects.create(
             name='DEFAULT',
@@ -547,6 +590,39 @@ class AdminBookingEditingTests(TestCase):
             status='confirmed',
         )
         self.client.force_login(self.admin)
+
+    def test_admin_can_search_bookings_by_name_email_and_phone(self):
+        searches = (
+            ('name', 'Booking Client'),
+            ('username', 'booking-client'),
+            ('email', 'booking-client@example.com'),
+            ('phone', '+380671234567'),
+        )
+
+        for search_type, query in searches:
+            with self.subTest(search_type=search_type):
+                response = self.client.get(
+                    reverse('admin_bookings'),
+                    {'q': query},
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    [booking.pk for booking in response.context['bookings']],
+                    [self.booking.pk],
+                )
+                self.assertContains(response, 'booking-client@example.com')
+                self.assertContains(response, 'value="' + query + '"')
+
+    def test_admin_booking_search_shows_no_results_message(self):
+        response = self.client.get(
+            reverse('admin_bookings'),
+            {'q': 'no-booking-matches-this'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['bookings'], [])
+        self.assertContains(response, 'За вашим запитом бронювань не знайдено.')
 
     def post_edit(self, **overrides):
         data = {
@@ -801,6 +877,7 @@ class RegistrationPhoneTests(TestCase):
     def test_registration_requires_and_saves_phone(self):
         form = CustomUserCreationForm(data={
             'username': 'phone-user',
+            'email': 'client@example.com',
             'password': 'StrongPassw0rd!xyz',
             'phone_country': '+380',
             'phone_local': '671234567',
@@ -812,6 +889,19 @@ class RegistrationPhoneTests(TestCase):
             UserProfile.objects.get(user=user).phone,
             '+380671234567',
         )
+        self.assertEqual(user.email, 'client@example.com')
+
+    def test_registration_rejects_invalid_email(self):
+        form = CustomUserCreationForm(data={
+            'username': 'invalid-email-user',
+            'email': 'not-an-email',
+            'password': 'StrongPassw0rd!xyz',
+            'phone_country': '+380',
+            'phone_local': '671234567',
+        })
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
 
     def test_registration_rejects_invalid_phone(self):
         form = CustomUserCreationForm(data={
@@ -861,6 +951,52 @@ class BookingPhoneTests(TestCase):
         self.assertContains(response, 'style="display:none"')
         self.assertContains(response, 'existing-user')
         self.assertNotContains(response, 'name="name"')
+
+    def test_signed_in_booking_page_asks_for_phone_when_profile_is_empty(self):
+        user = User.objects.create_user(
+            username='no-phone-user',
+            password='StrongPassw0rd!xyz',
+        )
+        UserProfile.objects.create(user=user)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('booking'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="phone_local"')
+        self.assertContains(response, 'required')
+        self.assertContains(response, 'Він збережеться у вашому профілі.')
+        self.assertNotContains(response, 'name="name"')
+
+    def test_signed_in_booking_saves_new_phone_to_profile(self):
+        user = User.objects.create_user(
+            username='new-phone-booking-user',
+            password='StrongPassw0rd!xyz',
+        )
+        profile = UserProfile.objects.create(user=user)
+        Tariff.objects.create(name='DEFAULT', price_per_hour=50)
+        Computer.objects.create(
+            name='Computer defolt',
+            status='available',
+        )
+        self.client.force_login(user)
+        start = timezone.localtime(timezone.now()) + timedelta(days=2)
+
+        response = self.client.post(reverse('booking'), {
+            'phone_country': '+48',
+            'phone_iso': 'pl',
+            'phone_local': '123456789',
+            'tariff': 'default',
+            'duration': '1',
+            'date': start.strftime('%Y-%m-%d'),
+            'time': start.strftime('%H:%M'),
+            'payment_method': 'cash',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['booking'].phone, '+48123456789')
+        profile.refresh_from_db()
+        self.assertEqual(profile.phone, '+48123456789')
 
     def test_signed_in_booking_uses_profile_phone_without_posting_it(self):
         user = User.objects.create_user(
@@ -912,6 +1048,39 @@ class BookingPhoneTests(TestCase):
             UserProfile.objects.get(user=user).phone,
             '+48123456789',
         )
+
+    def test_signed_in_user_can_update_email_in_account(self):
+        user = User.objects.create_user(
+            username='email-user',
+            password='StrongPassw0rd!xyz',
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse('account'), {
+            'email': 'updated@example.com',
+            'update_email': '',
+        })
+
+        self.assertRedirects(response, reverse('account'))
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'updated@example.com')
+
+    def test_signed_in_user_cannot_save_invalid_email(self):
+        user = User.objects.create_user(
+            username='invalid-email-user',
+            password='StrongPassw0rd!xyz',
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse('account'), {
+            'email': 'not-an-email',
+            'update_email': '',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Enter a valid email address.')
+        user.refresh_from_db()
+        self.assertEqual(user.email, '')
 
 
 class BookingEditingTests(TestCase):
@@ -1267,7 +1436,6 @@ class BookingCardPaymentTests(TestCase):
         self.assertEqual(payment_page.status_code, 200)
         self.assertContains(payment_page, 'Демо-форма перевіряє введення')
         self.assertContains(payment_page, 'оплату карткою не підтверджено')
-        self.assertNotContains(payment_page, 'LiqPay')
         self.assertNotContains(payment_page, 'name="demo-card-number"')
         self.assertNotContains(payment_page, 'name="cvc"')
         self.assertContains(payment_page, 'id="demo-card-number"')

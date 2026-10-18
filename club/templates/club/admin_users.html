@@ -54,6 +54,42 @@
         border-radius: 20px;
     }
 
+    .user-search {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .user-search input {
+        flex: 1;
+        min-width: 240px;
+        padding: 11px 14px;
+        color: #fff;
+        background: #0b0e13;
+        border: 1px solid #394555;
+        border-radius: 7px;
+        font: inherit;
+    }
+
+    .user-search button,
+    .user-search a {
+        padding: 11px 16px;
+        border: 1px solid #65ff9a;
+        border-radius: 7px;
+        color: #0b0e13;
+        background: #65ff9a;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .user-search a {
+        color: #65ff9a;
+        background: transparent;
+    }
+
     .table-card {
         overflow-x: auto;
         background: #141a23;
@@ -211,7 +247,27 @@
             <div class="title-line"></div>
         </div>
 
-        <div class="counter">Всього: {{ users|length }}</div>
+        <form class="user-search" method="get" role="search">
+            <input
+                type="search"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Пошук за ім'ям, email або телефоном"
+                aria-label="Пошук за ім'ям, email або телефоном"
+            >
+            <button type="submit">Шукати</button>
+            {% if search_query %}
+                <a href="{% url 'admin_users' %}">Очистити</a>
+            {% endif %}
+        </form>
+
+        <div class="counter">
+            {% if search_query %}
+                Знайдено: {{ users|length }}
+            {% else %}
+                Всього: {{ users|length }}
+            {% endif %}
+        </div>
 
         {% for message in messages %}
             <div class="notice {{ message.tags }}" role="status">{{ message }}</div>
@@ -283,6 +339,9 @@
                                         data-delete-username="{{ u.username }}"
                                     >
                                         {% csrf_token %}
+                                        {% if search_query %}
+                                            <input type="hidden" name="q" value="{{ search_query }}">
+                                        {% endif %}
                                         <input type="hidden" name="user_id" value="{{ u.pk }}">
                                         <button class="delete-button" type="submit">
                                             Видалити
@@ -295,7 +354,13 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="8" class="empty">Користувачів поки немає.</td>
+                            <td colspan="8" class="empty">
+                                {% if search_query %}
+                                    За вашим запитом користувачів не знайдено.
+                                {% else %}
+                                    Користувачів поки немає.
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

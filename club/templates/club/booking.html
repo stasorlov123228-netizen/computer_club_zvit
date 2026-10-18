@@ -725,7 +725,7 @@
                     </div>
                 {% endif %}
 
-                <div class="field" {% if request.user.is_authenticated %}style="display:none"{% endif %}>
+                <div class="field" {% if request.user.is_authenticated and not missing_profile_phone %}style="display:none"{% endif %}>
                     <label for="phone-national">Номер телефону</label>
 
                     <div class="phone-box" id="phone-box">
@@ -758,9 +758,7 @@
 
                     {% if missing_profile_phone %}
                         <div class="errors">
-                            Додайте номер телефону в
-                            <a href="{% url 'account' %}" style="color: var(--arena-lilac)">профілі</a>
-                            перед бронюванням.
+                            Вкажіть номер телефону для бронювання. Він збережеться у вашому профілі.
                         </div>
                     {% endif %}
 
@@ -1056,7 +1054,7 @@
 }
 
 
-    selectCountry(findByIso("{{ request.POST.phone_iso|default:'ua'|escapejs }}"));
+    selectCountry(findByIso("{{ request.POST.phone_iso|default:phone_iso|default:'ua'|escapejs }}"));
 
 
     const form = document.querySelector('#booking-form');

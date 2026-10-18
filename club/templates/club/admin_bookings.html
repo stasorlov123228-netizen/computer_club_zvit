@@ -106,6 +106,42 @@
         border-radius: 20px;
     }
 
+    .booking-search {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .booking-search input {
+        flex: 1;
+        min-width: 240px;
+        padding: 11px 14px;
+        color: #fff;
+        background: #0b0e13;
+        border: 1px solid #394555;
+        border-radius: 7px;
+        font: inherit;
+    }
+
+    .booking-search button,
+    .booking-search a {
+        padding: 11px 16px;
+        border: 1px solid #65ff9a;
+        border-radius: 7px;
+        color: #0b0e13;
+        background: #65ff9a;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .booking-search a {
+        color: #65ff9a;
+        background: transparent;
+    }
+
     .table-card {
         overflow-x: auto;
         background: #141a23;
@@ -307,7 +343,27 @@
             <div class="title-line"></div>
         </div>
 
-        <div class="counter">Всього: {{ bookings|length }}</div>
+        <form class="booking-search" method="get" role="search">
+            <input
+                type="search"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Пошук за ім'ям, email або телефоном"
+                aria-label="Пошук за ім'ям, email або телефоном"
+            >
+            <button type="submit">Шукати</button>
+            {% if search_query %}
+                <a href="{% url 'admin_bookings' %}">Очистити</a>
+            {% endif %}
+        </form>
+
+        <div class="counter">
+            {% if search_query %}
+                Знайдено: {{ bookings|length }}
+            {% else %}
+                Всього: {{ bookings|length }}
+            {% endif %}
+        </div>
 
         <div class="table-card">
             <table>
@@ -333,6 +389,9 @@
                                 {{ b.customer_name }}
                                 {% if b.user %}
                                     <div class="muted">@{{ b.user.username }}</div>
+                                    {% if b.user.email %}
+                                        <div class="muted">{{ b.user.email }}</div>
+                                    {% endif %}
                                 {% else %}
                                     <div class="muted">гість</div>
                                 {% endif %}
@@ -390,6 +449,9 @@
                     <form class="edit-booking-form" method="post"
                           action="{% url 'edit_admin_booking' b.id %}">
                         {% csrf_token %}
+                        {% if search_query %}
+                            <input type="hidden" name="q" value="{{ search_query }}">
+                        {% endif %}
                         {% if edit_form.non_field_errors %}
                             <div class="edit-errors">
                                 {{ edit_form.non_field_errors }}
@@ -443,7 +505,13 @@
 
                     {% empty %}
                         <tr>
-                            <td colspan="10" class="empty">Бронювань поки немає.</td>
+                            <td colspan="10" class="empty">
+                                {% if search_query %}
+                                    За вашим запитом бронювань не знайдено.
+                                {% else %}
+                                    Бронювань поки немає.
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

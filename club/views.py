@@ -20,6 +20,7 @@ from django.db.models import (
     Exists,
     IntegerField,
     OuterRef,
+    Q,
     When,
 )
 from django.http import Http404, HttpResponseForbidden
@@ -83,27 +84,31 @@ def home(request):
 @login_required
 def account_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-
-    if request.method == 'POST' and 'update_phone' in request.POST:
-        phone_form = PhoneNumberForm(request.POST)
-        if phone_form.is_valid():
-            profile.phone = phone_form.cleaned_data['phone']
-            profile.save(update_fields=['phone'])
-            return redirect('account')
-    else:
-        _, country_code, local_number = split_phone_number(profile.phone)
-        phone_form = PhoneNumberForm(initial={
-            'phone_country': country_code,
-            'phone_local': local_number,
-        })
-
-    return render(request, 'club/account.html', {
-        'phone_form': phone_form,
+    _, country_code, local_number = split_phone_number(profile.phone)
+    email_form = EmailForm(initial={'email': request.user.email})
+    phone_form = PhoneNumberForm(initial={
+        'phone_country': country_code,
+        'phone_local': local_number,
     })
 
+    if request.method == 'POST':
+        if 'update_email' in request.POST:
+            email_form = EmailForm(request.POST)
+            if email_form.is_valid():
+                request.user.email = email_form.cleaned_data['email']
+                request.user.save(update_fields=['email'])
+                return redirect('account')
+        elif 'update_phone' in request.POST:
+            phone_form = PhoneNumberForm(request.POST)
+            if phone_form.is_valid():
+                profile.phone = phone_form.cleaned_data['phone']
+                profile.save(update_fields=['phone'])
+                return redirect('account')
 
-
-
+    return render(request, 'club/account.html', {
+        'email_form': email_form,
+        'phone_form': phone_form,
+    })
 @login_required
 def my_bookings(request):
     update_computer_statuses()
@@ -338,9 +343,10 @@ def booking(request):
         phone = profile.phone if profile else ''
 
     iso, phone_country, saved_local_number = split_phone_number(phone)
+    phone_required = not request.user.is_authenticated or not phone
     phone_local = (
         request.POST.get('phone_local', '').strip()
-        if request.method == 'POST' and not request.user.is_authenticated
+        if request.method == 'POST' and phone_required
         else saved_local_number
     )
     context = {
@@ -349,10 +355,8 @@ def booking(request):
         'phone_country': phone_country,
         'phone_iso': iso,
         'phone_local': phone_local,
-        'phone_required': not request.user.is_authenticated,
-        'missing_profile_phone': (
-            request.user.is_authenticated and not phone
-        ),
+        'phone_required': phone_required,
+        'missing_profile_phone': request.user.is_authenticated and not phone,
     }
 
     if request.method != 'POST':
@@ -370,13 +374,7 @@ def booking(request):
     time_value = request.POST.get('time', '').strip()
     payment_method = request.POST.get('payment_method', '').strip()
 
-    if request.user.is_authenticated:
-        if not phone:
-            errors.append(
-                'У профілі не вказаний номер телефону. '
-                'Додайте його в акаунті перед бронюванням.'
-            )
-    else:
+    if phone_required:
         phone_country = request.POST.get('phone_country', '').strip()
         phone_local = request.POST.get('phone_local', '').strip()
         try:
@@ -460,6 +458,11 @@ def booking(request):
                     payment_status='unpaid',
                     status='pending' if payment_method == 'card' else 'confirmed',
                 )
+                if request.user.is_authenticated and phone_required:
+                    UserProfile.objects.update_or_create(
+                        user=request.user,
+                        defaults={'phone': phone},
+                    )
 
     if booking_record:
         if payment_method == 'card':
@@ -749,6 +752,16 @@ class AdminBookingEditForm(forms.Form):
         return cleaned_data
 
 
+class EmailForm(forms.Form):
+    email = forms.EmailField(
+        label='Електронна пошта',
+        required=False,
+        widget=forms.EmailInput(attrs={
+            'autocomplete': 'email',
+        }),
+    )
+
+
 class PhoneNumberForm(forms.Form):
     phone_country = forms.ChoiceField(
         label='Код країни',
@@ -792,11 +805,14 @@ class CustomUserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username',)
+        fields = ('username', 'email')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].help_text = ''
+        self.fields['email'].label = 'Електронна пошта'
+        self.fields['email'].required = False
+        self.fields['email'].widget.attrs['autocomplete'] = 'email'
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1035,13 +1051,26 @@ def is_admin_or_staff(user):
     return user.is_authenticated and user.is_active and user.is_staff
 
 
+def admin_booking_queryset(search_query=''):
+    bookings = Booking.objects.select_related(
+        'computer', 'tariff', 'user'
+    ).order_by('-created_at')
+    if search_query:
+        bookings = bookings.filter(
+            Q(customer_name__icontains=search_query)
+            | Q(user__username__icontains=search_query)
+            | Q(user__first_name__icontains=search_query)
+            | Q(user__last_name__icontains=search_query)
+            | Q(user__email__icontains=search_query)
+            | Q(phone__icontains=search_query)
+        )
+    return bookings
+
+
 @user_passes_test(is_admin_or_staff)
 def admin_bookings(request):
-    bookings = list(
-        Booking.objects.select_related(
-            'computer', 'tariff', 'user'
-        ).order_by('-created_at')
-    )
+    search_query = request.GET.get('q', '').strip()
+    bookings = list(admin_booking_queryset(search_query))
     booking_rows = []
     for booking_record in bookings:
         form = AdminBookingEditForm(
@@ -1053,6 +1082,7 @@ def admin_bookings(request):
     return render(request, 'club/admin_bookings.html', {
         'bookings': bookings,
         'booking_rows': booking_rows,
+        'search_query': search_query,
     })
 
 
@@ -1160,11 +1190,8 @@ def edit_admin_booking(request, booking_id):
 
 
 def render_admin_bookings_with_error(request, booking_record, form):
-    bookings = list(
-        Booking.objects.select_related(
-            'computer', 'tariff', 'user'
-        ).order_by('-created_at')
-    )
+    search_query = request.POST.get('q', '').strip()
+    bookings = list(admin_booking_queryset(search_query))
     booking_rows = []
     for current_booking in bookings:
         if current_booking.pk == booking_record.pk:
@@ -1180,6 +1207,7 @@ def render_admin_bookings_with_error(request, booking_record, form):
         'bookings': bookings,
         'booking_rows': booking_rows,
         'editing_booking_id': booking_record.pk,
+        'search_query': search_query,
     })
 
 
@@ -1226,12 +1254,27 @@ def admin_users(request):
                 request,
                 f'Акаунт «{username}» видалено.',
             )
+        search_query = request.POST.get('q', '').strip()
+        if search_query:
+            return redirect(
+                f'{reverse("admin_users")}?{urlencode({"q": search_query})}'
+            )
         return redirect('admin_users')
 
+    search_query = request.GET.get('q', '').strip()
+    users = User.objects.select_related('profile').order_by('-date_joined')
+    if search_query:
+            users = users.filter(
+                Q(username__icontains=search_query)
+                | Q(first_name__icontains=search_query)
+                | Q(last_name__icontains=search_query)
+                | Q(email__icontains=search_query)
+                | Q(profile__phone__icontains=search_query)
+            )
+
     return render(request, 'club/admin_users.html', {
-        'users': User.objects.select_related(
-            'profile',
-        ).order_by('-date_joined'),
+            'users': users,
+            'search_query': search_query,
     })
 
 

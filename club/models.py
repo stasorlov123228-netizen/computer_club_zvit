@@ -100,12 +100,6 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     paid_at = models.DateTimeField(null=True, blank=True)
     is_paid = models.BooleanField(default=False)
-    liqpay_order_id = models.CharField(
-        max_length=255,
-        unique=True,
-        null=True,
-        blank=True
-    )
     status = models.CharField(max_length=40, default='pending')
 
     def __str__(self):
