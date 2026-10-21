@@ -1,0 +1,111 @@
+{% extends 'club/base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Редагування бронювання #{{ form.instance.pk }}{% else %}Створення бронювання{% endif %} - Lviv Arena
+{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card card-arena border-accent p-4">
+                <div class="border-bottom border-secondary pb-3 mb-4">
+                    <span class="text-white-50 small text-uppercase">Generic View ModelForm</span>
+                    <h2 class="arena-font text-accent mb-0">
+                        {% if form.instance.pk %}
+                            Редагування бронювання #{{ form.instance.pk }}
+                        {% else %}
+                            Створення бронювання
+                        {% endif %}
+                    </h2>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.customer_name.id_for_label }}" class="form-label text-white-50">
+                            {{ form.customer_name.label }}
+                        </label>
+                        {{ form.customer_name }}
+                        {% if form.customer_name.errors %}
+                            <div class="text-danger small mt-1">{{ form.customer_name.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label text-white-50">
+                            {{ form.phone.label }}
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors|join:", " }}</div>
+                        {% endif %}
+                        <div class="form-text text-muted">Формат: +380XXXXXXXXX або 0XXXXXXXXX</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.computer.id_for_label }}" class="form-label text-white-50">
+                                {{ form.computer.label }}
+                            </label>
+                            {{ form.computer }}
+                            {% if form.computer.errors %}
+                                <div class="text-danger small mt-1">{{ form.computer.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.tariff.id_for_label }}" class="form-label text-white-50">
+                                {{ form.tariff.label }}
+                            </label>
+                            {{ form.tariff }}
+                            {% if form.tariff.errors %}
+                                <div class="text-danger small mt-1">{{ form.tariff.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.start_time.id_for_label }}" class="form-label text-white-50">
+                                {{ form.start_time.label }}
+                            </label>
+                            {{ form.start_time }}
+                            {% if form.start_time.errors %}
+                                <div class="text-danger small mt-1">{{ form.start_time.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.end_time.id_for_label }}" class="form-label text-white-50">
+                                {{ form.end_time.label }}
+                            </label>
+                            {{ form.end_time }}
+                            {% if form.end_time.errors %}
+                                <div class="text-danger small mt-1">{{ form.end_time.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
+                        <a href="{% url 'booking_list' %}" class="btn btn-outline-secondary">
+                            Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-arena px-4 py-2">
+                            {% if form.instance.pk %}Зберегти зміни{% else %}Підтвердити бронювання{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

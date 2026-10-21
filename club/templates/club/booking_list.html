@@ -1,0 +1,134 @@
+{% extends 'club/base.html' %}
+{% load club_tags %}
+
+{% block title %}Журнал бронювань - Lviv Arena{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="arena-font text-accent mb-1">Журнал бронювань</h2>
+            <p class="text-white-50 mb-0">Generic Class-Based Views (CRUD) з пагінацією та фільтрацією</p>
+        </div>
+        <a href="{% url 'booking_create' %}" class="btn btn-arena px-4 py-2">
+            + Створити нове бронювання
+        </a>
+    </div>
+
+    <!-- Фільтр (forms.Form, не пов'язана з моделлю) -->
+    {% if filter_form %}
+    <div class="card card-arena mb-4 p-3 border-accent">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label text-white-50 small">{{ filter_form.search.label }}</label>
+                {{ filter_form.search }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-white-50 small">{{ filter_form.status.label }}</label>
+                {{ filter_form.status }}
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-success w-100">Фільтрувати</button>
+                <a href="{% url 'booking_list' %}" class="btn btn-outline-secondary">Скинути</a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="card card-arena p-0 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead class="table-dark text-uppercase small text-white-50" style="border-bottom: 2px solid var(--arena-border);">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Клієнт</th>
+                        <th>ПК</th>
+                        <th>Тариф</th>
+                        <th>Початок</th>
+                        <th>Завершення</th>
+                        <th>Статус</th>
+                        <th class="text-end pe-4">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-accent">#{{ booking.id }}</td>
+                        <td>
+                            <div>{{ booking.customer_name }}</div>
+                            <small class="text-white-50">{{ booking.phone }}</small>
+                        </td>
+                        <td>
+                            <a href="{{ booking.computer.get_absolute_url }}" class="text-info text-decoration-none fw-semibold">
+                                {{ booking.computer.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ booking.tariff.get_absolute_url }}" class="text-warning text-decoration-none">
+                                {{ booking.tariff.name }}
+                            </a>
+                        </td>
+                        <td class="small">{{ booking.start_time|date:"d.m.Y H:i" }}</td>
+                        <td class="small">{{ booking.end_time|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            {% booking_status_badge booking.status %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ booking.get_absolute_url }}" class="btn btn-outline-light" title="Переглянути">Деталі</a>
+                                {% if user.is_staff or booking.user == user %}
+                                    <a href="{% url 'booking_update' booking.pk %}" class="btn btn-outline-warning" title="Редагувати">Редагувати</a>
+                                    <a href="{% url 'booking_delete' booking.pk %}" class="btn btn-outline-danger" title="Видалити">Видалити</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-white-50">
+                            Немає бронювань для відображення.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Пагінація (paginate_by = 5) -->
+    {% if is_paginated %}
+    <nav aria-label="Пагінація бронювань" class="d-flex justify-content-center">
+        <ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link bg-dark text-white border-secondary" href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">&laquo; Перша</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Попередня</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link bg-dark text-white-50 border-secondary">&laquo; Перша</span></li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link bg-success text-dark border-success fw-bold">
+                    Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Наступна</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Остання &raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link bg-dark text-white-50 border-secondary">Остання &raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+

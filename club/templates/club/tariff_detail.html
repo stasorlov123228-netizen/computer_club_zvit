@@ -1,0 +1,32 @@
+{% extends 'club/base.html' %}
+{% load club_tags %}
+
+{% block title %}Тариф {{ tariff.name }} - Lviv Arena{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card card-arena border-accent p-4 text-center">
+                <span class="text-white-50 small text-uppercase">Generic DetailView</span>
+                <h2 class="arena-font text-accent my-2">{{ tariff.name }}</h2>
+                <div class="display-5 fw-bold my-3 text-white">
+                    {% format_currency tariff.price_per_hour %} <small class="fs-6 text-white-50">/ год</small>
+                </div>
+                <p class="text-white-50">
+                    Тариф доступний для бронювання на будь-який вільний комп'ютер клубу.
+                </p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="{% url 'tariff_list' %}" class="btn btn-outline-light">
+                        &larr; До всіх тарифів
+                    </a>
+                    <a href="{% url 'booking_create' %}?tariff={{ tariff.pk }}" class="btn btn-arena">
+                        Обрати цей тариф
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

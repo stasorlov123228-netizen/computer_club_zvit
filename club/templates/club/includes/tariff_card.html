@@ -1,0 +1,7 @@
+{% load club_tags %}
+<div class="tariff-component-card p-3 rounded border text-center" style="background: #141a23; border-color: rgba(101, 255, 154, 0.3) !important;">
+    <h4 class="text-uppercase mb-2" style="color: #65ff9a; font-family: 'Orbitron', sans-serif;">{{ tariff.name }}</h4>
+    <div class="display-6 fw-bold mb-3" style="color: #ffffff;">{% format_currency tariff.price_per_hour %}</div>
+    <a href="{{ tariff.get_absolute_url }}" class="btn btn-outline-success btn-sm w-100">Деталі тарифу</a>
+</div>
+

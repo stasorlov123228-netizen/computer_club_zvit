@@ -10,6 +10,7 @@ from django.urls import reverse
 from .models import Booking, Computer, Payment, Tariff, UserProfile
 from .phone_numbers import validate_phone_number
 from .views import CustomUserCreationForm
+from .admin import BookingAdminForm
 
 
 class AdminHomeLinkTests(TestCase):
@@ -447,6 +448,78 @@ class AdminPaymentTests(TestCase):
         self.assertEqual(payment.status, 'paid')
 
 
+class DjangoAdminBookingValidationTests(TestCase):
+    def setUp(self):
+        self.tariff = Tariff.objects.create(
+            name='DEFAULT',
+            price_per_hour=50,
+        )
+        self.computer = Computer.objects.create(
+            name='PC-01-defolt',
+            status='available',
+        )
+        self.start = timezone.localtime(
+            timezone.now() + timedelta(days=2)
+        ).replace(second=0, microsecond=0)
+        self.booking = Booking.objects.create(
+            customer_name='Existing Client',
+            phone='+380671234567',
+            computer=self.computer,
+            tariff=self.tariff,
+            start_time=self.start,
+            end_time=self.start + timedelta(hours=2),
+        )
+
+    def make_form(self, start, end):
+        return BookingAdminForm(data={
+            'customer_name': 'Admin Client',
+            'phone': '+380671234568',
+            'computer': self.computer.pk,
+            'tariff': self.tariff.pk,
+            'start_time': start.strftime('%Y-%m-%d %H:%M:%S'),
+            'end_time': end.strftime('%Y-%m-%d %H:%M:%S'),
+            'payment_method': 'cash',
+            'payment_status': 'unpaid',
+            'status': 'confirmed',
+        })
+
+    def test_standard_admin_rejects_overlapping_computer_booking(self):
+        form = self.make_form(
+            self.start + timedelta(hours=1),
+            self.start + timedelta(hours=3),
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('computer', form.errors)
+        self.assertEqual(Booking.objects.count(), 1)
+
+    def test_standard_admin_allows_adjacent_time_slot(self):
+        form = self.make_form(
+            self.booking.end_time,
+            self.booking.end_time + timedelta(hours=1),
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_standard_admin_rejects_unavailable_computer(self):
+        for status, manual_occupied in (
+            ('maintenance', False),
+            ('occupied', True),
+        ):
+            with self.subTest(status=status):
+                Computer.objects.filter(pk=self.computer.pk).update(
+                    status=status,
+                    manual_occupied=manual_occupied,
+                )
+                form = self.make_form(
+                    self.booking.end_time + timedelta(hours=1),
+                    self.booking.end_time + timedelta(hours=2),
+                )
+
+                self.assertFalse(form.is_valid())
+                self.assertIn('computer', form.errors)
+
+
 class SectionPageHeaderTests(TestCase):
     def test_section_page_uses_home_navigation_for_visitors(self):
         response = self.client.get(reverse('news'))
@@ -647,6 +720,8 @@ class AdminBookingEditingTests(TestCase):
 
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, 'Редагувати бронювання')
+        self.assertContains(page, 'Статус бронювання')
+        self.assertContains(page, 'Підтверджено')
 
         response = self.post_edit(duration='3')
 
@@ -665,6 +740,17 @@ class AdminBookingEditingTests(TestCase):
         self.assertEqual(self.booking.payment_method, 'cash')
         self.assertEqual(self.booking.payment_status, 'unpaid')
         self.assertEqual(self.booking.status, 'confirmed')
+
+    def test_admin_cancelling_booking_shows_cancelled_status_in_admin_panel(self):
+        response = self.post_edit(status='cancelled')
+
+        self.assertRedirects(response, reverse('admin_bookings'))
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.status, 'cancelled')
+
+        page = self.client.get(reverse('admin_bookings'))
+        self.assertContains(page, 'Статус бронювання')
+        self.assertContains(page, '<span class="badge cancelled">Скасовано</span>', html=True)
 
     def test_admin_computer_list_is_numbered_and_hides_unavailable_pcs(self):
         computers = {
@@ -1029,6 +1115,29 @@ class BookingPhoneTests(TestCase):
             user.username,
         )
 
+    def test_booking_uses_standart_tariff_for_default_selection(self):
+        Tariff.objects.create(name='STANDART', price_per_hour=70)
+        Computer.objects.create(
+            name='Computer defolt',
+            status='available',
+        )
+        start = timezone.localtime(timezone.now()) + timedelta(days=2)
+
+        response = self.client.post(reverse('booking'), {
+            'name': 'Guest',
+            'phone_country': '+380',
+            'phone_local': '671234567',
+            'tariff': 'default',
+            'duration': '1',
+            'date': start.strftime('%Y-%m-%d'),
+            'time': start.strftime('%H:%M'),
+            'payment_method': 'cash',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['booking'].tariff.name, 'STANDART')
+        self.assertEqual(response.context['booking'].tariff.price_per_hour, 70)
+
     def test_signed_in_user_can_update_phone_in_account(self):
         user = User.objects.create_user(
             username='legacy-user',
@@ -1276,6 +1385,18 @@ class BookingEditingTests(TestCase):
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.status, 'cancelled')
         self.assertContains(self.client.get(reverse('my_bookings')), 'Скасовано')
+        admin = User.objects.create_user(
+            username='booking-admin',
+            password='StrongPassw0rd!xyz',
+            is_staff=True,
+        )
+        self.client.force_login(admin)
+        admin_bookings = self.client.get(reverse('admin_bookings'))
+        self.assertContains(
+            admin_bookings,
+            '<span class="badge cancelled">Скасовано</span>',
+            html=True,
+        )
 
     def test_owner_can_cancel_cash_booking_marked_as_paid_before_start(self):
         self.booking.payment_status = 'paid'
@@ -1466,10 +1587,67 @@ class BookingCardPaymentTests(TestCase):
                 'demo-card-cvc': '123',
             },
         )
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(
+            response,
+            'Не вдалося підтвердити оплату.',
+            status_code=400,
+        )
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.payment_status, 'unpaid')
         self.assertEqual(self.booking.status, 'pending')
+
+    def test_editing_existing_booking_to_card_can_complete_payment(self):
+        edit_response = self.client.post(
+            reverse('edit_my_booking', args=[self.booking.pk]),
+            {
+                'start_time': self.start.strftime('%Y-%m-%dT%H:%M'),
+                'duration': '2',
+                'payment_method': 'card',
+                'tariff': self.booking.tariff_id,
+            },
+        )
+        self.assertRedirects(
+            edit_response,
+            reverse('payment_result', args=[self.booking.pk]),
+        )
+
+        payment_page = self.client.get(edit_response.url)
+        self.assertEqual(payment_page.status_code, 200)
+        self.assertContains(payment_page, 'Демо-оплата карткою')
+
+        response = self.client.post(
+            reverse('payment_result', args=[self.booking.pk]),
+            {'demo_confirm': '1'},
+        )
+
+        self.assertRedirects(
+            response,
+            f'{reverse("payment_result", args=[self.booking.pk])}'
+            '?demo_success=1',
+        )
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.payment_status, 'paid')
+        self.assertEqual(self.booking.status, 'confirmed')
+
+    def test_payment_cannot_be_confirmed_after_booking_start(self):
+        self.mark_card_booking()
+        self.booking.start_time = timezone.now() - timedelta(minutes=1)
+        self.booking.save(update_fields=['start_time'])
+
+        response = self.client.post(
+            reverse('payment_result', args=[self.booking.pk]),
+            {'demo_confirm': '1'},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(
+            response,
+            'час його початку вже минув',
+            status_code=400,
+        )
+        self.booking.refresh_from_db()
+        self.assertEqual(self.booking.payment_status, 'unpaid')
 
     def test_demo_success_confirms_booking_and_marks_payment_paid(self):
         self.mark_card_booking()
@@ -1669,7 +1847,12 @@ class BookingCardPaymentTests(TestCase):
             'cvv': 'test-value',
         })
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(
+            response,
+            'Не вдалося підтвердити оплату.',
+            status_code=400,
+        )
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.payment_status, 'unpaid')
         self.assertEqual(self.booking.status, 'pending')

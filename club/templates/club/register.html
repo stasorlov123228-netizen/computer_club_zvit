@@ -1,121 +1,112 @@
-
+{% extends 'club/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація - Lviv Arena</title>
 
-    <style>
-        * { box-sizing: border-box; }
+{% block title %}Реєстрація - Lviv Arena{% endblock %}
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #0b0e13;
-            color: white;
-        }
+{% block extra_head %}
+<style>
+    .register-card {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 35px;
+        background: #141a23;
+        border: 1px solid #293341;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
 
-        .container {
-            width: 100%;
-            max-width: 450px;
-            padding: 35px;
-            background: #141a23;
-            border: 1px solid #293341;
-            border-radius: 14px;
-        }
+    .register-title {
+        text-align: center;
+        color: #65ff9a;
+        font-family: 'Orbitron', sans-serif;
+        margin-bottom: 8px;
+    }
 
-        h1 {
-            text-align: center;
-            color: #65ff9a;
-        }
+    .register-subtitle {
+        color: #aeb8c7;
+        text-align: center;
+        margin-bottom: 24px;
+        font-size: 14px;
+    }
 
-        p { color: #aeb8c7; }
+    .register-card label {
+        display: block;
+        margin: 14px 0 6px;
+        color: #e6ebf2;
+        font-size: 14px;
+    }
 
-        label {
-            display: block;
-            margin: 15px 0 8px;
-        }
+    .register-card input, .register-card select {
+        width: 100%;
+        padding: 12px;
+        color: white;
+        background: #0b0e13;
+        border: 1px solid #394658;
+        border-radius: 7px;
+    }
 
-        input, select {
-            width: 100%;
-            padding: 12px;
-            color: white;
-            background: #0b0e13;
-            border: 1px solid #394658;
-            border-radius: 7px;
-        }
+    .register-card input:focus, .register-card select:focus {
+        border-color: #65ff9a;
+        outline: none;
+    }
 
-        select { cursor: pointer; }
+    .register-card select {
+        cursor: pointer;
+    }
 
-        button {
-            width: 100%;
-            margin-top: 25px;
-            padding: 14px;
-            border: none;
-            border-radius: 7px;
-            background: #65ff9a;
-            color: #0b0e13;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    .btn-register-submit {
+        width: 100%;
+        margin-top: 25px;
+        padding: 14px;
+        border: none;
+        border-radius: 7px;
+        background: #65ff9a;
+        color: #0b0e13;
+        font-weight: bold;
+        font-family: 'Orbitron', sans-serif;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
 
-        .link {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
-            color: #65ff9a;
-            text-decoration: none;
-        }
+    .btn-register-submit:hover {
+        background: #4fe583;
+    }
 
-        .helptext {
-            display: block;
-            margin-top: 6px;
-            font-size: 12px;
-        }
+    .register-link {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+        color: #65ff9a;
+        text-decoration: none;
+        font-size: 14px;
+    }
 
-        .errorlist { color: #ff7777; }
+    .register-link:hover {
+        text-decoration: underline;
+    }
 
+    .helptext {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: #778395;
+    }
 
-        
-        .back-home {
-            position: absolute;
-            top: 25px;
-            left: 25px;
-            color: #65ff9a;
-            text-decoration: none;
-            font-size: 15px;
-        }
+    .errorlist {
+        color: #ff7777;
+        padding-left: 20px;
+        margin-top: 6px;
+        font-size: 13px;
+    }
+</style>
+{% endblock %}
 
-        .back-home:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 500px) {
-            .back-home {
-                top: 15px;
-                left: 15px;
-            }
-        }
-
-
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
-</head>
-
-<body>
-    <div class="container">
-        <h1>Створення акаунта</h1>
-        <p>Зареєструйтеся в комп'ютерному клубі Lviv Arena.</p>
+{% block content %}
+<div class="container py-4">
+    <div class="register-card">
+        <h1 class="register-title">Створення акаунта</h1>
+        <p class="register-subtitle">Зареєструйтеся в комп'ютерному клубі Lviv Arena.</p>
 
         <form method="POST">
             {% csrf_token %}
@@ -147,60 +138,16 @@
             </p>
             {{ form.non_field_errors }}
 
-            <button type="submit">ЗАРЕЄСТРУВАТИСЯ</button>
+            <button type="submit" class="btn-register-submit">ЗАРЕЄСТРУВАТИСЯ</button>
         </form>
 
-        <a class="link" href="{% url 'login' %}">
+        <a class="register-link" href="{% url 'login' %}">
             Уже маєте акаунт? Увійти
         </a>
 
-        
-        <a class="back-home" href="/"> На головну</a>
-
+        <div class="text-center mt-3">
+            <a class="text-white-50 small text-decoration-none" href="{% url 'home' %}">&larr; На головну</a>
+        </div>
     </div>
-
-    {{ phone_countries|json_script:"phone-countries-data" }}
-    <script>
-        const phoneCountries = JSON.parse(
-            document.querySelector('#phone-countries-data').textContent
-        );
-        const countrySelect = document.querySelector('#id_phone_country');
-        const phoneInput = document.querySelector('#id_phone_local');
-        const selectedCountry = function () {
-            return phoneCountries.find(function (country) {
-                return country[2] === countrySelect.value;
-            });
-        };
-
-        const updatePhoneLength = function () {
-            const country = selectedCountry();
-            phoneInput.maxLength = country[4];
-            phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, country[4]);
-            phoneInput.setCustomValidity('');
-        };
-
-        countrySelect.addEventListener('change', updatePhoneLength);
-        phoneInput.addEventListener('input', function () {
-            phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(
-                0,
-                selectedCountry()[4]
-            );
-            phoneInput.setCustomValidity('');
-        });
-        document.querySelector('form').addEventListener('submit', function (event) {
-            const country = selectedCountry();
-            const length = phoneInput.value.length;
-            if (length < country[3] || length > country[4]) {
-                phoneInput.setCustomValidity(
-                    'Для ' + country[2] + ' введіть від ' + country[3] +
-                    ' до ' + country[4] + ' цифр.'
-                );
-                event.preventDefault();
-                phoneInput.reportValidity();
-            }
-        });
-        updatePhoneLength();
-    </script>
-
-</body>
-</html>
+</div>
+{% endblock %}

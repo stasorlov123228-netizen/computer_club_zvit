@@ -1,0 +1,14 @@
+<div class="computer-component-card p-3 rounded border text-center" style="background: #141a23; border-color: rgba(101, 255, 154, 0.3) !important;">
+    <h5 class="text-uppercase mb-2" style="color: #65ff9a; font-family: 'Orbitron', sans-serif;">{{ computer.name }}</h5>
+    <div class="mb-3">
+        {% if computer.status == 'available' %}
+            <span class="badge bg-success text-white">Вільний</span>
+        {% elif computer.status == 'occupied' %}
+            <span class="badge bg-warning text-dark">Зайнятий</span>
+        {% else %}
+            <span class="badge bg-danger text-white">Обслуговування</span>
+        {% endif %}
+    </div>
+    <a href="{{ computer.get_absolute_url }}" class="btn btn-outline-info btn-sm w-100">Переглянути ПК</a>
+</div>
+

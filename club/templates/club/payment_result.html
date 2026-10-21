@@ -167,6 +167,10 @@
             · {{ booking.start_time|date:"d.m.Y H:i" }}
         </p>
 
+        {% if payment_error %}
+            <p class="field-error" role="alert">{{ payment_error }}</p>
+        {% endif %}
+
         {% if booking.status == 'cancelled' %}
             <p>Це бронювання скасовано.</p>
         {% elif payment_pending %}

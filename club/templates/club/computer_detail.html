@@ -1,0 +1,37 @@
+{% extends 'club/base.html' %}
+
+{% block title %}{{ computer.name }} - Lviv Arena{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card card-arena border-accent p-4 text-center">
+                <span class="text-white-50 small text-uppercase">Generic DetailView</span>
+                <h2 class="arena-font text-accent my-2">{{ computer.name }}</h2>
+                <div class="my-3">
+                    {% if computer.status == 'available' %}
+                        <span class="badge bg-success fs-6">Вільний</span>
+                    {% elif computer.status == 'occupied' %}
+                        <span class="badge bg-warning text-dark fs-6">Зайнятий</span>
+                    {% else %}
+                        <span class="badge bg-danger fs-6">На обслуговуванні</span>
+                    {% endif %}
+                </div>
+                <p class="text-white-50">
+                    Статус ручного блокування: <strong>{% if computer.manual_occupied %}Заблоковано{% else %}Доступно{% endif %}</strong>
+                </p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="{% url 'computer_list' %}" class="btn btn-outline-light">
+                        &larr; До списку ПК
+                    </a>
+                    <a href="{% url 'booking_create' %}?computer={{ computer.pk }}" class="btn btn-arena">
+                        Забронювати цей ПК
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

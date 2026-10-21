@@ -1,6 +1,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 
 class Computer(models.Model):
@@ -90,6 +91,44 @@ class Booking(models.Model):
         choices=STATUS_CHOICES,
         default='confirmed'
     )
+
+    def clean(self):
+        super().clean()
+
+        if (
+            self.start_time
+            and self.end_time
+            and self.end_time <= self.start_time
+        ):
+            raise ValidationError({
+                'end_time': 'Час завершення має бути пізніше за час початку.'
+            })
+
+        if (
+            self.status == 'cancelled'
+            or not self.computer_id
+            or not self.start_time
+            or not self.end_time
+        ):
+            return
+
+        computer = self.computer
+        if computer.status == 'maintenance' or computer.manual_occupied:
+            raise ValidationError({
+                'computer': 'Цей ПК зараз недоступний.'
+            })
+
+        conflicts = Booking.objects.filter(
+            computer_id=self.computer_id,
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time,
+        ).exclude(status='cancelled')
+        if self.pk:
+            conflicts = conflicts.exclude(pk=self.pk)
+        if conflicts.exists():
+            raise ValidationError({
+                'computer': 'ПК уже заброньований на обраний час.'
+            })
 
     def __str__(self):
         return f'{self.customer_name} - {self.computer.name}'

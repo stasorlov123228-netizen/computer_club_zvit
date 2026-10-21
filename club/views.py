@@ -279,6 +279,8 @@ def edit_my_booking(request, booking_id):
             else:
                 tariff_codes = {
                     'DEFAULT': 'default',
+                    'STANDART': 'default',
+                    'STANDARD': 'default',
                     'PRO': 'pro',
                     'VIP': 'vip',
                     'STREAM': 'stream',
@@ -386,10 +388,10 @@ def booking(request):
         errors.append("Введіть ім’я.")
 
     tariff_names = {
-        'default': 'DEFAULT',
-        'pro': 'PRO',
-        'vip': 'VIP',
-        'stream': 'STREAM',
+        'default': ('DEFAULT', 'STANDART', 'STANDARD'),
+        'pro': ('PRO',),
+        'vip': ('VIP',),
+        'stream': ('STREAM',),
     }
     if tariff_code not in tariff_names:
         errors.append('Оберіть правильний тариф.')
@@ -423,9 +425,12 @@ def booking(request):
     computer = None
     booking_record = None
     if not errors:
-        tariff = Tariff.objects.filter(
-            name__iexact=tariff_names[tariff_code]
-        ).first()
+        for tariff_name in tariff_names[tariff_code]:
+            tariff = Tariff.objects.filter(
+                name__iexact=tariff_name
+            ).first()
+            if tariff:
+                break
         if not tariff:
             errors.append('Цей тариф ще не доданий в адмінпанелі.')
 
@@ -998,12 +1003,26 @@ def payment_result(request, booking_id):
 
     if request.method == 'POST':
         if request.POST.get('demo_confirm') != '1':
-            raise Http404
+            return render(request, 'club/payment_result.html', {
+                'booking': booking_record,
+                'payment_pending': True,
+                'payment_error': (
+                    'Не вдалося підтвердити оплату. '
+                    'Перевірте дані та спробуйте ще раз.'
+                ),
+            }, status=400)
         if (
             booking_record.status == 'cancelled'
             or booking_record.start_time <= timezone.now()
         ):
-            raise Http404
+            return render(request, 'club/payment_result.html', {
+                'booking': booking_record,
+                'payment_pending': False,
+                'payment_error': (
+                    'Оплату неможливо підтвердити: бронювання скасоване '
+                    'або час його початку вже минув.'
+                ),
+            }, status=400)
         booking_record.status = 'confirmed'
         booking_record.payment_status = 'paid'
         booking_record.save(update_fields=['status', 'payment_status'])
@@ -1226,6 +1245,8 @@ def admin_booking_initial(booking_record):
 def get_tariff_kind(name):
     return {
         'default': 'default',
+        'standart': 'default',
+        'standard': 'default',
         'pro': 'pro',
         'vip': 'vip',
         'stream': 'stream',

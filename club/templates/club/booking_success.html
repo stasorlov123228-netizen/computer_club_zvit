@@ -1,137 +1,106 @@
-    {% load static %}
-    <!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if demo_payment %}Демо-перевірка завершена{% else %}Бронювання успішне{% endif %} - Lviv Arena</title>
+{% extends 'club/base.html' %}
+{% load static %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block title %}{% if demo_payment %}Демо-перевірка завершена{% else %}Бронювання успішне{% endif %} - Lviv Arena{% endblock %}
 
-        body {
-            margin: 0;
-            padding: 25px 15px;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0b0e13;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
+{% block extra_head %}
+<style>
+    .success-card {
+        padding: 30px 25px;
+        background: #141a23;
+        border: 1px solid #293341;
+        border-radius: 14px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 30px 25px;
-            background: #141a23;
-            border: 1px solid #293341;
-            border-radius: 14px;
-        }
+    .success-icon {
+        width: 65px;
+        height: 65px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #173b28;
+        color: #65ff9a;
+        font-size: 35px;
+    }
 
-        .success-icon {
-            width: 65px;
-            height: 65px;
-            margin: 0 auto 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: #173b28;
-            color: #65ff9a;
-            font-size: 35px;
-        }
+    .success-title {
+        margin: 0 0 10px;
+        color: #65ff9a;
+        text-align: center;
+        font-size: 25px;
+        font-family: 'Orbitron', sans-serif;
+    }
 
-        h1 {
-            margin: 0 0 10px;
-            color: #65ff9a;
-            text-align: center;
-            font-size: 25px;
-        }
+    .subtitle {
+        margin-bottom: 25px;
+        color: #aeb8c7;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.5;
+    }
 
-        .subtitle {
-            margin-bottom: 25px;
-            color: #aeb8c7;
-            text-align: center;
-            font-size: 14px;
-            line-height: 1.5;
-        }
+    .details {
+        padding: 16px;
+        background: #0b0e13;
+        border: 1px solid #293341;
+        border-radius: 9px;
+    }
 
-        .details {
-            padding: 16px;
-            background: #0b0e13;
-            border: 1px solid #293341;
-            border-radius: 9px;
-        }
+    .detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 11px 0;
+        border-bottom: 1px solid #293341;
+        font-size: 14px;
+    }
 
-        .detail {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 11px 0;
-            border-bottom: 1px solid #293341;
-            font-size: 14px;
-        }
+    .detail:last-child {
+        border-bottom: none;
+    }
 
-        .detail:last-child {
-            border-bottom: none;
-        }
+    .label {
+        color: #aeb8c7;
+    }
 
-        .label {
-            color: #aeb8c7;
-        }
+    .value {
+        text-align: right;
+        font-weight: bold;
+        overflow-wrap: anywhere;
+    }
 
-        .value {
-            text-align: right;
-            font-weight: bold;
-            overflow-wrap: anywhere;
-        }
+    .button {
+        display: block;
+        margin-top: 20px;
+        padding: 13px;
+        border-radius: 7px;
+        background: #65ff9a;
+        color: #0b0e13;
+        text-align: center;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+    }
 
-        .button {
-            display: block;
-            margin-top: 20px;
-            padding: 13px;
-            border-radius: 7px;
-            background: #65ff9a;
-            color: #0b0e13;
-            text-align: center;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
+    .button:hover {
+        background: #42df7c;
+        color: #080b09;
+    }
+</style>
+{% endblock %}
 
-        .button:hover {
-            background: #42df7c;
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                padding: 24px 16px;
-            }
-
-            .detail {
-                font-size: 12px;
-            }
-        }
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'club/css/pages.css' %}">
-</head>
-
-<body>
-    <div class="container">
-
+{% block content %}
+<div class="container py-3" style="max-width: 550px;">
+    <div class="success-card">
         <div class="success-icon">✓</div>
 
         {% if demo_payment %}
-            <h1>Демо-перевірку пройдено</h1>
+            <h1 class="success-title">Демо-перевірку пройдено</h1>
         {% else %}
-            <h1>Бронювання успішне!</h1>
+            <h1 class="success-title">Бронювання успішне!</h1>
         {% endif %}
 
         <div class="subtitle">
@@ -147,7 +116,6 @@
 
         {% if booking %}
             <div class="details">
-
                 <div class="detail">
                     <span class="label">Номер бронювання</span>
                     <span class="value">#{{ booking.id }}</span>
@@ -193,12 +161,10 @@
                         <span class="value">{{ booking.get_payment_status_display }}</span>
                     </div>
                 {% endif %}
-
             </div>
         {% endif %}
 
-        <a class="button" href="/">ПОВЕРНУТИСЯ НА ГОЛОВНУ</a>
-
+        <a class="button" href="{% url 'home' %}">ПОВЕРНУТИСЯ НА ГОЛОВНУ</a>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

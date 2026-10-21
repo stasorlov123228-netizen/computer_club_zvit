@@ -143,51 +143,73 @@
     }
 
     .table-card {
-        overflow-x: auto;
-        background: #141a23;
-        border: 1px solid rgba(101, 255, 154, 0.4);
-        border-radius: 14px;
-        box-shadow: 0 0 25px rgba(101, 255, 154, 0.08);
-    }
-
-    table {
-        width: 100%;
-        min-width: 900px;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
-
-    th {
-        padding: 16px 14px;
-        text-align: left;
-        color: #778395;
-        font-size: 11px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        background: rgba(8, 11, 9, 0.6);
-        border-bottom: 1px solid #293341;
-        white-space: nowrap;
-    }
-
-    td {
-        padding: 15px 14px;
-        color: #e6ebf2;
-        border-bottom: 1px solid #252d3a;
-        vertical-align: middle;
-    }
-
-    tr:last-child td {
-        border-bottom: none;
-    }
-
-    tbody tr:hover {
-        background: rgba(101, 255, 154, 0.04);
+        display: grid;
+        gap: 14px;
+        min-width: 0;
     }
 
     .id-cell {
         color: #65ff9a;
         font-family: 'Orbitron', sans-serif;
         font-weight: 700;
+    }
+
+    .booking-card {
+        min-width: 0;
+        padding: 18px;
+        color: #e6ebf2;
+        background: #141a23;
+        border: 1px solid rgba(101, 255, 154, 0.35);
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(101, 255, 154, 0.06);
+    }
+
+    .booking-card-header {
+        display: grid;
+        gap: 14px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #293341;
+    }
+
+    .booking-client {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .booking-client-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .booking-client .muted {
+        margin-top: 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .booking-details {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        padding-top: 16px;
+    }
+
+    .booking-detail {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .booking-detail-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #778395;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
     }
 
     .muted {
@@ -216,6 +238,24 @@
         border: 1px solid rgba(255, 200, 87, 0.35);
     }
 
+    .badge.pending {
+        color: #ffc857;
+        background: rgba(255, 200, 87, 0.08);
+        border: 1px solid rgba(255, 200, 87, 0.35);
+    }
+
+    .badge.confirmed {
+        color: #65ff9a;
+        background: rgba(101, 255, 154, 0.08);
+        border: 1px solid rgba(101, 255, 154, 0.35);
+    }
+
+    .badge.cancelled {
+        color: #ff8585;
+        background: rgba(255, 92, 108, 0.08);
+        border: 1px solid rgba(255, 92, 108, 0.4);
+    }
+
     .badge.method {
         color: #aeb8c7;
         background: transparent;
@@ -226,19 +266,28 @@
         padding: 50px 20px;
         text-align: center;
         color: #778395;
+        background: #141a23;
+        border: 1px solid rgba(101, 255, 154, 0.35);
+        border-radius: 12px;
     }
 
     .booking-actions {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 260px));
+        justify-content: start;
         gap: 8px;
+        min-width: 0;
     }
 
     .booking-actions form {
+        width: 100%;
+        min-width: 0;
         margin: 0;
     }
 
     .action-btn {
+        width: 100%;
+        min-height: 40px;
         padding: 8px 10px;
         color: #e6ebf2;
         background: transparent;
@@ -247,6 +296,8 @@
         font-size: 12px;
         font-weight: bold;
         cursor: pointer;
+        white-space: normal;
+        overflow-wrap: anywhere;
         transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
@@ -278,10 +329,9 @@
     }
 
     .edit-booking {
-        min-width: 230px;
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid #293341;
+        grid-column: 1 / -1;
+        min-width: 0;
+        margin: 0;
     }
 
     .edit-booking summary {
@@ -289,12 +339,19 @@
         font-size: 12px;
         font-weight: bold;
         cursor: pointer;
+        overflow-wrap: anywhere;
     }
 
     .edit-booking-form {
         display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 9px;
         margin-top: 10px;
+    }
+
+    .edit-booking-form > div,
+    .edit-booking-form > button {
+        min-width: 0;
     }
 
     .edit-booking-form label {
@@ -307,7 +364,7 @@
     .edit-booking-form input,
     .edit-booking-form select {
         width: 100%;
-        min-width: 190px;
+        min-width: 0;
         padding: 8px;
         color: #fff;
         background: #0b0e13;
@@ -324,6 +381,7 @@
     }
 
     .save-edit-btn {
+        grid-column: 1 / -1;
         color: #65ff9a;
         background: rgba(101, 255, 154, 0.08);
         border: 1px solid rgba(101, 255, 154, 0.4);
@@ -331,6 +389,40 @@
 
     .save-edit-btn:hover {
         background: rgba(101, 255, 154, 0.18);
+    }
+
+    @media (max-width: 700px) {
+        .admin-page {
+            width: 92%;
+            margin-top: 30px;
+        }
+
+        .booking-details {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 420px) {
+        .booking-card {
+            padding: 14px;
+        }
+
+        .booking-details,
+        .edit-booking-form {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .booking-actions {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .edit-booking {
+            grid-column: auto;
+        }
+
+        .save-edit-btn {
+            grid-column: auto;
+        }
     }
 </style>{% endblock %}
 
@@ -366,27 +458,13 @@
         </div>
 
         <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>№</th>
-                        <th>Клієнт</th>
-                        <th>Телефон</th>
-                        <th>ПК</th>
-                        <th>Тариф</th>
-                        <th>Початок</th>
-                        <th>Завершення</th>
-                        <th>Оплата</th>
-                        <th>Статус</th>
-                        <th>Дії</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for b, edit_form in booking_rows %}
-                        <tr>
-                            <td class="id-cell">{{ b.id }}</td>
-                            <td>
-                                {{ b.customer_name }}
+            {% for b, edit_form in booking_rows %}
+                <article class="booking-card">
+                    <div class="booking-card-header">
+                        <div class="booking-client">
+                            <span class="id-cell">#{{ b.id }}</span>
+                            <div>
+                                <div class="booking-client-name">{{ b.customer_name }}</div>
                                 {% if b.user %}
                                     <div class="muted">@{{ b.user.username }}</div>
                                     {% if b.user.email %}
@@ -395,127 +473,143 @@
                                 {% else %}
                                     <div class="muted">гість</div>
                                 {% endif %}
-                            </td>
-                            <td>{{ b.phone }}</td>
-                            <td>{{ b.computer.name }}</td>
-                            <td>{{ b.tariff.name }}</td>
-                            <td>{{ b.start_time|date:"d.m.Y H:i" }}</td>
-                            <td>{{ b.end_time|date:"d.m.Y H:i" }}</td>
-                            <td>
-                                <span class="badge method">
-                                    {% if b.payment_method == 'card' %}Картка{% else %}На місці{% endif %}
-                                </span>
-                            </td>
-                            <td>
-                                {% if b.payment_status == 'paid' %}
-                                    <span class="badge paid">Сплачено</span>
-                                {% else %}
-                                    <span class="badge unpaid">Не сплачено</span>
-                                {% endif %}
-                            </td>
-                        
-        <td>
-            <div class="booking-actions">
-
-                <form method="post"
-                    action="{% url 'admin_booking_action' b.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="toggle_payment">
-
-                    <button type="submit"
-                            class="action-btn {% if b.payment_status == 'paid' %}unpaid-btn{% else %}paid-btn{% endif %}">
-                        {% if b.payment_status == 'paid' %}
-                            Позначити неоплаченим
-                        {% else %}
-                            Позначити сплаченим
-                        {% endif %}
-                    </button>
-                </form>
-
-                <form method="post"
-                    action="{% url 'admin_booking_action' b.id %}"
-                    onsubmit="return confirm('Ви справді хочете видалити це бронювання?');">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="delete">
-
-                    <button type="submit" class="action-btn delete-btn">
-                        Видалити
-                    </button>
-                </form>
-
-                <details class="edit-booking"
-                         {% if editing_booking_id == b.id %}open{% endif %}>
-                    <summary>Редагувати бронювання</summary>
-                    <form class="edit-booking-form" method="post"
-                          action="{% url 'edit_admin_booking' b.id %}">
-                        {% csrf_token %}
-                        {% if search_query %}
-                            <input type="hidden" name="q" value="{{ search_query }}">
-                        {% endif %}
-                        {% if edit_form.non_field_errors %}
-                            <div class="edit-errors">
-                                {{ edit_form.non_field_errors }}
                             </div>
-                        {% endif %}
-                        <div>
-                            {{ edit_form.computer.label_tag }}
-                            {{ edit_form.computer }}
-                            {{ edit_form.computer.errors }}
                         </div>
-                        <div>
-                            {{ edit_form.tariff.label_tag }}
-                            {{ edit_form.tariff }}
-                            {{ edit_form.tariff.errors }}
-                        </div>
-                        <div>
-                            {{ edit_form.start_time.label_tag }}
-                            {{ edit_form.start_time }}
-                            {{ edit_form.start_time.errors }}
-                        </div>
-                        <div>
-                            {{ edit_form.duration.label_tag }}
-                            {{ edit_form.duration }}
-                            {{ edit_form.duration.errors }}
-                        </div>
-                        <div>
-                            {{ edit_form.payment_method.label_tag }}
-                            {{ edit_form.payment_method }}
-                            {{ edit_form.payment_method.errors }}
-                        </div>
-                        <div>
-                            {{ edit_form.payment_status.label_tag }}
-                            {{ edit_form.payment_status }}
-                            {{ edit_form.payment_status.errors }}
-                        </div>
-                        <div>
-                            {{ edit_form.status.label_tag }}
-                            {{ edit_form.status }}
-                            {{ edit_form.status.errors }}
-                        </div>
-                        <button type="submit"
-                                class="action-btn save-edit-btn">
-                            Зберегти зміни
-                        </button>
-                    </form>
-                </details>
 
-            </div>
-        </td>
-                        </tr>
+                        <div class="booking-actions">
+                            <form method="post"
+                                  action="{% url 'admin_booking_action' b.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_payment">
+                                <button type="submit"
+                                        class="action-btn {% if b.payment_status == 'paid' %}unpaid-btn{% else %}paid-btn{% endif %}">
+                                    {% if b.payment_status == 'paid' %}
+                                        Позначити неоплаченим
+                                    {% else %}
+                                        Позначити сплаченим
+                                    {% endif %}
+                                </button>
+                            </form>
 
-                    {% empty %}
-                        <tr>
-                            <td colspan="10" class="empty">
-                                {% if search_query %}
-                                    За вашим запитом бронювань не знайдено.
-                                {% else %}
-                                    Бронювань поки немає.
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            <form method="post"
+                                  action="{% url 'admin_booking_action' b.id %}"
+                                  onsubmit="return confirm('Ви справді хочете видалити це бронювання?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="action-btn delete-btn">
+                                    Видалити
+                                </button>
+                            </form>
+
+                            <details class="edit-booking"
+                                     {% if editing_booking_id == b.id %}open{% endif %}>
+                                <summary>Редагувати бронювання</summary>
+                                <form class="edit-booking-form" method="post"
+                                      action="{% url 'edit_admin_booking' b.id %}">
+                                    {% csrf_token %}
+                                    {% if search_query %}
+                                        <input type="hidden" name="q" value="{{ search_query }}">
+                                    {% endif %}
+                                    {% if edit_form.non_field_errors %}
+                                        <div class="edit-errors">
+                                            {{ edit_form.non_field_errors }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        {{ edit_form.computer.label_tag }}
+                                        {{ edit_form.computer }}
+                                        {{ edit_form.computer.errors }}
+                                    </div>
+                                    <div>
+                                        {{ edit_form.tariff.label_tag }}
+                                        {{ edit_form.tariff }}
+                                        {{ edit_form.tariff.errors }}
+                                    </div>
+                                    <div>
+                                        {{ edit_form.start_time.label_tag }}
+                                        {{ edit_form.start_time }}
+                                        {{ edit_form.start_time.errors }}
+                                    </div>
+                                    <div>
+                                        {{ edit_form.duration.label_tag }}
+                                        {{ edit_form.duration }}
+                                        {{ edit_form.duration.errors }}
+                                    </div>
+                                    <div>
+                                        {{ edit_form.payment_method.label_tag }}
+                                        {{ edit_form.payment_method }}
+                                        {{ edit_form.payment_method.errors }}
+                                    </div>
+                                    <div>
+                                        {{ edit_form.payment_status.label_tag }}
+                                        {{ edit_form.payment_status }}
+                                        {{ edit_form.payment_status.errors }}
+                                    </div>
+                                    <div>
+                                        {{ edit_form.status.label_tag }}
+                                        {{ edit_form.status }}
+                                        {{ edit_form.status.errors }}
+                                    </div>
+                                    <button type="submit" class="action-btn save-edit-btn">
+                                        Зберегти зміни
+                                    </button>
+                                </form>
+                            </details>
+                        </div>
+                    </div>
+
+                    <div class="booking-details">
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Телефон</span>
+                            {{ b.phone }}
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Комп’ютер</span>
+                            {{ b.computer.name }}
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Тариф</span>
+                            {{ b.tariff.name }}
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Початок</span>
+                            {{ b.start_time|date:"d.m.Y H:i" }}
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Завершення</span>
+                            {{ b.end_time|date:"d.m.Y H:i" }}
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Спосіб оплати</span>
+                            <span class="badge method">
+                                {% if b.payment_method == 'card' %}Картка{% else %}На місці{% endif %}
+                            </span>
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Статус оплати</span>
+                            {% if b.payment_status == 'paid' %}
+                                <span class="badge paid">Сплачено</span>
+                            {% else %}
+                                <span class="badge unpaid">Не сплачено</span>
+                            {% endif %}
+                        </div>
+                        <div class="booking-detail">
+                            <span class="booking-detail-label">Статус бронювання</span>
+                            <span class="badge {{ b.status }}">
+                                {{ b.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="empty">
+                    {% if search_query %}
+                        За вашим запитом бронювань не знайдено.
+                    {% else %}
+                        Бронювань поки немає.
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
 
     </div>

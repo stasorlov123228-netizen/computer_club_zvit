@@ -1,0 +1,46 @@
+<nav class="navbar navbar-expand-lg navbar-dark border-bottom sticky-top" style="background: rgba(8, 11, 9, 0.95); border-color: rgba(101, 255, 154, 0.2) !important; backdrop-filter: blur(10px);">
+    <div class="container-fluid px-lg-4">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{% url 'home' %}" style="color: #65ff9a; font-family: 'Orbitron', sans-serif;">
+            <span class="d-inline-flex justify-content-center align-items-center rounded-circle" style="width: 28px; height: 28px; background: rgba(101, 255, 154, 0.15); border: 1px solid #65ff9a;">L</span>
+            <span>LVIV ARENA</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#arenaNavbar" aria-controls="arenaNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="arenaNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-2">
+                <li class="nav-item">
+                    <a class="nav-link text-white-50" href="{% url 'home' %}">Головна</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50" href="{% url 'booking' %}">Забронювати</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50" href="{% url 'booking_list' %}">Журнал бронювань (CBV)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50" href="{% url 'computer_list' %}">Комп'ютери</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50" href="{% url 'tariff_list' %}">Тарифи</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin_panel' %}" class="btn btn-outline-warning btn-sm">Адмін-панель</a>
+                    {% endif %}
+                    <a href="{% url 'account' %}" class="btn btn-outline-success btn-sm">Мій кабінет</a>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Вихід</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Увійти</a>
+                    <a href="{% url 'register' %}" class="btn btn-success btn-sm" style="background-color: #65ff9a; color: #0b0e13; border: none; font-weight: 600;">Реєстрація</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+

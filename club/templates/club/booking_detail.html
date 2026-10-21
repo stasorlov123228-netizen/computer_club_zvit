@@ -1,0 +1,88 @@
+{% extends 'club/base.html' %}
+{% load club_tags %}
+
+{% block title %}Бронювання #{{ booking.id }} - Lviv Arena{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-arena border-accent p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-3">
+                    <div>
+                        <span class="text-white-50 small text-uppercase">Деталі бронювання</span>
+                        <h2 class="arena-font text-accent mb-0">Бронювання #{{ booking.id }}</h2>
+                    </div>
+                    <div>
+                        {% booking_status_badge booking.status %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Ім'я клієнта</label>
+                        <div class="fw-semibold fs-5">{{ booking.customer_name }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Телефон</label>
+                        <div class="fw-semibold fs-5">{{ booking.phone }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Комп'ютер</label>
+                        <div>
+                            <a href="{{ booking.computer.get_absolute_url }}" class="text-info text-decoration-none fw-bold fs-5">
+                                {{ booking.computer.name }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Тариф</label>
+                        <div>
+                            <a href="{{ booking.tariff.get_absolute_url }}" class="text-warning text-decoration-none fw-bold fs-5">
+                                {{ booking.tariff.name }} ({% format_currency booking.tariff.price_per_hour %}/год)
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Час початку</label>
+                        <div class="text-light">{{ booking.start_time|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Час завершення</label>
+                        <div class="text-light">{{ booking.end_time|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Метод оплати</label>
+                        <div class="text-light">{{ booking.get_payment_method_display }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="text-white-50 small">Статус оплати</label>
+                        <div class="text-light">{{ booking.get_payment_status_display }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="text-white-50 small">Власник запису (User)</label>
+                        <div class="text-light">{{ booking.user.username|default:"Гість (не прив'язано)" }}</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary flex-wrap gap-2">
+                    <a href="{% url 'booking_list' %}" class="btn btn-outline-light">
+                        &larr; Назад до журналу
+                    </a>
+                    <div class="d-flex gap-2">
+                        {% if user.is_staff or booking.user == user %}
+                            <a href="{% url 'booking_update' booking.pk %}" class="btn btn-outline-warning">
+                                Редагувати
+                            </a>
+                            <a href="{% url 'booking_delete' booking.pk %}" class="btn btn-outline-danger">
+                                Видалити
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

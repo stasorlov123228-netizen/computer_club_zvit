@@ -1,8 +1,26 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User
+from django import forms
 from .models import Computer, Tariff, Booking, Payment, UserProfile
+from django.db import transaction
 from .views import update_computer_statuses
+
+
+class BookingAdminForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        computer = cleaned_data.get('computer')
+        if computer:
+            with transaction.atomic():
+                cleaned_data['computer'] = Computer.objects.select_for_update().get(
+                    pk=computer.pk
+                )
+        return cleaned_data
 
 
 class UserProfileInline(admin.StackedInline):
@@ -63,6 +81,7 @@ class TariffAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
+    form = BookingAdminForm
     list_display = (
         'id',
         'customer_name',
