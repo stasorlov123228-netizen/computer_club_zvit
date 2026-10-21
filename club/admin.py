@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django import forms
 from .models import Computer, Tariff, Booking, Payment, UserProfile
 from django.db import transaction
-from .views import update_computer_statuses
+from .services import update_computer_statuses
 
 
 class BookingAdminForm(forms.ModelForm):

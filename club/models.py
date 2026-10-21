@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 
 class Computer(models.Model):
@@ -20,6 +21,9 @@ class Computer(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('computer_detail', kwargs={'pk': self.pk})
+
 
 class Tariff(models.Model):
     name = models.CharField(max_length=100)
@@ -27,6 +31,9 @@ class Tariff(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('tariff_detail', kwargs={'pk': self.pk})
 
 
 class UserProfile(models.Model):
@@ -132,6 +139,9 @@ class Booking(models.Model):
 
     def __str__(self):
         return f'{self.customer_name} - {self.computer.name}'
+
+    def get_absolute_url(self):
+        return reverse('booking_detail', kwargs={'pk': self.pk})
 
 
 class Payment(models.Model):
