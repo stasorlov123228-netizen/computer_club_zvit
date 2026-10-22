@@ -22,7 +22,7 @@ from ..forms import (
 from ..models import Booking, Computer, Tariff, UserProfile
 from ..phone_numbers import PHONE_COUNTRIES, split_phone_number, validate_phone_number
 from ..services import (
-    booking_duration_value, duration_as_timedelta,
+    booking_duration_value, booking_pricing, duration_as_timedelta,
     find_available_computer, lock_booking_payment_method,
     lock_booking_slot, synchronize_payment_record, update_computer_statuses,
 )
@@ -138,10 +138,41 @@ class BookingDeleteView(LoginRequiredMixin, DeleteView):
             queryset = queryset.filter(user=self.request.user)
         return queryset.filter(payment_status='unpaid')
 
+
+def booking_success_context(booking_record):
+    context = {'booking': booking_record, 'pricing_available': False}
+    try:
+        duration_hours, total_amount = booking_pricing(booking_record)
+    except ValidationError:
+        return context
+
+    context.update({
+        'duration_hours': format(duration_hours.normalize(), 'f'),
+        'price_per_hour': booking_record.tariff.price_per_hour,
+        'total_amount': total_amount,
+        'pricing_available': True,
+    })
+    return context
+
 def home(request):
     update_computer_statuses()
 
+    tariff_names = {
+        'standart': ('STANDART', 'STANDARD'),
+        'pro': ('PRO',),
+        'vip': ('VIP',),
+        'stream': ('STREAM',),
+    }
+    tariff_prices = {}
+    for kind, names in tariff_names.items():
+        for name in names:
+            tariff = Tariff.objects.filter(name__iexact=name).order_by('id').first()
+            if tariff:
+                tariff_prices[kind] = tariff.price_per_hour
+                break
+
     context = {
+        'tariff_prices': tariff_prices,
         'total_computers': Computer.objects.count(),
         'available_computers': Computer.objects.filter(
             status='available'
@@ -313,9 +344,8 @@ def edit_my_booking(request, booking_id):
                 )
             else:
                 tariff_codes = {
-                    'DEFAULT': 'default',
-                    'STANDART': 'default',
-                    'STANDARD': 'default',
+                    'STANDART': 'standart',
+                    'STANDARD': 'standart',
                     'PRO': 'pro',
                     'VIP': 'vip',
                     'STREAM': 'stream',
@@ -420,7 +450,7 @@ def booking(request):
         errors.append("Введіть ім’я.")
 
     tariff_names = {
-        'default': ('DEFAULT', 'STANDART', 'STANDARD'),
+        'standart': ('STANDART', 'STANDARD'),
         'pro': ('PRO',),
         'vip': ('VIP',),
         'stream': ('STREAM',),
@@ -521,7 +551,7 @@ def booking(request):
         return render(
             request,
             'club/booking_success.html',
-            {'booking': booking_record}
+            booking_success_context(booking_record),
         )
 
     context.update({

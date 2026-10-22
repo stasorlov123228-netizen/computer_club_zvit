@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#080810">
-    <title>Бронювання підтверджено #{{ booking.id }} · Lviv Arena</title>
+    <title>Бронювання #{{ booking.id }} · Lviv Arena</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -164,11 +164,13 @@
     <main class="confirmation-shell">
         <section class="confirmation-card" aria-labelledby="confirmation-title">
             <span class="confirmation-kicker">Lviv Arena · Бронювання #{{ booking.id }}</span>
-            <h1 class="confirmation-title" id="confirmation-title">Бронювання підтверджено!</h1>
-            <p class="confirmation-message">Ваше бронювання успішно підтверджено. Збережіть його номер.</p>
+            <h1 class="confirmation-title" id="confirmation-title">
+                {% if booking.status == 'confirmed' %}Бронювання підтверджено{% elif booking.status == 'cancelled' %}Бронювання скасовано{% else %}Бронювання очікує підтвердження{% endif %}
+            </h1>
+            <p class="confirmation-message">Збережіть номер вашого бронювання.</p>
 
             <div class="confirmation-statuses" aria-label="Статуси бронювання та оплати">
-                <span class="confirmation-status">Бронювання: <strong>{{ booking.get_status_display }}</strong></span>
+                <span class="confirmation-status">Бронювання: <strong>{% if booking.status == 'confirmed' %}Підтверджено{% elif booking.status == 'cancelled' %}Скасовано{% else %}Очікує підтвердження{% endif %}</strong></span>
                 <span class="confirmation-status">Оплата: <strong>{% if booking.payment_status == 'paid' %}Оплачено{% else %}Не оплачено{% endif %}</strong></span>
             </div>
 
@@ -185,10 +187,10 @@
                 <div class="confirmation-row"><dt>Дата початку</dt><dd>{{ booking.start_time|date:"d.m.Y" }}</dd></div>
                 <div class="confirmation-row"><dt>Час початку</dt><dd>{{ booking.start_time|date:"H:i" }}</dd></div>
                 <div class="confirmation-row"><dt>Час завершення</dt><dd>{{ booking.end_time|date:"H:i" }}</dd></div>
-                <div class="confirmation-row"><dt>Тривалість</dt><dd>{{ duration_hours }} год.</dd></div>
-                <div class="confirmation-row"><dt>Вартість за годину</dt><dd>{{ price_per_hour|floatformat:2 }} грн</dd></div>
+                <div class="confirmation-row"><dt>Тривалість</dt><dd>{% if pricing_available %}{{ duration_hours }} год.{% else %}—{% endif %}</dd></div>
+                <div class="confirmation-row"><dt>Вартість за годину</dt><dd>{% if pricing_available %}{{ price_per_hour|floatformat:2 }} грн{% else %}—{% endif %}</dd></div>
             </dl>
-            <div class="confirmation-total"><span>Загальна сума</span><strong>{{ total_amount|floatformat:2 }} грн</strong></div>
+            <div class="confirmation-total"><span>Загальна сума</span><strong>{% if pricing_available %}{{ total_amount|floatformat:2 }} грн{% else %}—{% endif %}</strong></div>
 
             <div class="confirmation-actions">
                 {% if booking.user_id %}

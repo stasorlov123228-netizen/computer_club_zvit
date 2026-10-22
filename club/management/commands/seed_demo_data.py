@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         tariffs = {
-            'DEFAULT': Decimal('100.00'),
+            'STANDART': Decimal('100.00'),
             'PRO': Decimal('150.00'),
             'VIP': Decimal('200.00'),
             'STREAM': Decimal('250.00'),
@@ -25,10 +25,10 @@ class Command(BaseCommand):
         created_computers = 0
 
         for name, price in tariffs.items():
-            _, created = Tariff.objects.get_or_create(
-                name=name,
-                defaults={'price_per_hour': price},
-            )
+            tariff = Tariff.objects.filter(name__iexact=name).first()
+            created = tariff is None
+            if created:
+                Tariff.objects.create(name=name, price_per_hour=price)
             created_tariffs += int(created)
 
         for name in computers:

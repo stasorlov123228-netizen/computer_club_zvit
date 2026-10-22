@@ -117,8 +117,8 @@ BOOKING_DURATION_CHOICES = (
 )
 
 PC_SPECS = {
-    'default': {
-        'title': 'DEFAULT',
+    'standart': {
+        'title': 'STANDART',
         'tier': 'Базова зона',
         'parts': [
             ['Процесор (CPU)', 'AMD Ryzen 5 5600'],
@@ -212,7 +212,7 @@ def lock_booking_payment_method(form, booking_record):
 
 def find_available_computer(tariff_code, start, end, exclude_booking_id=None):
     computer_suffixes = {
-        'default': 'defolt',
+        'standart': 'defolt',
         'pro': 'pro',
         'vip': 'vip',
         'stream': 'stream',
@@ -290,9 +290,8 @@ def admin_booking_initial(booking_record):
 
 def get_tariff_kind(name):
     return {
-        'default': 'default',
-        'standart': 'default',
-        'standard': 'default',
+        'standart': 'standart',
+        'standard': 'standart',
         'pro': 'pro',
         'vip': 'vip',
         'stream': 'stream',
@@ -308,6 +307,6 @@ def get_pc_kind(name):
     if name.endswith('pro'):
         return 'pro'
     if name.endswith('defolt') or name.endswith('default'):
-        return 'default'
+        return 'standart'
 
     return ''

@@ -43,7 +43,7 @@ def news_view(request):
             },
             {
                 'title': '55 ігрових комп’ютерів',
-                'text': 'Обирай Default, Pro, VIP або Stream-зону.',
+                'text': 'Обирай STANDART, PRO, VIP або STREAM-зону.',
                 'date': '14 жовтня 2026',
             },
             {
