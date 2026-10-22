@@ -445,7 +445,7 @@
             >
             <button type="submit">Шукати</button>
             {% if search_query %}
-                <a href="{% url 'admin_bookings' %}">Очистити</a>
+                <a href="{% url 'club:admin_bookings' %}">Очистити</a>
             {% endif %}
         </form>
 
@@ -478,7 +478,7 @@
 
                         <div class="booking-actions">
                             <form method="post"
-                                  action="{% url 'admin_booking_action' b.id %}">
+                                  action="{% url 'club:admin_booking_action' b.id %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="toggle_payment">
                                 <button type="submit"
@@ -492,7 +492,7 @@
                             </form>
 
                             <form method="post"
-                                  action="{% url 'admin_booking_action' b.id %}"
+                                  action="{% url 'club:admin_booking_action' b.id %}"
                                   onsubmit="return confirm('Ви справді хочете видалити це бронювання?');">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete">
@@ -505,7 +505,7 @@
                                      {% if editing_booking_id == b.id %}open{% endif %}>
                                 <summary>Редагувати бронювання</summary>
                                 <form class="edit-booking-form" method="post"
-                                      action="{% url 'edit_admin_booking' b.id %}">
+                                      action="{% url 'club:edit_admin_booking' b.id %}">
                                     {% csrf_token %}
                                     {% if search_query %}
                                         <input type="hidden" name="q" value="{{ search_query }}">

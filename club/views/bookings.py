@@ -24,7 +24,7 @@ from ..phone_numbers import PHONE_COUNTRIES, split_phone_number, validate_phone_
 from ..services import (
     booking_duration_value, duration_as_timedelta,
     find_available_computer, lock_booking_payment_method,
-    update_computer_statuses,
+    lock_booking_slot, synchronize_payment_record, update_computer_statuses,
 )
 
 class BookingListView(LoginRequiredMixin, ListView):
@@ -85,7 +85,19 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        with transaction.atomic():
+            try:
+                form.instance.computer = lock_booking_slot(
+                    form.cleaned_data['computer'],
+                    form.cleaned_data['start_time'],
+                    form.cleaned_data['end_time'],
+                )
+            except ValidationError as error:
+                form.add_error('computer', error)
+                return self.form_invalid(form)
+            response = super().form_valid(form)
+            synchronize_payment_record(self.object)
+            return response
 
 class BookingUpdateView(LoginRequiredMixin, UpdateView):
     model = Booking
@@ -99,16 +111,32 @@ class BookingUpdateView(LoginRequiredMixin, UpdateView):
             queryset = queryset.filter(user=self.request.user)
         return queryset
 
+    def form_valid(self, form):
+        with transaction.atomic():
+            try:
+                form.instance.computer = lock_booking_slot(
+                    form.cleaned_data['computer'],
+                    form.cleaned_data['start_time'],
+                    form.cleaned_data['end_time'],
+                    exclude_booking_id=form.instance.pk,
+                )
+            except ValidationError as error:
+                form.add_error('computer', error)
+                return self.form_invalid(form)
+            response = super().form_valid(form)
+            synchronize_payment_record(self.object)
+            return response
+
 class BookingDeleteView(LoginRequiredMixin, DeleteView):
     model = Booking
     template_name = 'club/booking_confirm_delete.html'
-    success_url = reverse_lazy('booking_list')
+    success_url = reverse_lazy('club:booking_list')
 
     def get_queryset(self):
         queryset = super().get_queryset()
         if not (self.request.user.is_staff or self.request.user.is_superuser):
             queryset = queryset.filter(user=self.request.user)
-        return queryset
+        return queryset.filter(payment_status='unpaid')
 
 def home(request):
     update_computer_statuses()
@@ -142,13 +170,13 @@ def account_view(request):
             if email_form.is_valid():
                 request.user.email = email_form.cleaned_data['email']
                 request.user.save(update_fields=['email'])
-                return redirect('account')
+                return redirect('club:account')
         elif 'update_phone' in request.POST:
             phone_form = PhoneNumberForm(request.POST)
             if phone_form.is_valid():
                 profile.phone = phone_form.cleaned_data['phone']
                 profile.save(update_fields=['phone'])
-                return redirect('account')
+                return redirect('club:account')
 
     return render(request, 'club/account.html', {
         'email_form': email_form,
@@ -227,7 +255,7 @@ def cancel_my_booking(request, booking_id):
             messages.success(request, 'Бронювання успішно скасоване.')
 
     update_computer_statuses()
-    return redirect('my_bookings')
+    return redirect('club:my_bookings')
 
 @login_required
 @require_POST
@@ -318,11 +346,7 @@ def edit_my_booking(request, booking_id):
                         booking_record.payment_method = (
                             form.cleaned_data['payment_method']
                         )
-                        booking_record.status = (
-                            'pending'
-                            if booking_record.payment_method == 'card'
-                            else 'confirmed'
-                        )
+                        booking_record.status = 'pending'
                     booking_record.save(update_fields=[
                         'start_time',
                         'end_time',
@@ -331,6 +355,7 @@ def edit_my_booking(request, booking_id):
                         'computer',
                         'status',
                     ])
+                    synchronize_payment_record(booking_record)
                     needs_payment = (
                         booking_record.payment_method == 'card'
                         and booking_record.payment_status != 'paid'
@@ -340,9 +365,9 @@ def edit_my_booking(request, booking_id):
         return render_my_bookings(request, booking_id, form)
 
     if needs_payment:
-        return redirect('payment_result', booking_id=booking_id)
+        return redirect('club:payment_result', booking_id=booking_id)
 
-    return redirect('my_bookings')
+    return redirect('club:my_bookings')
 
 def booking(request):
     profile = None
@@ -468,8 +493,9 @@ def booking(request):
                     end_time=end,
                     payment_method=payment_method,
                     payment_status='unpaid',
-                    status='pending' if payment_method == 'card' else 'confirmed',
+                    status='pending',
                 )
+                synchronize_payment_record(booking_record)
                 if request.user.is_authenticated and phone_required:
                     UserProfile.objects.update_or_create(
                         user=request.user,
@@ -479,7 +505,7 @@ def booking(request):
     if booking_record:
         if payment_method == 'card':
             payment_url = reverse(
-                'payment_result',
+                'club:payment_result',
                 kwargs={'booking_id': booking_record.id},
             )
             if not request.user.is_authenticated:

@@ -358,8 +358,8 @@
 <body>
 
     <header>
-        <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
-        <a href="{% url 'home' %}" class="header-link">НА ГОЛОВНУ</a>
+        <a href="{% url 'club:home' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'club:home' %}" class="header-link">НА ГОЛОВНУ</a>
     </header>
 
     <main>
@@ -438,15 +438,15 @@
         </section>
 
         <div class="actions">
-            <a class="button" href="{% url 'my_bookings' %}">
+            <a class="button" href="{% url 'club:my_bookings' %}">
                 МОЇ БРОНЮВАННЯ
             </a>
 
-            <a class="button outline" href="{% url 'booking' %}">
+            <a class="button outline" href="{% url 'club:booking' %}">
                 ЗАБРОНЮВАТИ ПК
             </a>
 
-            <form method="POST" action="{% url 'logout' %}">
+            <form method="POST" action="{% url 'club:logout' %}">
                 {% csrf_token %}
                 <button class="button logout" type="submit">
                     ВИЙТИ З АКАУНТУ

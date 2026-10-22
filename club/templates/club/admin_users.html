@@ -257,7 +257,7 @@
             >
             <button type="submit">Шукати</button>
             {% if search_query %}
-                <a href="{% url 'admin_users' %}">Очистити</a>
+                <a href="{% url 'club:admin_users' %}">Очистити</a>
             {% endif %}
         </form>
 
@@ -335,7 +335,7 @@
                                     <form
                                         class="delete-form"
                                         method="post"
-                                        action="{% url 'admin_users' %}"
+                                        action="{% url 'club:admin_users' %}"
                                         data-delete-username="{{ u.username }}"
                                     >
                                         {% csrf_token %}

@@ -10,7 +10,7 @@
             <h2 class="arena-font text-accent mb-1">Журнал бронювань</h2>
             <p class="text-white-50 mb-0">Generic Class-Based Views (CRUD) з пагінацією та фільтрацією</p>
         </div>
-        <a href="{% url 'booking_create' %}" class="btn btn-arena px-4 py-2">
+        <a href="{% url 'club:booking_create' %}" class="btn btn-arena px-4 py-2">
             + Створити нове бронювання
         </a>
     </div>
@@ -29,7 +29,7 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-outline-success w-100">Фільтрувати</button>
-                <a href="{% url 'booking_list' %}" class="btn btn-outline-secondary">Скинути</a>
+                <a href="{% url 'club:booking_list' %}" class="btn btn-outline-secondary">Скинути</a>
             </div>
         </form>
     </div>
@@ -77,8 +77,8 @@
                             <div class="btn-group btn-group-sm">
                                 <a href="{{ booking.get_absolute_url }}" class="btn btn-outline-light" title="Переглянути">Деталі</a>
                                 {% if user.is_staff or booking.user == user %}
-                                    <a href="{% url 'booking_update' booking.pk %}" class="btn btn-outline-warning" title="Редагувати">Редагувати</a>
-                                    <a href="{% url 'booking_delete' booking.pk %}" class="btn btn-outline-danger" title="Видалити">Видалити</a>
+                                    <a href="{% url 'club:booking_update' booking.pk %}" class="btn btn-outline-warning" title="Редагувати">Редагувати</a>
+                                    <a href="{% url 'club:booking_delete' booking.pk %}" class="btn btn-outline-danger" title="Видалити">Видалити</a>
                                 {% endif %}
                             </div>
                         </td>

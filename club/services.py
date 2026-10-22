@@ -1,11 +1,112 @@
 from datetime import timedelta
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import Booking, Computer, Tariff
+from .models import Booking, Computer, Payment, Tariff
+
+def booking_pricing(booking):
+    """Return exact booked hours and the rounded currency amount."""
+    if not booking.start_time or not booking.end_time or booking.end_time <= booking.start_time:
+        raise ValidationError('Неможливо визначити вартість: перевірте час бронювання.')
+    if not booking.tariff_id:
+        raise ValidationError('Для бронювання не вибрано тариф.')
+
+    tariff = booking.tariff
+    price_per_hour = tariff.price_per_hour
+    if price_per_hour is None:
+        raise ValidationError('Для вибраного тарифу не вказано ціну за годину.')
+
+    duration = booking.end_time - booking.start_time
+    duration_seconds = (
+        Decimal(duration.days) * Decimal('86400')
+        + Decimal(duration.seconds)
+        + Decimal(duration.microseconds) / Decimal('1000000')
+    )
+    duration_hours = duration_seconds / Decimal('3600')
+    total_amount = (price_per_hour * duration_hours).quantize(
+        Decimal('0.01'),
+        rounding=ROUND_HALF_UP,
+    )
+    return duration_hours, total_amount
+
+
+def synchronize_payment_record(booking):
+    """Keep the one-to-one payment row aligned with its booking state."""
+    if not booking.pk:
+        raise ValueError('Save the booking before synchronizing its payment.')
+
+    with transaction.atomic():
+        locked_booking = Booking.objects.select_for_update().select_related(
+            'tariff',
+        ).get(pk=booking.pk)
+        _, amount = booking_pricing(locked_booking)
+        payment = Payment.objects.select_for_update().filter(
+            booking=locked_booking,
+        ).first()
+        is_paid = locked_booking.payment_status == 'paid'
+
+        if (
+            is_paid
+            and payment
+            and payment.is_paid
+            and payment.status == 'paid'
+            and payment.amount != amount
+        ):
+            raise ValidationError(
+                'The recorded payment amount does not match the booking.'
+            )
+
+        paid_at = None
+        if is_paid:
+            paid_at = (
+                payment.paid_at
+                if payment and payment.is_paid and payment.status == 'paid'
+                else timezone.now()
+            )
+
+        values = {
+            'amount': amount,
+            'paid_at': paid_at,
+            'is_paid': is_paid,
+            'status': 'paid' if is_paid else 'unpaid',
+        }
+        if payment is None:
+            return Payment.objects.create(
+                booking=locked_booking,
+                **values,
+            )
+
+        changed_fields = []
+        for field, value in values.items():
+            if getattr(payment, field) != value:
+                setattr(payment, field, value)
+                changed_fields.append(field)
+        if changed_fields:
+            payment.save(update_fields=changed_fields)
+        return payment
+
+
+def lock_booking_slot(computer, start, end, exclude_booking_id=None):
+    """Lock a computer and recheck its booking interval before saving."""
+    locked_computer = Computer.objects.select_for_update().get(pk=computer.pk)
+    if locked_computer.status == 'maintenance' or locked_computer.manual_occupied:
+        raise ValidationError('Цей комп’ютер зараз недоступний.')
+
+    conflicts = Booking.objects.filter(
+        computer=locked_computer,
+        start_time__lt=end,
+        end_time__gt=start,
+    ).exclude(status='cancelled')
+    if exclude_booking_id is not None:
+        conflicts = conflicts.exclude(pk=exclude_booking_id)
+    if conflicts.exists():
+        raise ValidationError('Комп’ютер уже заброньований на цей час.')
+    return locked_computer
+
 
 BOOKING_DURATION_CHOICES = (
     ('1', '1 година'),
@@ -137,9 +238,13 @@ def find_available_computer(tariff_code, start, end, exclude_booking_id=None):
     return None
 
 def booking_duration_value(booking):
-    duration_hours = Decimal(
-        str((booking.end_time - booking.start_time).total_seconds())
-    ) / Decimal('3600')
+    duration = booking.end_time - booking.start_time
+    duration_seconds = (
+        Decimal(duration.days) * Decimal('86400')
+        + Decimal(duration.seconds)
+        + Decimal(duration.microseconds) / Decimal('1000000')
+    )
+    duration_hours = duration_seconds / Decimal('3600')
     return format(duration_hours.normalize(), 'f')
 
 def duration_as_timedelta(duration_hours):

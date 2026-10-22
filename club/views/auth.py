@@ -8,7 +8,7 @@ from ..phone_numbers import PHONE_COUNTRIES
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('club:home')
 
     form = AuthenticationForm(
         request,
@@ -18,20 +18,20 @@ def login_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         login(request, user)
-        return redirect('home')
+        return redirect('club:home')
 
     return render(request, 'club/login.html', {'form': form})
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('club:home')
 
     form = CustomUserCreationForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
         user = form.save()
         login(request, user)
-        return redirect('home')
+        return redirect('club:home')
 
     return render(request, 'club/register.html', {
         'form': form,
@@ -41,4 +41,4 @@ def register_view(request):
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect('home')
+    return redirect('club:home')

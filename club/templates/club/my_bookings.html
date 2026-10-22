@@ -407,8 +407,8 @@
 <body>
 
     <header class="page-header">
-        <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
-        <a href="{% url 'account' %}" class="header-link">В АКАУНТ</a>
+        <a href="{% url 'club:home' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'club:account' %}" class="header-link">В АКАУНТ</a>
     </header>
 
     <main class="container">
@@ -481,7 +481,7 @@
                 {% if booking.status != 'cancelled' and booking.start_time > now %}
                     {% if booking.payment_method == 'cash' %}
                         <form method="post"
-                              action="{% url 'cancel_my_booking' booking.id %}"
+                              action="{% url 'club:cancel_my_booking' booking.id %}"
                               onsubmit="return confirm('Скасувати це бронювання?');">
                             {% csrf_token %}
                             <button class="button cancel-button" type="submit">
@@ -500,7 +500,7 @@
                              {% if editing_booking_id == booking.id %}open{% endif %}>
                         <summary>Редактировать бронювання</summary>
                         <form class="edit-form" method="POST"
-                              action="{% url 'edit_my_booking' booking.id %}">
+                              action="{% url 'club:edit_my_booking' booking.id %}">
                             {% csrf_token %}
                             {% if edit_form.non_field_errors %}
                                 <div class="edit-form-errors">
@@ -546,19 +546,19 @@
                     У вас поки немає бронювань.<br>
                     Обери комп’ютер і починай грати!
                 </p>
-                <a class="button" href="{% url 'booking' %}">
+                <a class="button" href="{% url 'club:booking' %}">
                     Забронювати комп’ютер
                 </a>
             </div>
         {% endfor %}
 
         <div class="actions">
-            <a class="button outline" href="{% url 'account' %}">
+            <a class="button outline" href="{% url 'club:account' %}">
                 Повернутися в акаунт
             </a>
 
             {% if bookings %}
-                <a class="button" href="{% url 'booking' %}">
+                <a class="button" href="{% url 'club:booking' %}">
                     Нове бронювання
                 </a>
             {% endif %}

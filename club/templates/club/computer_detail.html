@@ -22,10 +22,10 @@
                     Статус ручного блокування: <strong>{% if computer.manual_occupied %}Заблоковано{% else %}Доступно{% endif %}</strong>
                 </p>
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <a href="{% url 'computer_list' %}" class="btn btn-outline-light">
+                    <a href="{% url 'club:computer_list' %}" class="btn btn-outline-light">
                         &larr; До списку ПК
                     </a>
-                    <a href="{% url 'booking_create' %}?computer={{ computer.pk }}" class="btn btn-arena">
+                    <a href="{% url 'club:booking_create' %}?computer={{ computer.pk }}" class="btn btn-arena">
                         Забронювати цей ПК
                     </a>
                 </div>

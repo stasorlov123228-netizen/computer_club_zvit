@@ -660,6 +660,18 @@
 
 
 
+        .club-location { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:22px; align-items:center; padding:24px; border:1px solid #252b35; border-radius:14px; background:#11151d; }
+        .club-location-copy p { color:#b4bdca; line-height:1.7; }
+        .club-address { margin:14px 0; font-size:clamp(1.25rem,2.6vw,1.8rem); font-weight:700; }
+        .club-address a, .club-map-link a { color:#c084fc; text-decoration:underline; text-underline-offset:4px; }
+        .club-map { min-height:320px; overflow:hidden; border:1px solid #252b35; border-radius:12px; }
+        .club-map iframe { display:block; width:100%; height:360px; border:0; }
+        .club-map-link { grid-column:2; margin:-12px 0 0; text-align:right; }
+        .section-footer .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 24px; margin-top:14px; }
+        .section-footer .footer-links a { color:#c084fc; text-decoration:none; }
+        .section-footer .footer-links a:hover { color:#e0baff; text-decoration:underline; }
+        @media (max-width:700px) { .club-location { grid-template-columns:1fr; padding:18px; } .club-map { min-height:280px; } .club-map iframe { height:300px; } .club-map-link { grid-column:1; margin-top:-8px; text-align:left; } }
+
         footer {
             text-align: center;
             padding: 25px;
@@ -755,7 +767,7 @@
 <body>
 
     <header class="main-header">
-        <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'club:home' %}" class="logo">LVIV ARENA</a>
 
         <button
             class="burger"
@@ -771,26 +783,21 @@
         </button>
 
         <nav class="main-nav" id="main-nav">
-            <a href="{% url 'tournaments' %}">ТУРНІРИ</a>
-            <a href="{% url 'news' %}">НОВИНИ</a>
-            <a href="{% url 'clubs' %}">КЛУБИ</a>
-            <a href="https://www.instagram.com/"
-               target="_blank"
-               rel="noopener noreferrer">БЛОГ</a>
-            <a href="{% url 'feedback' %}">ЗВОРОТНИЙ ЗВ'ЯЗОК</a>
-            <a href="{% url 'partnership' %}">ПАРТНЕРСТВО</a>
+            <a href="{% url 'club:tournaments' %}">ТУРНІРИ</a>
+            <a href="{% url 'club:news' %}">НОВИНИ</a>
+            <a href="{% url 'club:clubs' %}">КЛУБИ</a>
 
             {% if user.is_authenticated %}
                 {% if user.is_staff %}
-                    <a href="{% url 'admin_panel' %}" class="account-link">
+                    <a href="{% url 'club:admin_panel' %}" class="account-link">
                         АДМІН-ПАНЕЛЬ
                     </a>
                 {% endif %}
-                <a href="{% url 'account' %}" class="account-link">АКАУНТ</a>
+                <a href="{% url 'club:account' %}" class="account-link">АКАУНТ</a>
             {% else %}
-                <a href="{% url 'login' %}" class="account-link">УВІЙТИ</a>
+                <a href="{% url 'club:login' %}" class="account-link">УВІЙТИ</a>
             {% endif %}
-            <a href="{% url 'home' %}" class="home-link">
+            <a href="{% url 'club:home' %}" class="home-link">
                 ПОВЕРНУТИСЯ НА ГОЛОВНУ
             </a>
         </nav>
@@ -877,12 +884,18 @@
             {% endfor %}
 
         {% elif page_type == 'clubs' %}
-
-            <div class="card club-card">
-                <div class="club-icon"></div>
-                <h2>Lviv Arena</h2>
-                <p>На жаль, наразі наш клуб працює тільки у Львові.</p>
-            </div>
+            <section class="club-location" aria-labelledby="club-location-title">
+                <div class="club-location-copy">
+                    <h2 id="club-location-title">Lviv Arena у Львові</h2>
+                    <p>Наразі наш комп’ютерний клуб працює лише у Львові за адресою:</p>
+                    <p class="club-address"><a href="https://www.google.com/maps/search/?api=1&amp;query=%D0%B2%D1%83%D0%BB.%20%D0%9B%D0%B8%D1%87%D0%B0%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0%2C%20120%2C%20%D0%9B%D1%8C%D0%B2%D1%96%D0%B2" target="_blank" rel="noopener noreferrer">вул. Личаківська, 120</a></p>
+                    <p>Ми будемо раді бачити вас у нашому клубі!</p>
+                </div>
+                <div class="club-map" aria-label="Карта України з позначкою Львова">
+                    <iframe src="https://maps.google.com/maps?q=49.8397%2C24.0297&amp;z=5&amp;output=embed" title="Карта України з позначкою Львова" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                </div>
+                <p class="club-map-link"><a href="https://www.google.com/maps/search/?api=1&amp;query=%D0%B2%D1%83%D0%BB.%20%D0%9B%D0%B8%D1%87%D0%B0%D0%BA%D1%96%D0%B2%D1%81%D1%8C%D0%BA%D0%B0%2C%20120%2C%20%D0%9B%D1%8C%D0%B2%D1%96%D0%B2" target="_blank" rel="noopener noreferrer">Відкрити адресу в Google Maps ↗</a></p>
+            </section>
 
         {% elif page_type == 'feedback' %}
 
@@ -1000,8 +1013,13 @@
 
     </main>
 
-    <footer>
+    <footer class="section-footer">
         © 2026 Lviv Arena. Комп'ютерний клуб у Львові.
+            <nav class="footer-links" aria-label="Додаткові посилання">
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">БЛОГ</a>
+                <a href="{% url 'club:feedback' %}">ЗВОРОТНИЙ ЗВ'ЯЗОК</a>
+                <a href="{% url 'club:partnership' %}">ПАРТНЕРСТВО</a>
+            </nav>
     </footer>
 
     <script>

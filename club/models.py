@@ -22,7 +22,7 @@ class Computer(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('computer_detail', kwargs={'pk': self.pk})
+        return reverse('club:computer_detail', kwargs={'pk': self.pk})
 
 
 class Tariff(models.Model):
@@ -33,7 +33,7 @@ class Tariff(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('tariff_detail', kwargs={'pk': self.pk})
+        return reverse('club:tariff_detail', kwargs={'pk': self.pk})
 
 
 class UserProfile(models.Model):
@@ -52,13 +52,13 @@ class UserProfile(models.Model):
 
 class Booking(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Очікує оплати'),
+        ('pending', '\u041e\u0447\u0456\u043a\u0443\u0454 \u043f\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0436\u0435\u043d\u043d\u044f'),
         ('confirmed', 'Підтверджено'),
         ('cancelled', 'Скасовано'),
     ]
     
     PAYMENT_METHOD_CHOICES = [
-        ('card', 'СПЛАЧЕНО КАРТКОЮ'),
+        ('card', 'ОПЛАТА КАРТКОЮ'),
         ('cash', 'ОПЛАТА В КЛУБІ'),
     ]
 
@@ -88,15 +88,15 @@ class Booking(models.Model):
     )
     customer_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20)
-    computer = models.ForeignKey(Computer, on_delete=models.CASCADE)
-    tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE)
+    computer = models.ForeignKey(Computer, on_delete=models.PROTECT)
+    tariff = models.ForeignKey(Tariff, on_delete=models.PROTECT)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default='confirmed'
+        default='pending'
     )
 
     def clean(self):
@@ -141,15 +141,24 @@ class Booking(models.Model):
         return f'{self.customer_name} - {self.computer.name}'
 
     def get_absolute_url(self):
-        return reverse('booking_detail', kwargs={'pk': self.pk})
+        return reverse('club:booking_detail', kwargs={'pk': self.pk})
 
 
 class Payment(models.Model):
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('paid', 'Оплачено'),
+        ('unpaid', 'Не оплачено'),
+    ]
+
+    booking = models.OneToOneField(Booking, null=True, blank=True, on_delete=models.SET_NULL)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     paid_at = models.DateTimeField(null=True, blank=True)
     is_paid = models.BooleanField(default=False)
-    status = models.CharField(max_length=40, default='pending')
+    status = models.CharField(
+        max_length=40,
+        choices=STATUS_CHOICES,
+        default='unpaid',
+    )
 
     def __str__(self):
         return f'Оплата №{self.pk}'

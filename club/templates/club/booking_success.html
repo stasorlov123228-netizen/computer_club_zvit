@@ -1,170 +1,203 @@
-{% extends 'club/base.html' %}
 {% load static %}
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080810">
+    <title>Бронювання підтверджено #{{ booking.id }} · Lviv Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'club/css/home.css' %}?v=2">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        .confirmation-screen {
+            display: grid;
+            min-height: 100vh;
+            place-items: center;
+            padding: clamp(16px, 4vw, 48px);
+            background:
+                radial-gradient(ellipse at 80% 7%, rgba(99, 37, 153, .14), transparent 34rem),
+                var(--arena-bg);
+        }
+        .confirmation-shell { width: min(100%, 820px); margin: auto; }
+        .confirmation-card {
+            position: relative;
+            overflow: hidden;
+            padding: clamp(24px, 4vw, 40px);
+            border: 1px solid var(--arena-line);
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(23, 17, 36, .96), rgba(15, 11, 24, .98));
+            box-shadow: 0 18px 48px rgba(0, 0, 0, .32), 0 12px 38px rgba(88, 34, 136, .10);
+            color: var(--arena-text);
+        }
+        .confirmation-card::before {
+            position: absolute;
+            inset: 0 0 auto;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--arena-lilac), var(--arena-pink), transparent);
+            content: "";
+            opacity: .65;
+        }
+        .confirmation-kicker {
+            display: block;
+            margin-bottom: 11px;
+            color: var(--arena-lilac);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .13em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .confirmation-title {
+            margin: 0;
+            color: var(--arena-text);
+            font-family: var(--arena-display);
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            line-height: 1.3;
+            text-align: center;
+        }
+        .confirmation-message {
+            margin: 10px 0 0;
+            color: var(--arena-muted);
+            line-height: 1.6;
+            text-align: center;
+        }
+        .confirmation-statuses {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 22px 0 28px;
+        }
+        .confirmation-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 13px;
+            border: 1px solid rgba(192, 132, 252, .28);
+            border-radius: 9px;
+            background: rgba(168, 85, 247, .11);
+            color: var(--arena-text);
+            font-size: .88rem;
+            font-weight: 600;
+        }
+        .confirmation-status strong { color: var(--arena-lilac); }
+        .confirmation-section-title {
+            margin: 0 0 12px;
+            color: var(--arena-text);
+            font-family: var(--arena-display);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .confirmation-list {
+            margin: 0;
+            border-top: 1px solid var(--arena-line);
+        }
+        .confirmation-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 16px;
+            padding: 12px 2px;
+            border-bottom: 1px solid var(--arena-line);
+        }
+        .confirmation-row dt { color: var(--arena-muted); font-weight: 400; }
+        .confirmation-row dd {
+            min-width: 0;
+            margin: 0;
+            color: var(--arena-text);
+            font-weight: 600;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+        .confirmation-total {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 18px;
+            padding: 16px 18px;
+            border: 1px solid rgba(192, 132, 252, .3);
+            border-radius: 11px;
+            background: linear-gradient(110deg, rgba(168, 85, 247, .14), rgba(236, 72, 153, .08));
+        }
+        .confirmation-total span { font-weight: 600; }
+        .confirmation-total strong {
+            color: var(--arena-text);
+            font-family: var(--arena-display);
+            font-size: clamp(1.15rem, 3vw, 1.5rem);
+            white-space: nowrap;
+        }
+        .confirmation-actions { display: flex; justify-content: center; margin-top: 23px; }
+        .confirmation-button {
+            display: inline-flex;
+            min-height: 46px;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 19px;
+            border: 0;
+            border-radius: 9px;
+            background: linear-gradient(110deg, #963fe2, #b04eea 55%, #d044bc);
+            box-shadow: 0 9px 28px rgba(168, 85, 247, .24);
+            color: #fff;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            transition: transform .18s, box-shadow .18s;
+        }
+        .confirmation-button:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(168, 85, 247, .34); color: #fff; }
+        .confirmation-button:focus-visible { outline: 3px solid var(--arena-lilac); outline-offset: 3px; }
+        @media (max-width: 520px) {
+            .confirmation-screen { place-items: start center; padding: 14px; }
+            .confirmation-card { padding: 25px 18px; }
+            .confirmation-statuses { align-items: stretch; flex-direction: column; gap: 8px; margin: 19px 0 23px; }
+            .confirmation-status { justify-content: center; }
+            .confirmation-row { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 10px 1px; }
+            .confirmation-row dd { text-align: left; }
+            .confirmation-total { align-items: flex-start; flex-direction: column; gap: 5px; }
+            .confirmation-button { width: 100%; }
+        }
+    </style>
+</head>
+<body class="arena-page confirmation-screen">
+    <main class="confirmation-shell">
+        <section class="confirmation-card" aria-labelledby="confirmation-title">
+            <span class="confirmation-kicker">Lviv Arena · Бронювання #{{ booking.id }}</span>
+            <h1 class="confirmation-title" id="confirmation-title">Бронювання підтверджено!</h1>
+            <p class="confirmation-message">Ваше бронювання успішно підтверджено. Збережіть його номер.</p>
 
-{% block title %}{% if demo_payment %}Демо-перевірка завершена{% else %}Бронювання успішне{% endif %} - Lviv Arena{% endblock %}
+            <div class="confirmation-statuses" aria-label="Статуси бронювання та оплати">
+                <span class="confirmation-status">Бронювання: <strong>{{ booking.get_status_display }}</strong></span>
+                <span class="confirmation-status">Оплата: <strong>{% if booking.payment_status == 'paid' %}Оплачено{% else %}Не оплачено{% endif %}</strong></span>
+            </div>
 
-{% block extra_head %}
-<style>
-    .success-card {
-        padding: 30px 25px;
-        background: #141a23;
-        border: 1px solid #293341;
-        border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .success-icon {
-        width: 65px;
-        height: 65px;
-        margin: 0 auto 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: #173b28;
-        color: #65ff9a;
-        font-size: 35px;
-    }
-
-    .success-title {
-        margin: 0 0 10px;
-        color: #65ff9a;
-        text-align: center;
-        font-size: 25px;
-        font-family: 'Orbitron', sans-serif;
-    }
-
-    .subtitle {
-        margin-bottom: 25px;
-        color: #aeb8c7;
-        text-align: center;
-        font-size: 14px;
-        line-height: 1.5;
-    }
-
-    .details {
-        padding: 16px;
-        background: #0b0e13;
-        border: 1px solid #293341;
-        border-radius: 9px;
-    }
-
-    .detail {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        padding: 11px 0;
-        border-bottom: 1px solid #293341;
-        font-size: 14px;
-    }
-
-    .detail:last-child {
-        border-bottom: none;
-    }
-
-    .label {
-        color: #aeb8c7;
-    }
-
-    .value {
-        text-align: right;
-        font-weight: bold;
-        overflow-wrap: anywhere;
-    }
-
-    .button {
-        display: block;
-        margin-top: 20px;
-        padding: 13px;
-        border-radius: 7px;
-        background: #65ff9a;
-        color: #0b0e13;
-        text-align: center;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    .button:hover {
-        background: #42df7c;
-        color: #080b09;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="container py-3" style="max-width: 550px;">
-    <div class="success-card">
-        <div class="success-icon">✓</div>
-
-        {% if demo_payment %}
-            <h1 class="success-title">Демо-перевірку пройдено</h1>
-        {% else %}
-            <h1 class="success-title">Бронювання успішне!</h1>
-        {% endif %}
-
-        <div class="subtitle">
-            {% if demo_payment %}
-                Дякуємо, що обрали Lviv Arena.<br>
-                Демо-перевірку завершено: статус оплати позначено як «Сплачено».
-                Кошти фактично не списувалися.
-            {% else %}
-                Дякуємо, що обрали Lviv Arena.<br>
-                Ваше бронювання збережено.
-            {% endif %}
-        </div>
-
-        {% if booking %}
-            <div class="details">
-                <div class="detail">
-                    <span class="label">Номер бронювання</span>
-                    <span class="value">#{{ booking.id }}</span>
+            <h2 class="confirmation-section-title">Деталі бронювання</h2>
+            <dl class="confirmation-list">
+                <div class="confirmation-row"><dt>Номер бронювання</dt><dd>#{{ booking.id }}</dd></div>
+                <div class="confirmation-row"><dt>Тариф</dt><dd>{{ booking.tariff.name }}</dd></div>
+                <div class="confirmation-row"><dt>Комп’ютер</dt><dd>{{ booking.computer.name }}</dd></div>
+                <div class="confirmation-row">
+                    <dt>Користувач / клієнт</dt>
+                    <dd>{% if booking.user %}{% if booking.user.get_full_name %}{{ booking.user.get_full_name }}{% else %}{{ booking.user.username }}{% endif %}{% else %}{{ booking.customer_name }}{% endif %}</dd>
                 </div>
+                <div class="confirmation-row"><dt>Дата бронювання</dt><dd>{{ booking.created_at|date:"d.m.Y" }}</dd></div>
+                <div class="confirmation-row"><dt>Дата початку</dt><dd>{{ booking.start_time|date:"d.m.Y" }}</dd></div>
+                <div class="confirmation-row"><dt>Час початку</dt><dd>{{ booking.start_time|date:"H:i" }}</dd></div>
+                <div class="confirmation-row"><dt>Час завершення</dt><dd>{{ booking.end_time|date:"H:i" }}</dd></div>
+                <div class="confirmation-row"><dt>Тривалість</dt><dd>{{ duration_hours }} год.</dd></div>
+                <div class="confirmation-row"><dt>Вартість за годину</dt><dd>{{ price_per_hour|floatformat:2 }} грн</dd></div>
+            </dl>
+            <div class="confirmation-total"><span>Загальна сума</span><strong>{{ total_amount|floatformat:2 }} грн</strong></div>
 
-                <div class="detail">
-                    <span class="label">Ім'я клієнта</span>
-                    <span class="value">{{ booking.customer_name }}</span>
-                </div>
-
-                <div class="detail">
-                    <span class="label">Телефон</span>
-                    <span class="value">{{ booking.phone }}</span>
-                </div>
-
-                <div class="detail">
-                    <span class="label">Комп'ютер</span>
-                    <span class="value">{{ booking.computer.name }}</span>
-                </div>
-
-                <div class="detail">
-                    <span class="label">Тариф</span>
-                    <span class="value">{{ booking.tariff.name }}</span>
-                </div>
-
-                <div class="detail">
-                    <span class="label">Початок</span>
-                    <span class="value">{{ booking.start_time|date:"d.m.Y H:i" }}</span>
-                </div>
-
-                <div class="detail">
-                    <span class="label">Завершення</span>
-                    <span class="value">{{ booking.end_time|date:"d.m.Y H:i" }}</span>
-                </div>
-
-                {% if demo_payment %}
-                    <div class="detail">
-                        <span class="label">Статус бронювання</span>
-                        <span class="value">{{ booking.get_status_display }}</span>
-                    </div>
-                    <div class="detail">
-                        <span class="label">Статус оплати</span>
-                        <span class="value">{{ booking.get_payment_status_display }}</span>
-                    </div>
+            <div class="confirmation-actions">
+                {% if booking.user_id %}
+                    <a class="confirmation-button" href="{% url 'club:my_bookings' %}">Мої бронювання</a>
+                {% else %}
+                    <a class="confirmation-button" href="{% url 'club:home' %}">На головну</a>
                 {% endif %}
             </div>
-        {% endif %}
-
-        <a class="button" href="{% url 'home' %}">ПОВЕРНУТИСЯ НА ГОЛОВНУ</a>
-    </div>
-</div>
-{% endblock %}
+        </section>
+    </main>
+</body>
+</html>

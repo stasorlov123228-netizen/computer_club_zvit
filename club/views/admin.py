@@ -17,12 +17,13 @@ from ..services import (
     PC_SPECS, admin_booking_initial, admin_booking_queryset,
     booking_duration_value, duration_as_timedelta, get_pc_kind,
     get_tariff_kind, is_admin_or_staff, update_computer_statuses,
+    synchronize_payment_record,
 )
 
 @login_required
 def admin_panel(request):
     if not is_admin_or_staff(request.user):
-        return redirect('home')
+        return redirect('club:home')
 
     return render(request, 'club/admin_panel.html')
 
@@ -69,17 +70,22 @@ def edit_admin_booking(request, booking_id):
         if (
             booking_record.payment_status == 'paid'
             and (
-                start != booking_record.start_time
+                computer.pk != booking_record.computer_id
+                or start != booking_record.start_time
                 or (
                     form.cleaned_data['duration']
                     != booking_duration_value(booking_record)
                 )
                 or tariff.pk != booking_record.tariff_id
+                or form.cleaned_data['payment_method']
+                != booking_record.payment_method
+                or form.cleaned_data['payment_status'] != 'paid'
+                or status != 'confirmed'
             )
         ):
             form.add_error(
                 None,
-                'Параметри оплаченого бронювання змінювати не можна.',
+                'Оплачене бронювання та його платіжну історію змінювати не можна.',
             )
         elif get_pc_kind(computer.name) != get_tariff_kind(tariff.name):
             form.add_error(
@@ -125,11 +131,6 @@ def edit_admin_booking(request, booking_id):
                     and booking_record.status != 'cancelled'
                 ):
                     booking_record.status = 'pending'
-                elif (
-                    booking_record.payment_method == 'cash'
-                    and booking_record.status == 'pending'
-                ):
-                    booking_record.status = 'confirmed'
                 booking_record.save(update_fields=[
                     'computer',
                     'tariff',
@@ -139,12 +140,13 @@ def edit_admin_booking(request, booking_id):
                     'payment_status',
                     'status',
                 ])
+                synchronize_payment_record(booking_record)
 
     if form.errors:
         return render_admin_bookings_with_error(request, booking_record, form)
 
     update_computer_statuses()
-    return redirect('admin_bookings')
+    return redirect('club:admin_bookings')
 
 def render_admin_bookings_with_error(request, booking_record, form):
     search_query = request.POST.get('q', '').strip()
@@ -192,9 +194,9 @@ def admin_users(request):
         search_query = request.POST.get('q', '').strip()
         if search_query:
             return redirect(
-                f'{reverse("admin_users")}?{urlencode({"q": search_query})}'
+                f'{reverse("club:admin_users")}?{urlencode({"q": search_query})}'
             )
-        return redirect('admin_users')
+        return redirect('club:admin_users')
 
     search_query = request.GET.get('q', '').strip()
     users = User.objects.select_related('profile').order_by('-date_joined')
@@ -224,7 +226,7 @@ def admin_update_tariff_price(request, tariff_id):
         return HttpResponseForbidden('Доступ заборонено.')
 
     if request.method != 'POST':
-        return redirect('admin_tariffs')
+        return redirect('club:admin_tariffs')
 
     tariff = get_object_or_404(Tariff, pk=tariff_id)
     raw_price = request.POST.get('price', '').strip().replace(',', '.')
@@ -240,12 +242,12 @@ def admin_update_tariff_price(request, tariff_id):
         if new_price.as_tuple().exponent < -2:
             raise InvalidOperation
     except (InvalidOperation, ValueError):
-        return redirect('admin_tariffs')
+        return redirect('club:admin_tariffs')
 
     tariff.price_per_hour = new_price
     tariff.save(update_fields=['price_per_hour'])
 
-    return redirect('admin_tariffs')
+    return redirect('club:admin_tariffs')
 
 @user_passes_test(is_admin_or_staff)
 def admin_computers(request):
@@ -262,7 +264,7 @@ def admin_computers(request):
                 manual_occupied=(new_status == 'occupied'),
             )
 
-        return redirect('admin_computers')
+        return redirect('club:admin_computers')
 
     update_computer_statuses()
 
@@ -279,25 +281,46 @@ def admin_computers(request):
 @user_passes_test(is_admin_or_staff)
 @require_POST
 def admin_booking_action(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)
     action = request.POST.get('action')
-
-    if action == 'toggle_payment':
-        booking.payment_status = (
-            'unpaid' if booking.payment_status == 'paid' else 'paid'
+    deleted = False
+    with transaction.atomic():
+        booking = get_object_or_404(
+            Booking.objects.select_for_update(),
+            id=booking_id,
         )
-        if booking.payment_method == 'card' and booking.status != 'cancelled':
-            booking.status = (
-                'confirmed'
-                if booking.payment_status == 'paid'
-                else 'pending'
-            )
-            booking.save(update_fields=['payment_status', 'status'])
-        else:
-            booking.save(update_fields=['payment_status'])
 
-    elif action == 'delete':
-        booking.delete()
+        if action == 'toggle_payment':
+            if booking.status == 'cancelled':
+                messages.error(
+                    request,
+                    'Статус оплати скасованого бронювання змінювати не можна. Перевірте платіж вручну.',
+                )
+            else:
+                booking.payment_status = (
+                    'unpaid' if booking.payment_status == 'paid' else 'paid'
+                )
+                if booking.payment_method == 'card':
+                    booking.status = (
+                        'confirmed'
+                        if booking.payment_status == 'paid'
+                        else 'pending'
+                    )
+                    booking.save(update_fields=['payment_status', 'status'])
+                else:
+                    booking.save(update_fields=['payment_status'])
+                synchronize_payment_record(booking)
+
+        elif action == 'delete':
+            if booking.payment_status == 'paid':
+                messages.error(
+                    request,
+                    'Оплачене бронювання не можна видалити, щоб зберегти історію платежу.',
+                )
+            else:
+                booking.delete()
+                deleted = True
+
+    if deleted:
         update_computer_statuses()
 
-    return redirect('admin_bookings')
+    return redirect('club:admin_bookings')

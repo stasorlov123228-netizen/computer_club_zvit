@@ -1,153 +1,80 @@
 {% extends 'club/base.html' %}
 {% load static %}
 
-{% block title %}Реєстрація - Lviv Arena{% endblock %}
+{% block title %}Створити акаунт · Lviv Arena{% endblock %}
+{% block body_class %}auth-page{% endblock %}
 
 {% block extra_head %}
-<style>
-    .register-card {
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-        padding: 35px;
-        background: #141a23;
-        border: 1px solid #293341;
-        border-radius: 14px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .register-title {
-        text-align: center;
-        color: #65ff9a;
-        font-family: 'Orbitron', sans-serif;
-        margin-bottom: 8px;
-    }
-
-    .register-subtitle {
-        color: #aeb8c7;
-        text-align: center;
-        margin-bottom: 24px;
-        font-size: 14px;
-    }
-
-    .register-card label {
-        display: block;
-        margin: 14px 0 6px;
-        color: #e6ebf2;
-        font-size: 14px;
-    }
-
-    .register-card input, .register-card select {
-        width: 100%;
-        padding: 12px;
-        color: white;
-        background: #0b0e13;
-        border: 1px solid #394658;
-        border-radius: 7px;
-    }
-
-    .register-card input:focus, .register-card select:focus {
-        border-color: #65ff9a;
-        outline: none;
-    }
-
-    .register-card select {
-        cursor: pointer;
-    }
-
-    .btn-register-submit {
-        width: 100%;
-        margin-top: 25px;
-        padding: 14px;
-        border: none;
-        border-radius: 7px;
-        background: #65ff9a;
-        color: #0b0e13;
-        font-weight: bold;
-        font-family: 'Orbitron', sans-serif;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .btn-register-submit:hover {
-        background: #4fe583;
-    }
-
-    .register-link {
-        display: block;
-        margin-top: 20px;
-        text-align: center;
-        color: #65ff9a;
-        text-decoration: none;
-        font-size: 14px;
-    }
-
-    .register-link:hover {
-        text-decoration: underline;
-    }
-
-    .helptext {
-        display: block;
-        margin-top: 6px;
-        font-size: 12px;
-        color: #778395;
-    }
-
-    .errorlist {
-        color: #ff7777;
-        padding-left: 20px;
-        margin-top: 6px;
-        font-size: 13px;
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'club/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'club/css/auth.css' %}">
 {% endblock %}
 
+{% block footer_content %}
+    <p class="mb-1">&copy; 2026 Lviv Arena. Комп'ютерний клуб у Львові.</p>
+    <nav class="footer-links" aria-label="Додаткові посилання">
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">БЛОГ</a>
+        <a href="{% url 'club:feedback' %}">ЗВОРОТНИЙ ЗВ’ЯЗОК</a>
+        <a href="{% url 'club:partnership' %}">ПАРТНЕРСТВО</a>
+    </nav>
+{% endblock %}
+{% block footer_class %}site-footer auth-footer{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="register-card">
-        <h1 class="register-title">Створення акаунта</h1>
-        <p class="register-subtitle">Зареєструйтеся в комп'ютерному клубі Lviv Arena.</p>
+<div class="arena-home auth-home">
+    <div class="auth-layout auth-layout--register">
+        <section class="feature-card auth-card auth-card--register" aria-labelledby="auth-title">
+            <span class="section-kicker auth-kicker">LVIV ARENA · ПРИЄДНУЙТЕСЯ ДО ГРИ</span>
+            <h1 class="auth-title" id="auth-title">Створити акаунт</h1>
+            <p class="auth-subtitle">Створіть акаунт, щоб бронювати комп’ютери та стежити за своїми візитами.</p>
 
-        <form method="POST">
-            {% csrf_token %}
-            <p>
-                {{ form.username.label_tag }}
-                {{ form.username }}
-                {{ form.username.errors }}
-            </p>
-            <p>
-                {{ form.email.label_tag }}
-                {{ form.email }}
-                {{ form.email.errors }}
-            </p>
-            <p>
-                {{ form.phone_country.label_tag }}
-                {{ form.phone_country }}
-                {{ form.phone_country.errors }}
-            </p>
-            <p>
-                {{ form.phone_local.label_tag }}
-                {{ form.phone_local }}
-                {{ form.phone_local.errors }}
-            </p>
-            <p>
-                {{ form.password.label_tag }}
-                {{ form.password }}
-                {{ form.password.help_text }}
-                {{ form.password.errors }}
-            </p>
-            {{ form.non_field_errors }}
+            <form method="post" class="auth-form" novalidate>
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="auth-alert" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
 
-            <button type="submit" class="btn-register-submit">ЗАРЕЄСТРУВАТИСЯ</button>
-        </form>
+                <div class="auth-field">
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                    {% if form.username.errors %}<div class="auth-field-errors" role="alert">{{ form.username.errors }}</div>{% endif %}
+                </div>
 
-        <a class="register-link" href="{% url 'login' %}">
-            Уже маєте акаунт? Увійти
-        </a>
+                <div class="auth-field">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    {% if form.email.errors %}<div class="auth-field-errors" role="alert">{{ form.email.errors }}</div>{% endif %}
+                </div>
 
-        <div class="text-center mt-3">
-            <a class="text-white-50 small text-decoration-none" href="{% url 'home' %}">&larr; На головну</a>
-        </div>
+                <div class="auth-field">
+                    {{ form.phone_country.label_tag }}
+                    {{ form.phone_country }}
+                    {% if form.phone_country.errors %}<div class="auth-field-errors" role="alert">{{ form.phone_country.errors }}</div>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    {{ form.phone_local.label_tag }}
+                    {{ form.phone_local }}
+                    {% if form.phone_local.errors %}<div class="auth-field-errors" role="alert">{{ form.phone_local.errors }}</div>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    {{ form.password1.label_tag }}
+                    {{ form.password1 }}
+                    {% if form.password1.help_text %}<small class="auth-help">{{ form.password1.help_text }}</small>{% endif %}
+                    {% if form.password1.errors %}<div class="auth-field-errors" role="alert">{{ form.password1.errors }}</div>{% endif %}
+                </div>
+
+                <div class="auth-field">
+                    {{ form.password2.label_tag }}
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}<div class="auth-field-errors" role="alert">{{ form.password2.errors }}</div>{% endif %}
+                </div>
+
+                <button type="submit" class="button button-primary auth-submit">ЗАРЕЄСТРУВАТИСЯ</button>
+            </form>
+
+            <p class="auth-switch">Вже маєте акаунт? <a href="{% url 'club:login' %}">Увійти</a></p>
+        </section>
     </div>
 </div>
 {% endblock %}

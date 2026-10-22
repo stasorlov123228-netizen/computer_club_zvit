@@ -79,7 +79,7 @@
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
     {% include 'club/includes/navbar.html' %}
 
     <main class="main-content py-4">
@@ -87,10 +87,12 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="py-3 text-center">
+    <footer class="py-3 text-center {% block footer_class %}{% endblock %}">
         <div class="container">
-            <p class="mb-1 text-white-50">&copy; 2026 Lviv Arena. Комп'ютерний клуб нового покоління.</p>
-            <p class="mb-0 text-muted small">СУБД: MySQL 8.4 LTS | Django 6.1 | Всі права захищено</p>
+            {% block footer_content %}
+                <p class="mb-1 text-white-50">&copy; 2026 Lviv Arena. Комп'ютерний клуб нового покоління.</p>
+                <p class="mb-0 text-muted small">СУБД: MySQL 8.4 LTS | Django 6.1 | Всі права захищено</p>
+            {% endblock %}
         </div>
     </footer>
 

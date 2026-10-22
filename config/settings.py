@@ -74,9 +74,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'club:login'
+LOGIN_REDIRECT_URL = 'club:home'
+LOGOUT_REDIRECT_URL = 'club:home'
 
 TEMPLATES = [
     {
@@ -95,12 +95,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+MYSQL_USER = os.environ.get('MYSQL_USER', '').strip()
+MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
+if not MYSQL_USER:
+    raise ImproperlyConfigured('Set MYSQL_USER in the environment or .env file.')
+if not MYSQL_PASSWORD:
+    raise ImproperlyConfigured(
+        'Set a non-empty MYSQL_PASSWORD in the environment or .env file.'
+    )
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('MYSQL_DATABASE', 'computer_club'),
-        'USER': os.environ.get('MYSQL_USER', 'root'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
+        'USER': MYSQL_USER,
+        'PASSWORD': MYSQL_PASSWORD,
         'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
         'PORT': os.environ.get('MYSQL_PORT', '3302'),
         'OPTIONS': {

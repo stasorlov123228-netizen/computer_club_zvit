@@ -17,10 +17,10 @@
                     Тариф доступний для бронювання на будь-який вільний комп'ютер клубу.
                 </p>
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <a href="{% url 'tariff_list' %}" class="btn btn-outline-light">
+                    <a href="{% url 'club:tariff_list' %}" class="btn btn-outline-light">
                         &larr; До всіх тарифів
                     </a>
-                    <a href="{% url 'booking_create' %}?tariff={{ tariff.pk }}" class="btn btn-arena">
+                    <a href="{% url 'club:booking_create' %}?tariff={{ tariff.pk }}" class="btn btn-arena">
                         Обрати цей тариф
                     </a>
                 </div>

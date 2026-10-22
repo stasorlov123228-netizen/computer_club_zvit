@@ -37,23 +37,20 @@
             </button>
 
             <nav class="main-nav" id="main-nav" aria-label="Головна навігація">
-                <a href="{% url 'tournaments' %}">ТУРНІРИ</a>
-                <a href="{% url 'news' %}">НОВИНИ</a>
-                <a href="{% url 'clubs' %}">КЛУБИ</a>
-                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">БЛОГ</a>
-                <a href="{% url 'feedback' %}">ЗВ'ЯЗОК</a>
-                <a href="{% url 'partnership' %}">ПАРТНЕРСТВО</a>
+                <a href="{% url 'club:tournaments' %}">ТУРНІРИ</a>
+                <a href="{% url 'club:news' %}">НОВИНИ</a>
+                <a href="{% url 'club:clubs' %}">КЛУБИ</a>
 
                 {% if user.is_authenticated %}
                     {% if user.is_staff %}
-                        <a href="{% url 'admin_panel' %}" class="account-link">АДМІН-ПАНЕЛЬ</a>
+                        <a href="{% url 'club:admin_panel' %}" class="account-link">АДМІН-ПАНЕЛЬ</a>
                     {% endif %}
-                    <a href="{% url 'account' %}" class="account-link">АКАУНТ</a>
+                    <a href="{% url 'club:account' %}" class="account-link">АКАУНТ</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="account-link">УВІЙТИ</a>
+                    <a href="{% url 'club:login' %}" class="account-link">УВІЙТИ</a>
                 {% endif %}
 
-                <a href="{% url 'booking' %}" class="booking-link">ЗАБРОНЮВАТИ</a>
+                <a href="{% url 'club:booking' %}" class="booking-link">ЗАБРОНЮВАТИ</a>
             </nav>
         </header>
 
@@ -68,7 +65,7 @@
                     </p>
 
                     <div class="hero-actions">
-                        <a href="{% url 'booking' %}" class="button button-primary">
+                        <a href="{% url 'club:booking' %}" class="button button-primary">
                             Забронювати ПК
                             <span aria-hidden="true">↗</span>
                         </a>
@@ -196,7 +193,7 @@
                             <div class="tariff-price">70 ₴ <span>/ година</span></div>
                             <div class="tariff-pc">20 комп'ютерів</div>
                             <p class="tariff-text">Для щоденних ігор, відпочинку та знайомства з клубом.</p>
-                            <a href="{% url 'booking' %}" class="button button-secondary">Обрати тариф</a>
+                            <a href="{% url 'club:booking' %}" class="button button-secondary">Обрати тариф</a>
                         </article>
 
                         <article class="tariff-card featured reveal">
@@ -205,7 +202,7 @@
                             <div class="tariff-price">130 ₴ <span>/ година</span></div>
                             <div class="tariff-pc">15 комп'ютерів</div>
                             <p class="tariff-text">Потужніший ігровий досвід для змагальних матчів.</p>
-                            <a href="{% url 'booking' %}" class="button button-primary">Обрати тариф</a>
+                            <a href="{% url 'club:booking' %}" class="button button-primary">Обрати тариф</a>
                         </article>
 
                         <article class="tariff-card reveal">
@@ -214,7 +211,7 @@
                             <div class="tariff-price">150 ₴ <span>/ година</span></div>
                             <div class="tariff-pc">15 комп'ютерів</div>
                             <p class="tariff-text">Максимальний комфорт для вимогливих гравців.</p>
-                            <a href="{% url 'booking' %}" class="button button-secondary">Обрати тариф</a>
+                            <a href="{% url 'club:booking' %}" class="button button-secondary">Обрати тариф</a>
                         </article>
 
                         <article class="tariff-card reveal">
@@ -223,7 +220,7 @@
                             <div class="tariff-price">140 ₴ <span>/ година</span></div>
                             <div class="tariff-pc">5 комп'ютерів</div>
                             <p class="tariff-text">Ігрова зона для створення контенту та проведення трансляцій.</p>
-                            <a href="{% url 'booking' %}" class="button button-secondary">Обрати тариф</a>
+                            <a href="{% url 'club:booking' %}" class="button button-secondary">Обрати тариф</a>
                         </article>
                     </div>
                 </div>
@@ -246,7 +243,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{% url 'booking' %}" class="button button-primary">
+                        <a href="{% url 'club:booking' %}" class="button button-primary">
                             Забронювати ПК <span aria-hidden="true">↗</span>
                         </a>
                     </div>
@@ -286,6 +283,11 @@
 
         <footer class="site-footer">
             © 2026 Lviv Arena. Комп'ютерний клуб у Львові.
+            <nav class="footer-links" aria-label="Додаткові посилання">
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">БЛОГ</a>
+                <a href="{% url 'club:feedback' %}">ЗВОРОТНИЙ ЗВ'ЯЗОК</a>
+                <a href="{% url 'club:partnership' %}">ПАРТНЕРСТВО</a>
+            </nav>
         </footer>
     </div>
 </body>

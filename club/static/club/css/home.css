@@ -904,10 +904,10 @@ html {
 }
 
 .arena-home .site-footer {
-    padding: 26px 20px;
-    border-top: 1px solid rgba(192, 132, 252, 0.1);
+    padding: 25px;
+    border-top: 1px solid rgba(192, 132, 252, 0.12);
     color: #8f879d;
-    font-size: 12px;
+    font-size: 13px;
     text-align: center;
 }
 
@@ -1195,3 +1195,8 @@ html {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+.arena-home .footer-links { display:flex; flex-wrap:wrap; justify-content:center; gap:12px 24px; margin-top:14px; }
+.arena-home .footer-links a { color:var(--arena-lilac); text-decoration:none; }
+.arena-home .footer-links a:hover { color:#e0baff; text-decoration:underline; text-underline-offset:4px; }

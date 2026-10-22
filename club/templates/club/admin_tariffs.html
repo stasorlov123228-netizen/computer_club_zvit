@@ -175,7 +175,7 @@
         </div>
 
         <form method="post"
-            action="{% url 'admin_update_tariff_price' t.id %}"
+            action="{% url 'club:admin_update_tariff_price' t.id %}"
             class="price-form">
             {% csrf_token %}
 

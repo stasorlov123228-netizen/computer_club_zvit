@@ -1,4 +1,5 @@
 import re
+from datetime import date
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -55,6 +56,13 @@ class BookingModelForm(forms.ModelForm):
         start = cleaned.get('start_time')
         end = cleaned.get('end_time')
         computer = cleaned.get('computer')
+        if self.instance.pk and self.instance.payment_status == 'paid':
+            self.add_error(None, 'Оплачене бронювання не можна редагувати.')
+        if start and start <= timezone.now():
+            self.add_error(
+                'start_time',
+                'Час початку має бути в майбутньому.',
+            )
         if start and end and end <= start:
             self.add_error(
                 'end_time', 'Час завершення має бути пізніше за час початку.',
@@ -79,9 +87,10 @@ import re
 from datetime import timedelta
 
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Case, Exists, IntegerField, OuterRef, When
 from django.utils import timezone
 
@@ -104,6 +113,62 @@ def clean_phone_fields(form):
         except ValidationError as error:
             form.add_error('phone_local', error)
     return form.cleaned_data
+
+
+
+class CardPaymentForm(forms.Form):
+    """Validates transient card details for the local payment simulation."""
+
+    card_number = forms.CharField(max_length=19, strip=True)
+    cardholder_name = forms.CharField(max_length=100, strip=True)
+    expiry = forms.CharField(max_length=5, strip=True)
+    cvc = forms.CharField(max_length=3, strip=True)
+
+    def clean_card_number(self):
+        number = self.cleaned_data['card_number']
+        if not re.fullmatch(r'[0-9 ]+', number):
+            raise ValidationError(
+                'Введіть номер картки цифрами, використовуючи лише пробіли між групами.'
+            )
+        digits = number.replace(' ', '')
+        if not 13 <= len(digits) <= 16:
+            raise ValidationError(
+                'Номер картки має містити від 13 до 16 цифр.'
+            )
+        return digits
+
+    def clean_cardholder_name(self):
+        name = self.cleaned_data['cardholder_name'].strip()
+        if not 2 <= len(name) <= 100 or not all(
+            char.isalpha() or char == ' ' for char in name
+        ):
+            raise ValidationError(
+                'Введіть ім’я власника картки літерами та пробілами (від 2 до 100 символів).'
+            )
+        return name
+
+    def clean_expiry(self):
+        value = self.cleaned_data['expiry']
+        match = re.fullmatch(r'(0[1-9]|1[0-2])/([0-9]{2})', value)
+        if not match:
+            raise ValidationError(
+                'Введіть термін дії у форматі MM/YY, де місяць від 01 до 12.'
+            )
+        month, year = int(match.group(1)), 2000 + int(match.group(2))
+        if date(year, month, 1) < timezone.localdate().replace(day=1):
+            raise ValidationError(
+                'Термін дії картки вже минув.'
+            )
+        return value
+
+    def clean_cvc(self):
+        cvc = self.cleaned_data['cvc']
+        if not re.fullmatch(r'[0-9]{3}', cvc):
+            raise ValidationError(
+                'CVC/CVV має містити рівно 3 цифри.'
+            )
+        return cvc
+
 
 class BookingEditForm(forms.Form):
     tariff = forms.ModelChoiceField(
@@ -261,7 +326,8 @@ class AdminBookingEditForm(forms.Form):
         status = cleaned_data.get('status')
         if self.booking and self.booking.payment_status == 'paid':
             if (
-                cleaned_data.get('start_time') != self.booking.start_time
+                cleaned_data.get('computer') != self.booking.computer
+                or cleaned_data.get('start_time') != self.booking.start_time
                 or (
                     cleaned_data.get('duration')
                     != booking_duration_value(self.booking)
@@ -271,6 +337,21 @@ class AdminBookingEditForm(forms.Form):
                 self.add_error(
                     None,
                     'Параметри оплаченого бронювання змінювати не можна.',
+                )
+            if payment_method != self.booking.payment_method:
+                self.add_error(
+                    'payment_method',
+                    'Спосіб оплати оплаченого бронювання змінювати не можна.',
+                )
+            if payment_status != 'paid':
+                self.add_error(
+                    'payment_status',
+                    'Статус оплати можна змінити лише після підтвердження повернення.',
+                )
+            if status != 'confirmed':
+                self.add_error(
+                    'status',
+                    'Оплачене бронювання не можна скасувати або повернути в очікування.',
                 )
         if (
             payment_method == 'card'
@@ -324,7 +405,7 @@ class PhoneNumberForm(forms.Form):
         clean_phone_fields(self)
         return cleaned_data
 
-class CustomUserCreationForm(forms.ModelForm):
+class CustomUserCreationForm(UserCreationForm):
     phone_country = forms.ChoiceField(
         label='Код країни',
         choices=PHONE_COUNTRY_CHOICES,
@@ -337,52 +418,48 @@ class CustomUserCreationForm(forms.ModelForm):
             'autocomplete': 'tel-national',
         }),
     )
-    password = forms.CharField(
-        label='Пароль',
-        widget=forms.PasswordInput,
-        strip=False,
-        min_length=8,
-        help_text='Пароль має містити щонайменше 8 символів.',
-    )
-
     class Meta:
         model = User
         fields = ('username', 'email')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['username'].label = 'Ім’я користувача'
         self.fields['username'].help_text = ''
         self.fields['email'].label = 'Електронна пошта'
         self.fields['email'].required = False
         self.fields['email'].widget.attrs['autocomplete'] = 'email'
+        self.fields['password1'].label = 'Пароль'
+        self.fields['password1'].help_text = (
+            'Введіть пароль, який відповідає вимогам безпеки.'
+        )
+        self.fields['password2'].label = 'Підтвердження пароля'
+        self.fields['password1'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['password2'].widget.attrs['autocomplete'] = 'new-password'
 
     def clean(self):
         cleaned_data = super().clean()
         clean_phone_fields(self)
         return cleaned_data
 
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        user = User(
-            username=self.cleaned_data.get('username')
-        )
-
-        try:
-            validate_password(password, user=user)
-        except ValidationError as error:
-            raise forms.ValidationError(error.messages)
-
-        return password
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username__iexact=username).exclude(
+            pk=self.instance.pk,
+        ).exists():
+            raise forms.ValidationError(
+                '\u0426\u0435\u0439 \u043b\u043e\u0433\u0456\u043d \u0443\u0436\u0435 \u0437\u0430\u0439\u043d\u044f\u0442\u0438\u0439. \u0411\u0443\u0434\u044c \u043b\u0430\u0441\u043a\u0430, \u043e\u0431\u0435\u0440\u0456\u0442\u044c \u0456\u043d\u0448\u0438\u0439'
+            )
+        return username
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password'])
-
         if commit:
-            user.save()
-            UserProfile.objects.update_or_create(
-                user=user,
-                defaults={'phone': self.cleaned_data['phone']},
-            )
+            with transaction.atomic():
+                user.save()
+                UserProfile.objects.update_or_create(
+                    user=user,
+                    defaults={'phone': self.cleaned_data['phone']},
+                )
 
         return user

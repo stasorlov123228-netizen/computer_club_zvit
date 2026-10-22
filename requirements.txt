@@ -3,4 +3,6 @@ Django==6.1.2
 mysqlclient==2.3.0
 sqlparse==0.6.0
 tzdata==2026.5
+pytest==9.1.1
+selenium==4.51.0
 

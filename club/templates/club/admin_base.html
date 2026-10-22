@@ -246,7 +246,7 @@
 <body>
 
     <header class="page-header">
-        <a href="{% url 'admin_panel' %}" class="logo">LVIV ARENA</a>
+        <a href="{% url 'club:admin_panel' %}" class="logo">LVIV ARENA</a>
 
         <button class="burger" id="burger" type="button"
                 aria-label="Відкрити меню" aria-expanded="false" aria-controls="admin-nav">
@@ -256,28 +256,28 @@
         </button>
 
         <nav class="admin-nav" id="admin-nav">
-            <a href="{% url 'admin_bookings' %}"
+            <a href="{% url 'club:admin_bookings' %}"
                class="{% if request.resolver_match.url_name == 'admin_bookings' %}active{% endif %}">
                 ПЕРЕГЛЯНУТИ БРОНЮВАННЯ
             </a>
 
-            <a href="{% url 'admin_users' %}"
+            <a href="{% url 'club:admin_users' %}"
                class="{% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 КОРИСТУВАЧІ
             </a>
 
-            <a href="{% url 'admin_tariffs' %}"
+            <a href="{% url 'club:admin_tariffs' %}"
                class="{% if request.resolver_match.url_name == 'admin_tariffs' %}active{% endif %}">
                 КЕРУВАТИ ТАРИФАМИ
             </a>
 
-            <a href="{% url 'admin_computers' %}"
+            <a href="{% url 'club:admin_computers' %}"
                class="{% if request.resolver_match.url_name == 'admin_computers' %}active{% endif %}">
                 КЕРУВАТИ КОМП'ЮТЕРАМИ
             </a>
 
-            <a href="{% url 'home' %}" class="home-link">НА ГОЛОВНУ</a>
-            <form action="{% url 'logout' %}" method="post">
+            <a href="{% url 'club:home' %}" class="home-link">НА ГОЛОВНУ</a>
+            <form action="{% url 'club:logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit">ВИЙТИ</button>
             </form>

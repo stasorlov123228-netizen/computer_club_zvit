@@ -674,8 +674,8 @@
 <body>
 
 <header class="page-header">
-    <a href="{% url 'home' %}" class="logo">LVIV ARENA</a>
-    <a href="{% url 'account' %}" class="header-link">В АКАУНТ</a>
+    <a href="{% url 'club:home' %}" class="logo">LVIV ARENA</a>
+    <a href="{% url 'club:account' %}" class="header-link">В АКАУНТ</a>
 </header>
 
 <main class="container">
@@ -823,7 +823,7 @@
         </form>
     </div>
 
-    <a class="back" href="{% url 'home' %}">Повернутися на головну</a>
+    <a class="back" href="{% url 'club:home' %}">Повернутися на головну</a>
 
 </main>
 
@@ -844,7 +844,7 @@
             <button type="button" class="pay-button primary" data-method="card">
                 <span class="pay-icon">💳</span>
                 ОПЛАТИТИ КАРТКОЮ
-                <small>Демо-режим: кошти не списуються</small>
+                <small>Реального списання коштів не відбувається</small>
             </button>
 
             <button type="button" class="pay-button" data-method="cash">
