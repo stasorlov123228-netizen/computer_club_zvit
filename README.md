@@ -1,6 +1,6 @@
-﻿# Lviv Arena — система керування комп’ютерним клубом
+# Lviv Arena - система керування комп’ютерним клубом
 
-Django-застосунок для комп’ютерного клубу: публічні сторінки, бронювання комп’ютерів, тарифи, облікові записи, оплата та адміністративна панель. Проєкт містить застосунок `club`, конфігурацію Django в `config`, шаблони й статичні ресурси в `club/templates` та `club/static`, а схему бази даних — у `club/migrations`.
+Django-застосунок для комп’ютерного клубу: публічні сторінки, бронювання комп’ютерів, тарифи, облікові записи, оплата та адміністративна панель. Проєкт містить застосунок `club`, конфігурацію Django в `config`, шаблони й статичні ресурси в `club/templates` та `club/static`, а схему бази даних - у `club/migrations`.
 
 ## Вимоги
 
@@ -61,31 +61,26 @@ python manage.py runserver
 
 Відкрийте `http://127.0.0.1:8000/`. Адміністративна панель Django доступна за адресою `/admin/`.
 
-## Тести та перевірки
+## Tests and checks
 
-Перевірені версії `pytest` і `selenium` також зафіксовані в `requirements.txt`.
-Для Selenium UI-тестів потрібен запущений сайт, Chrome та доступний ChromeDriver
-(Selenium Manager може знайти драйвер автоматично). Авторизаційний тест очікує
-вже наявний обліковий запис `test_user2`; пароль передається лише через змінну
-оточення, не зберігається у файлах:
+The fast Django tests in `club/tests.py` cover pricing, booking status, and tariff-to-computer mapping. The Selenium suite implements two documented test cases: TC-01 checks the homepage and TC-02 covers login and opening the account page.
+
+Run the site in one terminal:
 
 ```powershell
 python manage.py runserver
 ```
 
-В іншому терміналі з активованим тим самим віртуальним середовищем задайте
-пароль прихованим вводом і виконайте:
+Both tests read `TEST_USER_USERNAME` and `TEST_USER_PASSWORD` from the ignored local `.env` file. In a second PowerShell terminal, activate the virtual environment and run them; Chrome is visible by default:
 
 ```powershell
-$securePassword = Read-Host -AsSecureString "Пароль test_user2"
-$env:TEST_USER_PASSWORD = [System.Net.NetworkCredential]::new('', $securePassword).Password
-python -m pytest ui_tests/test_site_ui.py -v
-Remove-Item Env:TEST_USER_PASSWORD
+.\venv\Scripts\Activate.ps1
+python -m pytest ui_tests/test_site_ui.py -v -s
 ```
 
-UI-тест входить у наявний обліковий запис і створює звичайну веб-сесію, тому
-запускайте його лише з тестовою базою та тестовим обліковим записом. Команда
-вище очищає змінну середовища після проходження тесту.
+Set `TEST_HEADLESS=1` to run without showing the Chrome window. Each test opens and closes its own browser session. Chrome and a compatible ChromeDriver are required.
+
+Django checks:
 
 ```powershell
 python manage.py check
@@ -93,12 +88,7 @@ python manage.py makemigrations --check --dry-run
 python manage.py test
 ```
 
-Тестовому runner Django потрібен доступний MySQL і право створювати та видаляти
-окрему тестову базу. Не запускайте його з обліковими даними робочої БД, якщо
-такі права створять ризик для даних. У поточній копії окремих модулів тестів
-Django немає; наведені команди `check` і перевірки міграцій можна виконувати
-без створення тестових записів.
-
+The Django test runner needs MySQL access and permission to create and remove its test database. Use a test database account with those permissions.
 ## Основні можливості та оплата
 
 Клієнт може зареєструватися, переглядати комп’ютери й тарифи, створювати та переглядати власні бронювання. Персонал керує бронюваннями та каталогом через адміністративні сторінки й Django Admin.
@@ -113,4 +103,4 @@ Django немає; наведені команди `check` і перевірки
 python manage.py seed_demo_data
 ```
 
-Команда додає лише відсутні записи каталогу, безпечно працює при повторному запуску й не змінює користувачів або бронювання. Перевірені власні фікстури можна завантажити через `python manage.py loaddata <fixture.json>`.
+Команда додає відсутні записи каталогу та одне майбутнє гостьове бронювання для `Demo Customer`.

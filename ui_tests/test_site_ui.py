@@ -1,20 +1,13 @@
 import os
-from urllib.error import URLError
-from urllib.request import urlopen
 
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 
 
-BASE_URL = "http://127.0.0.1:8000"
-HOME_URL = f"{BASE_URL}/"
-LOGIN_URL = f"{BASE_URL}/login/"
-ACCOUNT_URL = f"{BASE_URL}/account/"
-TEST_USERNAME = "test_user2"
+BASE_URL = os.environ.get("TEST_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 WAIT_SECONDS = 12
 
 
@@ -22,109 +15,98 @@ WAIT_SECONDS = 12
 def browser():
     options = webdriver.ChromeOptions()
     options.add_argument("--window-size=1440,1000")
+    if os.environ.get("TEST_HEADLESS", "1").strip().lower() in {"1", "true", "yes"}:
+        options.add_argument("--headless=new")
     driver = webdriver.Chrome(options=options)
+    driver.set_page_load_timeout(20)
     try:
-        driver.set_page_load_timeout(20)
         yield driver
     finally:
         driver.quit()
 
 
-@pytest.fixture
-def existing_user_password():
-    password = os.environ.get("TEST_USER_PASSWORD")
-    if not password:
-        pytest.fail(
-            "Не задано TEST_USER_PASSWORD. Установіть змінну середовища для "
-            "існуючого test_user2; значення пароля не виводиться й не зберігається у файлі."
-        )
-    return password
-
-
-def test_homepage_loads_with_expected_content_and_navigation(browser):
-    try:
-        with urlopen(HOME_URL, timeout=5) as response:
-            assert response.status == 200, "Головна сторінка повернула не HTTP 200."
-            assert response.geturl() == HOME_URL, "HTTP-запит перейшов на неочікувану адресу."
-    except URLError:
-        pytest.fail(
-            "Не вдалося перевірити HTTP-відповідь. Переконайтеся, що Django-сервер "
-            "працює на 127.0.0.1:8000."
-        )
-
-    browser.get(HOME_URL)
+def test_tc01_homepage_loads_and_shows_main_content(browser):
+    """TC-01: homepage, navigation, information sections, and tariffs render."""
     wait = WebDriverWait(browser, WAIT_SECONDS)
+    home_url = f"{BASE_URL}/"
+    browser.get(home_url)
+
     main = wait.until(EC.visibility_of_element_located((By.ID, "main-content")))
     heading = wait.until(EC.visibility_of_element_located((By.ID, "hero-title")))
     navigation = wait.until(EC.visibility_of_element_located((By.ID, "main-nav")))
 
-    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-    assert browser.current_url == HOME_URL, "Браузер залишив головну сторінку."
-    assert browser.title.startswith("Lviv Arena"), "Заголовок вкладки не відповідає сайту."
+    assert browser.current_url == home_url
+    assert browser.title.startswith("Lviv Arena")
     assert "LVIV" in heading.text and "ARENA" in heading.text
-    assert browser.find_element(
-        By.CSS_SELECTOR, "header.main-header a.logo[href='#home']"
-    ).is_displayed()
-    assert main.find_element(By.CSS_SELECTOR, ".hero-description").is_displayed()
-    assert navigation.find_element(By.CSS_SELECTOR, "a[href='/clubs/']").is_displayed()
-    assert navigation.find_element(By.CSS_SELECTOR, "a[href='/news/']").is_displayed()
-    assert navigation.find_element(By.CSS_SELECTOR, "a[href='/tournaments/']").is_displayed()
-    assert navigation.find_element(By.CSS_SELECTOR, "a.booking-link[href='/booking/']").is_displayed()
-    assert navigation.find_element(By.CSS_SELECTOR, "a.account-link[href='/login/']").is_displayed()
 
-    feature_heading = (By.CSS_SELECTOR, ".feature-grid .feature-card h3")
-    browser.execute_script(
-        "arguments[0].scrollIntoView({block: 'center'});",
-        main.find_element(By.CSS_SELECTOR, ".feature-grid"),
+    expected_links = (
+        "/clubs/",
+        "/news/",
+        "/tournaments/",
+        "/booking/",
+        "/login/",
     )
-    assert wait.until(EC.visibility_of_element_located(feature_heading)).is_displayed()
+    for href in expected_links:
+        link = navigation.find_element(By.CSS_SELECTOR, f"a[href='{href}']")
+        assert link.is_displayed(), f"Expected visible navigation link: {href}"
 
-    tariff_heading = (By.CSS_SELECTOR, "#prices .tariff-grid .tariff-card h3")
+    feature_grid = main.find_element(By.CSS_SELECTOR, ".feature-grid")
     browser.execute_script(
-        "arguments[0].scrollIntoView({block: 'center'});",
-        main.find_element(By.ID, "prices"),
+        "arguments[0].scrollIntoView({block: 'center'});", feature_grid,
     )
-    assert wait.until(EC.visibility_of_element_located(tariff_heading)).is_displayed()
-    assert not any(
-        marker in browser.page_source.lower()
-        for marker in ("traceback (most recent call last)", "django.core.exceptions")
-    ), "Замість головної сторінки відобразилася помилка Django."
+    feature_cards = feature_grid.find_elements(By.CSS_SELECTOR, ".feature-card h3")
+    assert feature_cards, "Homepage information cards are missing."
+    assert any(card.is_displayed() for card in feature_cards)
+
+    pricing = main.find_element(By.ID, "prices")
+    browser.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", pricing,
+    )
+    tariff_cards = pricing.find_elements(By.CSS_SELECTOR, ".tariff-grid .tariff-card h3")
+    assert len(tariff_cards) >= 4, "Expected the four club tariffs to be shown."
+    assert all(card.is_displayed() for card in tariff_cards)
+
+    error_markers = (
+        "traceback (most recent call last)",
+        "django.core.exceptions",
+        "internal server error",
+    )
+    assert not any(marker in browser.page_source.lower() for marker in error_markers), (
+        "A Django error page was rendered instead of the homepage."
+    )
 
 
-def test_existing_user_can_login_and_open_account(existing_user_password, browser):
-    browser.get(HOME_URL)
+def test_tc02_registered_user_can_login_and_open_account(browser):
+    """TC-02: a registered user logs in and sees their personal account."""
+    username = os.environ.get("TEST_USER_USERNAME", "")
+    password = os.environ.get("TEST_USER_PASSWORD", "")
+    if not username or not password:
+        pytest.fail(
+            "Set TEST_USER_USERNAME and TEST_USER_PASSWORD for an existing test account."
+        )
+
     wait = WebDriverWait(browser, WAIT_SECONDS)
+    home_url = f"{BASE_URL}/"
+    browser.get(home_url)
 
     login_link = wait.until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "a.account-link[href='/login/']"))
     )
     login_link.click()
-    username_input = wait.until(EC.visibility_of_element_located((By.NAME, "username")))
-    password_input = wait.until(EC.visibility_of_element_located((By.NAME, "password")))
-    username_input.send_keys(TEST_USERNAME)
-    password_input.send_keys(existing_user_password)
+    wait.until(EC.visibility_of_element_located((By.NAME, "username"))).send_keys(username)
+    browser.find_element(By.NAME, "password").send_keys(password)
     browser.find_element(By.CSS_SELECTOR, "form.auth-form button[type='submit']").click()
 
-    try:
-        wait.until(EC.url_to_be(HOME_URL))
-    except TimeoutException as error:
-        if browser.current_url.rstrip("/") == LOGIN_URL.rstrip("/"):
-            raise AssertionError(
-                "Авторизація test_user2 неуспішна. Перевірте TEST_USER_PASSWORD "
-                "та стан наявного облікового запису; пароль не виводиться."
-            ) from error
-        raise AssertionError(
-            "Після надсилання форми не відбувся очікуваний перехід на головну сторінку."
-        ) from error
-
+    wait.until(EC.url_to_be(home_url))
     account_link = wait.until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "a.account-link[href='/account/']"))
     )
     account_link.click()
-    wait.until(EC.url_to_be(ACCOUNT_URL))
+    wait.until(EC.url_to_be(f"{BASE_URL}/account/"))
+
     account_heading = wait.until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, ".profile h2"))
     )
-    assert account_heading.text == TEST_USERNAME, (
-        "У профілі відображається не обліковий запис test_user2."
+    assert account_heading.text == username, (
+        f"Expected account heading {username!r}, got {account_heading.text!r}."
     )

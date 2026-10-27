@@ -187,10 +187,10 @@
                 <div class="confirmation-row"><dt>Дата початку</dt><dd>{{ booking.start_time|date:"d.m.Y" }}</dd></div>
                 <div class="confirmation-row"><dt>Час початку</dt><dd>{{ booking.start_time|date:"H:i" }}</dd></div>
                 <div class="confirmation-row"><dt>Час завершення</dt><dd>{{ booking.end_time|date:"H:i" }}</dd></div>
-                <div class="confirmation-row"><dt>Тривалість</dt><dd>{% if pricing_available %}{{ duration_hours }} год.{% else %}—{% endif %}</dd></div>
-                <div class="confirmation-row"><dt>Вартість за годину</dt><dd>{% if pricing_available %}{{ price_per_hour|floatformat:2 }} грн{% else %}—{% endif %}</dd></div>
+                <div class="confirmation-row"><dt>Тривалість</dt><dd>{% if pricing_available %}{{ duration_hours }} год.{% else %}-{% endif %}</dd></div>
+                <div class="confirmation-row"><dt>Вартість за годину</dt><dd>{% if pricing_available %}{{ price_per_hour|floatformat:2 }} грн{% else %}-{% endif %}</dd></div>
             </dl>
-            <div class="confirmation-total"><span>Загальна сума</span><strong>{% if pricing_available %}{{ total_amount|floatformat:2 }} грн{% else %}—{% endif %}</strong></div>
+            <div class="confirmation-total"><span>Загальна сума</span><strong>{% if pricing_available %}{{ total_amount|floatformat:2 }} грн{% else %}-{% endif %}</strong></div>
 
             <div class="confirmation-actions">
                 {% if booking.user_id %}

@@ -11,12 +11,12 @@ register = template.Library()
 def format_currency(amount):
     """Форматує ціну в гривнях і безпечно обробляє порожні значення."""
     if amount is None or amount == '':
-        return '—'
+        return '-'
 
     try:
         value = Decimal(str(amount))
     except (InvalidOperation, ValueError, TypeError):
-        return '—'
+        return '-'
 
     return f'{value:.2f} грн'
 

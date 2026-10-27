@@ -190,7 +190,7 @@
                         <article class="tariff-card reveal">
                             <div class="tariff-label">БАЗОВИЙ</div>
                             <h3>STANDART</h3>
-                            <div class="tariff-price">{{ tariff_prices.standart|default:"—"|floatformat:2 }} ₴ <span>/ година</span></div>
+                            <div class="tariff-price">{{ tariff_prices.standart|default:"-"|floatformat:2 }} ₴ <span>/ година</span></div>
                             <div class="tariff-pc">20 комп'ютерів</div>
                             <p class="tariff-text">Для щоденних ігор, відпочинку та знайомства з клубом.</p>
                             <a href="{% url 'club:booking' %}" class="button button-secondary">Обрати тариф</a>
@@ -199,7 +199,7 @@
                         <article class="tariff-card featured reveal">
                             <div class="tariff-label">ПОПУЛЯРНИЙ</div>
                             <h3>PRO</h3>
-                            <div class="tariff-price">{{ tariff_prices.pro|default:"—"|floatformat:2 }} ₴ <span>/ година</span></div>
+                            <div class="tariff-price">{{ tariff_prices.pro|default:"-"|floatformat:2 }} ₴ <span>/ година</span></div>
                             <div class="tariff-pc">15 комп'ютерів</div>
                             <p class="tariff-text">Потужніший ігровий досвід для змагальних матчів.</p>
                             <a href="{% url 'club:booking' %}" class="button button-primary">Обрати тариф</a>
@@ -208,7 +208,7 @@
                         <article class="tariff-card reveal">
                             <div class="tariff-label">ПРЕМІУМ</div>
                             <h3>VIP</h3>
-                            <div class="tariff-price">{{ tariff_prices.vip|default:"—"|floatformat:2 }} ₴ <span>/ година</span></div>
+                            <div class="tariff-price">{{ tariff_prices.vip|default:"-"|floatformat:2 }} ₴ <span>/ година</span></div>
                             <div class="tariff-pc">15 комп'ютерів</div>
                             <p class="tariff-text">Максимальний комфорт для вимогливих гравців.</p>
                             <a href="{% url 'club:booking' %}" class="button button-secondary">Обрати тариф</a>
@@ -217,7 +217,7 @@
                         <article class="tariff-card reveal">
                             <div class="tariff-label">ДЛЯ СТРИМІВ</div>
                             <h3>STREAM</h3>
-                            <div class="tariff-price">{{ tariff_prices.stream|default:"—"|floatformat:2 }} ₴ <span>/ година</span></div>
+                            <div class="tariff-price">{{ tariff_prices.stream|default:"-"|floatformat:2 }} ₴ <span>/ година</span></div>
                             <div class="tariff-pc">5 комп'ютерів</div>
                             <p class="tariff-text">Ігрова зона для створення контенту та проведення трансляцій.</p>
                             <a href="{% url 'club:booking' %}" class="button button-secondary">Обрати тариф</a>
