@@ -772,10 +772,9 @@
                     <label for="tariff">Тариф</label>
                     <select id="tariff" name="tariff" required>
                         <option value="" disabled {% if not request.POST.tariff %}selected{% endif %}>Оберіть тариф</option>
-                        <option value="standart" {% if request.POST.tariff == 'standart' %}selected{% endif %}>STANDART - 50 ₴ / год</option>
-                        <option value="pro" {% if request.POST.tariff == 'pro' %}selected{% endif %}>PRO - 80 ₴ / год</option>
-                        <option value="vip" {% if request.POST.tariff == 'vip' %}selected{% endif %}>VIP - 120 ₴ / год</option>
-                        <option value="stream" {% if request.POST.tariff == 'stream' %}selected{% endif %}>STREAM - 150 ₴ / год</option>
+                        {% for tariff in tariffs %}
+                            <option value="{{ tariff.pk }}" {% if request.POST.tariff == tariff.pk|stringformat:'s' %}selected{% endif %}>{{ tariff.name }} - {{ tariff.price_per_hour|floatformat:2 }} ₴ / год</option>
+                        {% endfor %}
                     </select>
                 </div>
 

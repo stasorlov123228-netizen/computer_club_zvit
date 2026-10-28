@@ -23,7 +23,7 @@ from ..models import Booking, Computer, Tariff, UserProfile
 from ..phone_numbers import PHONE_COUNTRIES, split_phone_number, validate_phone_number
 from ..services import (
     booking_duration_value, booking_pricing, duration_as_timedelta,
-    find_available_computer, lock_booking_payment_method,
+    find_available_computer, get_tariff_kind, lock_booking_payment_method,
     lock_booking_slot, synchronize_payment_record, update_computer_statuses,
 )
 
@@ -415,6 +415,7 @@ def booking(request):
     )
     context = {
         'errors': [],
+        'tariffs': Tariff.objects.order_by('price_per_hour', 'name'),
         'phone_countries': [list(country) for country in PHONE_COUNTRIES],
         'phone_country': phone_country,
         'phone_iso': iso,
@@ -432,7 +433,7 @@ def booking(request):
         if request.user.is_authenticated
         else request.POST.get('name', '').strip()
     )
-    tariff_code = request.POST.get('tariff', '').strip()
+    tariff_id = request.POST.get('tariff', '').strip()
     duration_value = request.POST.get('duration', '').strip()
     date_value = request.POST.get('date', '').strip()
     time_value = request.POST.get('time', '').strip()
@@ -449,13 +450,9 @@ def booking(request):
     if not request.user.is_authenticated and not name:
         errors.append("Введіть ім’я.")
 
-    tariff_names = {
-        'standart': ('STANDART', 'STANDARD'),
-        'pro': ('PRO',),
-        'vip': ('VIP',),
-        'stream': ('STREAM',),
-    }
-    if tariff_code not in tariff_names:
+    tariff = Tariff.objects.filter(pk=tariff_id).first() if tariff_id.isdigit() else None
+    tariff_code = get_tariff_kind(tariff.name) if tariff else None
+    if not tariff_code:
         errors.append('Оберіть правильний тариф.')
     if duration_value not in ('1', '2', '3', '5', '8'):
         errors.append('Оберіть тривалість бронювання.')
@@ -483,19 +480,8 @@ def booking(request):
     if start and start <= timezone.now():
         errors.append('Оберіть час у майбутньому.')
 
-    tariff = None
     computer = None
     booking_record = None
-    if not errors:
-        for tariff_name in tariff_names[tariff_code]:
-            tariff = Tariff.objects.filter(
-                name__iexact=tariff_name
-            ).first()
-            if tariff:
-                break
-        if not tariff:
-            errors.append('Цей тариф ще не доданий в адмінпанелі.')
-
     if not errors:
         with transaction.atomic():
             computer = find_available_computer(
